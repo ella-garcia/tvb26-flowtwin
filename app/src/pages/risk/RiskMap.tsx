@@ -30,12 +30,12 @@ interface Props {
   onOpen: (supplierId: string) => void;
 }
 
-/** Signals that overlap the 14-day outlook. */
+/** Signals that overlap the 14-day outlook. Signals an admin switched off (active: false) are left out. */
 function activeIn14Days(signals: Signal[], asOf: string): Signal[] {
   const asOfMs = new Date(asOf).getTime();
   return signals.filter((s) => {
     const a = new Date(s.startsAt).getTime(), b = new Date(s.endsAt).getTime();
-    return !isNaN(asOfMs) && b >= asOfMs && a <= asOfMs + 14 * 864e5;
+    return s.active !== false && !isNaN(asOfMs) && b >= asOfMs && a <= asOfMs + 14 * 864e5;
   });
 }
 

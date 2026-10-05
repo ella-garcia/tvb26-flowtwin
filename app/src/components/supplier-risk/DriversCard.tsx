@@ -1,5 +1,5 @@
 // "Why this colour": the risk drivers as bars on a 0–100 scale.
-import { Card } from "../shared";
+import { Card, FormulaSource } from "../shared";
 import { num } from "../../lib/format";
 import type { RiskAssessment, Signal } from "../../lib/types";
 
@@ -26,6 +26,10 @@ export function DriversCard({ risk, signals }: { risk: RiskAssessment; signals: 
         </ul>
       )}
       <p className="supplier-risk-note">Bars are drawn on a 0 to 100 scale. Together the drivers make the score of {num(risk.score)}.</p>
+      <FormulaSource
+        formula="Score (0–100) = sum of driver points. Red (Act now) if a line stop is expected within 3 days or the score is 65 or more."
+        data="Active signals on the supplier's lanes (weather, roads, theft, ports, blockades), transit history, the key customer's stock cover, the demand-swing test and weekly delivery records."
+        provenance={risk.dataStatus === "connected" ? "measured" : "estimated"} />
     </Card>
   );
 }

@@ -4,7 +4,7 @@ import { useApp } from "../../app/AppContext";
 import { useScoped } from "../../lib/useScoped";
 import type { Alert, RiskAssessment } from "../../lib/types";
 import { Button, FilterChip, Icon, StatusPill, type IconName } from "../../keystone";
-import { AlertStatusPill, Card, Empty, PageHeader, RiskLight, ScopedError } from "../../components/shared";
+import { AlertStatusPill, Card, Empty, FormulaSource, PageHeader, RiskLight, ScopedError } from "../../components/shared";
 import { date } from "../../lib/format";
 import { SupplierRiskView } from "../../components/supplier-risk";
 import "./my-risk.css";
@@ -125,6 +125,10 @@ export default function MyRiskPage() {
           <p className="ft-muted" style={{ margin: 0, fontSize: 12 }}>
             Score {risk.score} of 100, higher means riskier. Updated {date(risk.updatedAt)}.
           </p>
+          <FormulaSource
+            formula="Score (0–100) = sum of the driver points shown under Why this colour. Red (Act now) if your customer's line could stop within 3 days or the score is 65 or more."
+            data="Active signals on your lanes, your transit history, your customer's stock of your parts, the demand-swing test and your weekly delivery records."
+            provenance={risk.dataStatus === "connected" ? "measured" : "estimated"} />
         </Card>
       )}
     </div>

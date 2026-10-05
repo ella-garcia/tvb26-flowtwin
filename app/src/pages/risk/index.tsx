@@ -68,6 +68,7 @@ export default function RiskPage() {
   const shown = rows.filter((r) => (filter === "all" || r.risk.level === filter) && r.name.toLowerCase().includes(query.trim().toLowerCase()));
 
   const asOf = db.asOf;
+  const swing = pct(db.settings().contractDemandSwing, 0);
 
   const columns: Column<Row>[] = [
     { key: "no", label: "No", render: (_r, i) => rowNo(i) },
@@ -76,7 +77,7 @@ export default function RiskPage() {
     { key: "stop", label: program ? `Days to ${program.model} stop` : "Days to line stop", numeric: true, render: (r) => r.stopDays == null ? "None in 14 days" : days(r.stopDays) },
     { key: "transit", label: "Expected transit", numeric: true, render: (r) => `${num(r.risk.normalTransitDays, 1)} → ${num(r.risk.expectedTransitDays, 1)} days` },
     { key: "cover", label: "Lowest cover", numeric: true, render: (r) => days(r.risk.minCoverDays) },
-    { key: "flex", label: "Can absorb +15%", render: (r) => <FlexPill flex={r.risk.flex} compact /> },
+    { key: "flex", label: `Can absorb +${swing}`, render: (r) => <FlexPill flex={r.risk.flex} compact /> },
     { key: "below", label: "Parts below cover", numeric: true, render: (r) => (
       <button type="button" className="ft-linkbtn" aria-label={`${r.belowCover.length} of ${r.partCount} parts below cover. View parts from ${r.name}`}
         onClick={() => go("parts", r.id)}>{`${r.belowCover.length} of ${r.partCount}`}</button>
@@ -128,7 +129,7 @@ export default function RiskPage() {
 
       <FormulaSource
         formula={`Score (0–100) = sum of driver points. Red (Act now) if a line stop is expected within 3 days or score ≥ 65. With a vehicle model selected, only suppliers and parts for that model count, and days to line stop come from that model's parts. Suppliers are sorted by days to line stop, then by the most critical part at risk, then by score. A part is below safe cover when its stock runs out before the next delivery arrives (supplier's delivery date, or today + expected transit rounded up to whole days when none is given). Delivery record: 12-week average OTIF against the contract target (${pct(DEFAULT_OTIF_TARGET, 0)} unless set): A at or above target, B up to 3 points below, C further below.`}
-        data="Signals (weather, roads, theft, ports), supplier transit history, your stock cover, the +15% demand test and weekly delivery records. Where a supplier has not connected data, the score uses public signals only."
+        data={`Signals (weather, roads, theft, ports), supplier transit history, your stock cover, the +${swing} demand test and weekly delivery records. Where a supplier has not connected data, the score uses public signals only.`}
         provenance="estimated"
       />
     </>

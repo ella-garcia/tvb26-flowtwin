@@ -18,9 +18,18 @@ import "./supplier-risk.css";
 
 export interface SupplierRiskViewProps { customerId: string; supplierId: string; audience: "customer" | "supplier" }
 
+/** The part that stops the line first: lowest engine stop day; without per-part stop days, the lowest-cover line stopper. */
+function firstToStop(r: RiskAssessment, parts: Part[]): Part | undefined {
+  const stops = r.partStopDays ?? {};
+  const withStop = parts.filter((p) => stops[p.id] != null).sort((a, b) => stops[a.id] - stops[b.id]);
+  if (withStop.length) return withStop[0];
+  const byCover = [...parts].sort((a, b) => a.daysOfCover - b.daysOfCover);
+  return byCover.find((p) => p.criticality === "line-stopper") ?? byCover[0];
+}
+
 function headline(r: RiskAssessment, parts: Part[]): { text: string; tone: "danger" | "ok" } {
   if (r.daysToLineStop == null) return { text: "No line stop expected in the next 14 days", tone: "ok" };
-  const worst = [...parts].sort((a, b) => a.daysOfCover - b.daysOfCover).find((p) => p.criticality === "line-stopper") ?? [...parts].sort((a, b) => a.daysOfCover - b.daysOfCover)[0];
+  const worst = firstToStop(r, parts);
   const d = r.daysToLineStop;
   const when = d <= 0 ? "today" : `in ${days(d)}`;
   return { text: worst ? `If nothing changes, your line runs out of ${worst.number} ${when}` : `If nothing changes, your line may stop ${when}`, tone: "danger" };

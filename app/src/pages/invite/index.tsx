@@ -3,10 +3,10 @@ import { useApp } from "../../app/AppContext";
 import { useScoped } from "../../lib/useScoped";
 import { Card, PageHeader, ScopedError } from "../../components/shared";
 import { Button, DataTable, Icon, StatusPill, type Column } from "../../keystone";
-import { date, rowNo } from "../../lib/format";
+import { date, pct, rowNo } from "../../lib/format";
 import "./invite.css";
 
-const SHARED = ["Risk light and the reasons behind it", "Parts you buy from them, and your stock of those parts", "Result of the +15% demand test", "Delivery performance (OTIF)"];
+const shared = (swing: string) => ["Risk light and the reasons behind it", "Parts you buy from them, and your stock of those parts", `Result of the +${swing} demand test`, "Delivery performance (OTIF)"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 interface Row { id: string; name: string; contact: string; status: "Invited" | "Joined"; when?: string }
@@ -22,9 +22,10 @@ export default function InvitePage() {
     invites: db.invites(),
     risks: db.risks().filter((r) => r.customerId === toggles.companyId),
     customerName: db.company(toggles.companyId)?.name ?? "your company",
+    swing: pct(db.settings().contractDemandSwing, 0),
   }), [db, toggles.companyId]);
   if (!read.ok) return <ScopedError title="Invite suppliers" error={read.error} />;
-  const { invites, risks, customerName } = read.data;
+  const { invites, risks, customerName, swing } = read.data;
 
   const connected: Row[] = risks.filter((r) => r.dataStatus === "connected").map((r) => ({
     id: `c-${r.supplierId}`, name: db.company(r.supplierId)?.name ?? r.supplierId, contact: "On the platform", status: "Joined" as const, when: r.updatedAt,
@@ -77,7 +78,7 @@ export default function InvitePage() {
             </label>
             <fieldset className="invite-fieldset">
               <legend>What the supplier will share with you</legend>
-              {SHARED.map((s) => (
+              {shared(swing).map((s) => (
                 <label key={s} className="invite-check"><input type="checkbox" checked readOnly disabled />{s}</label>
               ))}
               <div className="invite-never"><Icon name="lock" size={18} />Never shared: costs, prices and margins</div>
