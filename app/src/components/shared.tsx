@@ -1,7 +1,6 @@
 // Shared FlowTwin components used across modules. Owned by the lead.
 import { useState, type ReactNode } from "react";
 import { Icon, StatusPill } from "../keystone";
-import { date, pct } from "../lib/format";
 import { useApp } from "../app/AppContext";
 import type { OtifGrade } from "../lib/otif";
 import { ALL_PROGRAMS, modelLabel } from "../lib/programs";
@@ -33,17 +32,6 @@ export function Card({ title, actions, children, className }: { title?: string; 
   );
 }
 
-/** "Twin synced with your data up to …" — always visible for supplier roles. */
-export function SyncBadge({ syncedThrough, accuracy }: { syncedThrough: string; accuracy?: number }) {
-  return (
-    <span className="ft-sync" title="The digital twin is rebuilt every time you upload data">
-      <Icon name="sync" size={16} />
-      Twin synced with your data up to {date(syncedThrough)}
-      {accuracy != null && <> · matches reality {pct(accuracy, 0)}</>}
-    </span>
-  );
-}
-
 /** Measured vs estimated marker. Estimated values also get the hatched style via .ft-estimated. */
 export function ProvenanceTag({ provenance }: { provenance: Provenance }) {
   return provenance === "measured"
@@ -52,8 +40,7 @@ export function ProvenanceTag({ provenance }: { provenance: Provenance }) {
 }
 
 /** Expandable "How it is calculated" panel: formula, data used, and provenance. Put on every calculated figure. */
-export function FormulaSource({ formula, data, provenance, factor }:
-  { formula: string; data: string; provenance?: Provenance; factor?: string }) {
+export function FormulaSource({ formula, data, provenance }: { formula: string; data: string; provenance?: Provenance }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="ft-formula">
@@ -64,7 +51,6 @@ export function FormulaSource({ formula, data, provenance, factor }:
         <dl>
           <dt>Formula</dt><dd>{formula}</dd>
           <dt>Data</dt><dd>{data}</dd>
-          {factor && <><dt>Emission factor</dt><dd>{factor}</dd></>}
           {provenance && <><dt>Source</dt><dd><ProvenanceTag provenance={provenance} /></dd></>}
         </dl>
       )}
@@ -85,13 +71,6 @@ export function NotShared({ message }: { message: string }) {
 /** Empty state: names what will appear and how to get it. */
 export function Empty({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
   return <div className="ft-empty"><h3 className="ft-heading">{title}</h3>{children && <p>{children}</p>}{action}</div>;
-}
-
-/** Status words for KPI comparisons. */
-export function KpiStatusPill({ status }: { status: "on-track" | "watch" | "below" }) {
-  if (status === "on-track") return <StatusPill tone="success">On track</StatusPill>;
-  if (status === "watch") return <StatusPill tone="warning">Watch</StatusPill>;
-  return <StatusPill tone="danger">Below target</StatusPill>;
 }
 
 /** The supplier risk traffic light. Always colour + dot + word. */

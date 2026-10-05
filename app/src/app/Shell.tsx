@@ -2,7 +2,6 @@
 import { Breadcrumb, Icon, IconButton, NavRail, SubNav, UserChip, type RailItem } from "../keystone";
 import { PACKS } from "../packs";
 import type { PlanId, RoleId } from "../lib/types";
-import { SyncBadge } from "../components/shared";
 import { date } from "../lib/format";
 import { useApp, type ModuleId } from "./AppContext";
 import { MODULES } from "./routes";
@@ -61,9 +60,6 @@ export function Shell() {
   const allowed = REACHABLE[toggles.role].includes(route.module);
   const items: RailItem[] = RAIL[toggles.role].map((id) => ({ id, label: MODULES[id].label, icon: MODULES[id].icon }));
   const company = db.company(toggles.companyId);
-  const supplierRole = toggles.role === "owner" || toggles.role === "ops";
-  let twin;
-  try { twin = supplierRole ? db.twin(toggles.companyId) : undefined; } catch { twin = undefined; }
   const Page = allowed ? mod.Page : MODULES[RAIL[toggles.role][0]].Page;
   const sub = mod.subnav?.();
   const person = company?.contact;
@@ -81,8 +77,7 @@ export function Shell() {
           <div className="ft-head">
             <Breadcrumb icon={mod.icon} items={[{ label: company?.name ?? "FlowTwin platform" }, { label: mod.label }]} />
             <div className="ft-head-right">
-              {twin ? <SyncBadge syncedThrough={twin.syncedThrough} accuracy={twin.overallAccuracy} />
-                : <span className="ft-sync"><Icon name="sync" size={16} />Risk updated {date(db.asOf)}</span>}
+              <span className="ft-sync"><Icon name="sync" size={16} />Risk updated {date(db.asOf)}</span>
               <IconButton icon="bell" label="Notifications" />
               <UserChip name={person?.name ?? ROLE_LABEL[toggles.role]} email={person ? `${ROLE_LABEL[toggles.role]} · ${person.email}` : ROLE_LABEL[toggles.role]} />
             </div>

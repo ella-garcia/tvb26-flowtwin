@@ -7,7 +7,7 @@ import { reduce, scope, type Action, type AppData, type Scope } from "../lib/dat
 import { getPack, type Pack } from "../packs";
 import * as remote from "../lib/remote";
 
-const SEED = seedJson as unknown as Seed;
+const SEED = seedJson as Seed;
 const STORE_KEY = "flowtwin-v0-data";
 const TOGGLE_KEY = "flowtwin-v0-toggles";
 const PROGRAM_KEY = "flowtwin-v0-program";
@@ -23,7 +23,7 @@ export type DataMode = "live" | "seed";
 export type LoadStatus = "loading" | "ready" | "error";
 
 /** SEED with every collection emptied: the placeholder shown while live data loads. */
-const EMPTY: AppData = Object.fromEntries(Object.entries(SEED).map(([k, v]) => [k, Array.isArray(v) ? [] : v])) as unknown as AppData;
+const EMPTY: AppData = Object.fromEntries(Object.entries(SEED).map(([k, v]) => [k, Array.isArray(v) ? [] : v])) as AppData;
 
 export interface Toggles { packId: string; role: RoleId; companyId: string; plan: PlanId }
 
@@ -93,8 +93,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (mode !== "seed") return; // live data is never persisted locally
     save(STORE_KEY, {
-      generatedAt: data.generatedAt, requests: data.requests, shares: data.shares, uploads: data.uploads,
-      relationships: data.relationships, emissionFactors: data.emissionFactors, alerts: data.alerts, invites: data.invites,
+      generatedAt: data.generatedAt, uploads: data.uploads, relationships: data.relationships, alerts: data.alerts, invites: data.invites,
     });
   }, [data, mode]);
   useEffect(() => {
