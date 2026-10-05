@@ -4,8 +4,13 @@
 Run:  python3 data-gen/generate_seed.py      (writes app/src/data/seed/seed.json)
 See data-gen/README.md for the model.
 """
-import json, math, random, os
+import json, math, random, os, sys
 from datetime import date, timedelta
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "worker"))
+from engine.flex import run_flex  # the worker engine (stdlib only) is the one risk model
+from engine.geo import clamp, hash_seed, hav, pct
+from engine.otif import otif_series
 
 ASOF = date(2026, 10, 5)
 HORIZON = 14
@@ -20,17 +25,6 @@ CRIT_W = {"line-stopper": 1.0, "high": 0.4, "normal": 0.05}
 
 def iso(d): return d.isoformat()
 def D(s): return date.fromisoformat(s)
-
-
-def hav(lat1, lon1, lat2, lon2):
-    r = 6371.0
-    p1, p2 = math.radians(lat1), math.radians(lat2)
-    dp, dl = p2 - p1, math.radians(lon2 - lon1)
-    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
-    return 2 * r * math.asin(math.sqrt(a))
-
-
-def clamp(x, lo=0.0, hi=1.0): return max(lo, min(hi, x))
 
 
 # ----------------------------------------------------------------- customers
@@ -171,6 +165,13 @@ sup(id="pis", name="Pinturas Industriales de San Luis", city="San Luis Potosí",
         ("SLP-5110-CPT", "Coated door support bracket", 7.4, 2600, 4.0, False, "high")])})
 SUP = {s["id"]: s for s in S}
 
+
+def eng_supplier(sp):
+    """Supplier spec -> engine supplier dict (companies row merged with its profile)."""
+    return dict(id=sp["id"], name=sp["name"], city=sp["city"], lat=sp["lat"], lon=sp["lon"], highways=sp["hw"],
+                lead_time_variability=sp["cv"], utilization=sp["util"], ceiling=sp["ceil"], fg_days=sp["fg"],
+                bottleneck=sp["bn"], otif=sp["otif"], data_status=sp["status"])
+
 # ----------------------------------------------------------------- signals
 SIGNALS = [
     dict(id="sig-rain-veracruz", kind="weather", short="Rainy season",
@@ -232,53 +233,6 @@ def mult_on(sp, d):
     return m
 
 
-def pct(sorted_vals, p): return sorted_vals[min(len(sorted_vals) - 1, int(p * len(sorted_vals)))]
-
-
-# ----------------------------------------------------------------- flex
-def run_flex(sp, swing):
-    u, ceil_, fg = sp["util"], sp["ceil"], sp["fg"]
-    rng = random.Random(hash_seed(sp["id"], "flex"))
-    sl, backlogs, recov = [], [], []
-    for _ in range(300):
-        stock, fg0, backlog, unmet_tot, dem_tot = fg * u, fg * u, 0.0, 0.0, 0.0
-        for _d in range(28):
-            demand = u * (1 + swing) * (1 + rng.gauss(0, 0.04))
-            cap = ceil_ * (1 + rng.gauss(0, 0.03))
-            avail = cap + stock
-            ship = min(demand, avail)
-            unmet = demand - ship
-            stock = min(fg0, avail - ship)
-            backlog += unmet; unmet_tot += unmet; dem_tot += demand
-        spare = max(0.005, ceil_ - u)
-        sl.append(1 - unmet_tot / dem_tot); backlogs.append(backlog); recov.append(backlog / spare)
-    service = sum(sl) / len(sl)
-    days = sum(recov) / len(recov)
-    can = service >= 0.985
-    return dict(demandIncrease=swing, canAbsorb=can, serviceLevel=round(service, 3),
-                daysToRecover=0 if can and days < 0.5 else int(math.ceil(days)),
-                headroom=round(1 - u, 2), bottleneck=sp["bn"],
-                provenance="measured" if sp["status"] == "connected" else "estimated")
-
-
-def hash_seed(*a): return sum(ord(c) * (i + 7) for i, c in enumerate("|".join(a))) + 1000003
-
-
-# ----------------------------------------------------------------- otif
-def otif_series(sp):
-    a, b, kind = sp["otif"]
-    rng = random.Random(hash_seed(sp["id"], "otif"))
-    out = []
-    for w in range(12):
-        t = w / 11
-        if kind == "decline": v = a + (b - a) * (t ** 1.3)
-        elif kind == "dip": v = a - 0.004 * t + (-0.03 if w >= 9 else 0) * ((w - 8) / 3 if w >= 9 else 0) * 1.0
-        else: v = a
-        out.append(round(clamp(v + rng.gauss(0, 0.004), 0.5, 0.999), 3))
-    if kind == "dip": out[-1] = min(out[-1], 0.935)
-    return out
-
-
 # ----------------------------------------------------------------- risk engine
 def assess(cid, sp, cinfo):
     cust = CUST[cid]
@@ -328,8 +282,8 @@ def assess(cid, sp, cinfo):
     expected = round(p50s[len(p50s) // 2], 1)
     worst = round(max(t[2] for t in proj_t), 1)
 
-    flex = run_flex(sp, SETTINGS["contractDemandSwing"])
-    otif = otif_series(sp)
+    flex = run_flex(eng_supplier(sp), SETTINGS["contractDemandSwing"])
+    otif = otif_series(sp["id"], sp["otif"])
     decline = sum(otif[:4]) / 4 - sum(otif[-4:]) / 4
 
     # --- score drivers (points)
