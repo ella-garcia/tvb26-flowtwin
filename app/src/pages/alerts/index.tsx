@@ -51,7 +51,7 @@ export default function AlertsPage() {
   return (
     <>
       <PageHeader title="Alerts" caption={`${n("new")} new · ${alerts.length} in total`} />
-      <div className="alerts-filters" role="group" aria-label="Filter alerts by status">
+      <div className="ft-toolbar" role="group" aria-label="Filter alerts by status">
         {chips.map((c) => <FilterChip key={c.id} pressed={filter === c.id} onClick={() => setFilter(c.id)}>{c.label}</FilterChip>)}
       </div>
 

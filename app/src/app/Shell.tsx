@@ -27,25 +27,25 @@ function TestingBar() {
       <span className="ft-testbar-tag" title={mode === "live" ? "Reading from Supabase" : "Reading the bundled demo data"}
         data-mode={mode}>{mode === "live" ? "Live data" : "Demo data"}</span>
       <label>Industry
-        <select id="tg-pack" value={toggles.packId} onChange={(e) => setToggles({ packId: e.target.value })}>
+        <select id="tg-pack" className="ft-control" value={toggles.packId} onChange={(e) => setToggles({ packId: e.target.value })}>
           {PACKS.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </label>
       <label>Role
-        <select id="tg-role" value={toggles.role} onChange={(e) => setToggles({ role: e.target.value as RoleId })}>
+        <select id="tg-role" className="ft-control" value={toggles.role} onChange={(e) => setToggles({ role: e.target.value as RoleId })}>
           {(Object.keys(ROLE_LABEL) as RoleId[]).map((r) =>
             <option key={r} value={r}>{r === "customer" ? `Key customer (${pack.labels.keyCustomer})` : ROLE_LABEL[r]}</option>)}
         </select>
       </label>
       <label>Company
-        <select id="tg-company" value={toggles.companyId} disabled={toggles.role === "admin"}
+        <select id="tg-company" className="ft-control" value={toggles.companyId} disabled={toggles.role === "admin"}
           onChange={(e) => setToggles({ companyId: e.target.value })}>
           {toggles.role === "admin" && <option value="platform">FlowTwin platform</option>}
           {companies.map((c) => <option key={c.id} value={c.id}>{c.name}{c.synthetic ? " (synthetic)" : ""}</option>)}
         </select>
       </label>
       <label>Plan
-        <select id="tg-plan" value={toggles.plan} onChange={(e) => setToggles({ plan: e.target.value as PlanId })}>
+        <select id="tg-plan" className="ft-control" value={toggles.plan} onChange={(e) => setToggles({ plan: e.target.value as PlanId })}>
           <option value="free">Free</option><option value="paid">Paid</option><option value="sponsored">Sponsored</option>
         </select>
       </label>

@@ -24,19 +24,19 @@ export default function SignalsPage() {
   const sev = (s: Signal["severity"]) => <StatusPill tone={s === "high" ? "danger" : s === "medium" ? "warning" : "neutral"}>{s === "high" ? "High" : s === "medium" ? "Medium" : "Low"}</StatusPill>;
   const cols: Column<Signal>[] = [
     { key: "kind", label: "Kind", render: (r) => <StatusPill tone="neutral">{KIND_LABEL[r.kind]}</StatusPill> },
-    { key: "title", label: "Title", render: (r) => <>{r.title}{r.active === false && <> <StatusPill tone="neutral">Inactive</StatusPill></>}<div className="ft-muted" style={{ fontSize: 12 }}>{r.description}</div></> },
+    { key: "title", label: "Title", render: (r) => <>{r.title}{r.active === false && <> <StatusPill tone="neutral">Inactive</StatusPill></>}<span className="ft-meta">{r.description}</span></> },
     { key: "state", label: "State" },
     { key: "highways", label: "Highways", render: (r) => r.highways.join(", ") || "None" },
     { key: "dates", label: "Active", render: (r) => `${date(r.startsAt)} to ${date(r.endsAt)}` },
     { key: "severity", label: "Severity", render: (r) => sev(r.severity) },
     { key: "transitMultiplier", label: "Transit effect", numeric: true, render: (r) => `× ${r.transitMultiplier}` },
-    { key: "source", label: "Source", render: (r) => <>{r.shortLabel ?? r.source}{r.shortLabel && r.shortLabel !== r.source && <div className="ft-muted" style={{ fontSize: 12 }}>{r.source}</div>}</> },
+    { key: "source", label: "Source", render: (r) => <>{r.shortLabel ?? r.source}{r.shortLabel && r.shortLabel !== r.source && <span className="ft-meta">{r.source}</span>}</> },
     { key: "provenance", label: "Provenance", render: (r) => <ProvenanceTag provenance={r.provenance} /> },
   ];
   return (
     <>
       {head}
-      <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }} role="group" aria-label="Filter by kind">
+      <div className="ft-toolbar" role="group" aria-label="Filter by kind">
         <FilterChip pressed={kind === "all"} onClick={() => setKind("all")}>All kinds</FilterChip>
         {kinds.map((k) => <FilterChip key={k} pressed={kind === k} onClick={() => setKind(k)}>{KIND_LABEL[k]}</FilterChip>)}
         {inactiveCount > 0 && <FilterChip pressed={showInactive} onClick={() => setShowInactive((v) => !v)}>{`Show inactive (${inactiveCount})`}</FilterChip>}

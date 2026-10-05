@@ -67,25 +67,25 @@ export default function PartsPage() {
 
   const columns: Column<Row>[] = [
     { key: "no", label: "No", render: (_r, i) => rowNo(i) },
-    { key: "part", label: "Part", render: (r) => <span className="parts-name"><b className="ks-num">{r.part.number}</b><small>{r.part.name}</small></span> },
+    { key: "part", label: "Part", render: (r) => <span className="ft-name parts-name"><b className="ks-num">{r.part.number}</b><small>{r.part.name}</small></span> },
     { key: "supplier", label: "Supplier", render: (r) => (
       <button type="button" className="ft-linkbtn parts-supplier" onClick={() => go("supplier", r.part.supplierId)}>{r.supplierName}</button>
     ) },
     { key: "crit", label: "Criticality", render: (r) => <CritPill c={r.part.criticality} /> },
-    { key: "models", label: "Models", render: (r) => r.models.length === 0 ? <span className="parts-muted">Not mapped</span>
+    { key: "models", label: "Models", render: (r) => r.models.length === 0 ? <span className="ft-muted">Not mapped</span>
       : <span className="parts-models">{r.models.map((g) => <small key={g.id} title={modelLabel(g)}>{g.model}</small>)}</span> },
     { key: "here", label: "Stock here", numeric: true, align: "right", render: (r) => (
       <span className="parts-stack"><b>{days(r.part.daysOfCover)}</b><small>{num(r.part.onHand)} units</small></span>
     ) },
     { key: "road", label: "On the road", numeric: true, align: "right", render: (r) => r.part.inTransit == null
-      ? <span className="parts-muted">Unknown</span>
+      ? <span className="ft-muted">Unknown</span>
       : <span className="parts-stack"><b>{num(r.part.inTransit)}</b><small>units</small></span> },
     { key: "supplierStock", label: "At supplier", numeric: true, align: "right", render: (r) => r.supplierCoverDays == null
-      ? <span className="parts-muted">Not shared</span>
+      ? <span className="ft-muted">Not shared</span>
       : <span className="parts-stack"><b>{days(Math.round(r.supplierCoverDays * 10) / 10)}</b><small>{num(r.part.supplierFgOnHand!)} units</small></span> },
     { key: "pipeline", label: "Pipeline cover", numeric: true, align: "right", render: (r) => days(Math.round(r.pipelineCoverDays * 10) / 10) },
     { key: "runsOut", label: "Stock here runs out", render: (r) => <span className="ks-num">{date(r.runsOutDate)}</span> },
-    { key: "next", label: "Next delivery", render: (r) => r.nextDeliveryDate == null ? <span className="parts-muted">No estimate</span> : (
+    { key: "next", label: "Next delivery", render: (r) => r.nextDeliveryDate == null ? <span className="ft-muted">No estimate</span> : (
       <span className="parts-next"><span className="ks-num">{date(r.nextDeliveryDate)}</span>{r.nextDeliveryEstimated && <ProvenanceTag provenance="estimated" />}</span>
     ) },
     { key: "status", label: "Status", render: (r) => <StatusCell s={r.status} /> },
@@ -100,23 +100,23 @@ export default function PartsPage() {
       <PageHeader title="Parts & stock" logo={plant && <CompanyMark name={plant.name} />} actions={<ModelSelect />}
         caption={`${plant ? `${plant.name} · ${plant.city} plant · ` : ""}${program ? `${modelLabel(program)} · ` : ""}${rows.length} part numbers from ${suppliers.length} suppliers · updated ${date(db.asOf)}`} />
 
-      <div className="parts-stats">
+      <div className="ft-stats">
         <StatCard label="Run out before the next delivery" value={short.length} icon="bell" tone="accent" />
         <StatCard label="Line stoppers among them" value={shortStoppers} icon="truck" />
         <StatCard label="Lowest cover here" value={lowest == null ? "None" : days(lowest)} icon="chart" />
         <StatCard label="Part numbers tracked" value={rows.length} icon="cube" />
       </div>
 
-      <div className="parts-toolbar" role="group" aria-label="Filter parts">
+      <div className="ft-toolbar" role="group" aria-label="Filter parts">
         {statusFilters.map((f) => <FilterChip key={f.id} pressed={status === f.id} onClick={() => setStatus(f.id)}>{f.label}</FilterChip>)}
-        <label className="parts-select">Supplier
-          <select value={supplier} onChange={(e) => go("parts", e.target.value === "all" ? undefined : e.target.value)}>
+        <label className="ft-select">Supplier
+          <select className="ft-control" value={supplier} onChange={(e) => go("parts", e.target.value === "all" ? undefined : e.target.value)}>
             <option value="all">All suppliers</option>
             {suppliers.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
           </select>
         </label>
-        <label className="parts-select">Criticality
-          <select value={crit} onChange={(e) => setCrit(e.target.value as CritFilter)}>
+        <label className="ft-select">Criticality
+          <select className="ft-control" value={crit} onChange={(e) => setCrit(e.target.value as CritFilter)}>
             <option value="all">All</option>
             {CRIT_OPTIONS.map((c) => <option key={c} value={c}>{CRIT_LABEL[c]}</option>)}
           </select>
@@ -129,7 +129,7 @@ export default function PartsPage() {
       ) : (
         <>
           <DataTable caption="Parts sorted by status, criticality and days of cover" columns={columns} rows={shown} />
-          {shown.length === 0 && <div className="parts-nodata">No parts match these filters.</div>}
+          {shown.length === 0 && <div className="ft-nodata">No parts match these filters.</div>}
         </>
       )}
 

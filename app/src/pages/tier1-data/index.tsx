@@ -158,7 +158,7 @@ export default function Tier1DataPage() {
                     {busy[k.id] ? "Uploading…" : u?.fileName ? "Replace file" : "Choose file"}
                   </Button>
                   <input id={inputId} type="file" accept=".csv,.xlsx" disabled={demo || !!busy[k.id]} aria-label={`Choose a file for ${k.label}`}
-                    style={{ display: "none" }} onChange={(e) => onFile(k.id, e)} />
+                    hidden onChange={(e) => onFile(k.id, e)} />
                 </span>
                 <span className="t1-meta">
                   {u?.fileName ? `${u.fileName} · ${num(u.rows)} rows${u.uploadedAt ? ` · ${dateTime(u.uploadedAt)}` : ""}` : "No file yet"}

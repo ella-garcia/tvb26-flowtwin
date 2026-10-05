@@ -67,12 +67,12 @@ export default function InvitePage() {
         <Card title="Send an invitation">
           <form className="invite-form" onSubmit={submit} noValidate>
             <label className="invite-field">Supplier company name
-              <input value={name} onChange={(e) => { setName(e.target.value); setSent(null); }} autoComplete="off"
+              <input className="ft-control" value={name} onChange={(e) => { setName(e.target.value); setSent(null); }} autoComplete="off"
                 aria-invalid={touched && !nameOk} aria-describedby={touched && !nameOk ? "inv-name-err" : undefined} />
               {touched && !nameOk && <p id="inv-name-err" className="invite-error">Enter the supplier's company name.</p>}
             </label>
             <label className="invite-field">Contact email
-              <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setSent(null); }} autoComplete="off"
+              <input className="ft-control" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setSent(null); }} autoComplete="off"
                 aria-invalid={touched && !emailOk} aria-describedby={touched && !emailOk ? "inv-mail-err" : undefined} />
               {touched && !emailOk && <p id="inv-mail-err" className="invite-error">Enter a valid email address, like name@company.mx.</p>}
             </label>

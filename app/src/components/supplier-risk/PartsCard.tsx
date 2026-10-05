@@ -19,17 +19,17 @@ export function PartsCard({ parts, programs, risk, supplierId, audience }: Props
     { key: "criticality", label: "Criticality", render: (p) => <CritPill c={p.criticality} /> },
     { key: "models", label: "Models", render: (p) => {
       const ms = programsOf([p], programs);
-      return ms.length ? ms.map((g) => g.model).join(", ") : <span className="supplier-risk-muted">Not mapped</span>;
+      return ms.length ? ms.map((g) => g.model).join(", ") : <span className="ft-muted">Not mapped</span>;
     } },
     { key: "singleSource", label: "Single source", render: (p) => (p.singleSource ? "Yes" : "No") },
     { key: "dailyUsage", label: "Daily usage", numeric: true, align: "right", render: (p) => num(p.dailyUsage) },
     { key: "onHand", label: "On hand", numeric: true, align: "right", render: (p) => num(p.onHand) },
     { key: "daysOfCover", label: "Days of cover", numeric: true, align: "right", render: (p) => num(p.daysOfCover, 1) },
-    { key: "inTransit", label: "On the road", numeric: true, align: "right", render: (p) => p.inTransit == null ? <span className="supplier-risk-muted">Unknown</span> : num(p.inTransit) },
-    { key: "supplierFg", label: "At supplier", numeric: true, align: "right", render: (p) => p.supplierFgOnHand == null ? <span className="supplier-risk-muted">Not shared</span> : num(p.supplierFgOnHand) },
+    { key: "inTransit", label: "On the road", numeric: true, align: "right", render: (p) => p.inTransit == null ? <span className="ft-muted">Unknown</span> : num(p.inTransit) },
+    { key: "supplierFg", label: "At supplier", numeric: true, align: "right", render: (p) => p.supplierFgOnHand == null ? <span className="ft-muted">Not shared</span> : num(p.supplierFgOnHand) },
     { key: "next", label: "Next delivery", render: (p) => {
       const st = partStock(p, risk, db.asOf);
-      if (!st.nextDeliveryDate) return <span className="supplier-risk-muted">No estimate</span>;
+      if (!st.nextDeliveryDate) return <span className="ft-muted">No estimate</span>;
       return (
         <span className="supplier-risk-next">
           <span className="ks-num">{date(st.nextDeliveryDate)}</span>

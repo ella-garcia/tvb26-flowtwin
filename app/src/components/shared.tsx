@@ -142,7 +142,7 @@ export function ModelSelect() {
   const value = programs.some((g) => g.id === programId) ? programId : ALL_PROGRAMS;
   return (
     <label className="ft-model">Vehicle model
-      <select value={value} onChange={(e) => setProgramId(e.target.value)}>
+      <select className="ft-control" value={value} onChange={(e) => setProgramId(e.target.value)}>
         <option value={ALL_PROGRAMS}>All models ({programs.length})</option>
         {programs.map((g) => <option key={g.id} value={g.id}>{modelLabel(g)}</option>)}
       </select>

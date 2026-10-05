@@ -19,14 +19,14 @@ function AlertCard({ alert, customerName }: { alert: Alert; customerName: string
   return (
     <div className="my-risk-alert">
       <div className="my-risk-alert-head">
-        <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "center", flexWrap: "wrap" }}>
+        <div className="my-risk-alert-title">
           <RiskLight level={alert.level} />
           <h3>{alert.title}</h3>
         </div>
         <AlertStatusPill status={alert.status} audience="supplier" />
       </div>
       <p>{alert.message}</p>
-      <p className="ft-muted" style={{ fontSize: 12 }}>
+      <p className="my-risk-from">
         From {customerName}, {date(alert.createdAt)}
         {alert.expectedShortfallDate && <> · Stock could run short on {date(alert.expectedShortfallDate)}</>}
       </p>
@@ -43,7 +43,7 @@ function AlertCard({ alert, customerName }: { alert: Alert; customerName: string
       {unanswered && (
         <div className="my-risk-form">
           <label className="my-risk-lbl" htmlFor={`msg-${alert.id}`}>Message to {customerName}</label>
-          <textarea id={`msg-${alert.id}`} value={message} onChange={(e) => setMessage(e.target.value)}
+          <textarea className="ft-control" id={`msg-${alert.id}`} value={message} onChange={(e) => setMessage(e.target.value)}
             placeholder="Tell them what you can do, for example an earlier truck or extra stock." />
           <label className="my-risk-check">
             <input type="checkbox" checked={capacity} onChange={(e) => setCapacity(e.target.checked)} />
@@ -107,8 +107,8 @@ export default function MyRiskPage() {
       )}
       <Card title="Alerts about you">
         {shownAlerts.length === 0
-          ? <p className="ft-muted" style={{ margin: 0 }}>No alerts about you right now.</p>
-          : <div className="my-risk-stack" style={{ gap: "var(--space-4)" }}>
+          ? <p className="my-risk-note">No alerts about you right now.</p>
+          : <div className="my-risk-alerts">
               {shownAlerts.map((a) => <AlertCard key={a.id} alert={a} customerName={nameOf(a.customerId)} />)}
             </div>}
       </Card>
@@ -122,7 +122,7 @@ export default function MyRiskPage() {
           <ul className="my-risk-actions">
             {improvements(risk).map((a, i) => <li key={i}><Icon name={a.icon} />{a.text}</li>)}
           </ul>
-          <p className="ft-muted" style={{ margin: 0, fontSize: 12 }}>
+          <p className="my-risk-note my-risk-score">
             Score {risk.score} of 100, higher means riskier. Updated {date(risk.updatedAt)}.
           </p>
           <FormulaSource

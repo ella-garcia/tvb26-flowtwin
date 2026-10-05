@@ -1,13 +1,8 @@
-.risk-stats { display: grid; gap: var(--space-4); grid-template-columns: repeat(4, minmax(0, 1fr)); }
-@media (max-width: 1100px) { .risk-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.risk-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
-.risk-toolbar .ks-search { margin-left: auto; }
 .risk-map-wrap { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
 .risk-map { width: 100%; height: auto; max-height: 560px; background: var(--surface-sunken); border: 1px solid var(--border); border-radius: var(--radius-md); }
 .risk-state { fill: var(--surface-raised); stroke: var(--border-strong); stroke-width: .6; vector-effect: non-scaling-stroke; }
 .risk-signal { fill: var(--projection); fill-opacity: .16; stroke: var(--projection); stroke-width: 1.2; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
 .risk-label { font: 600 9px/1 var(--font-sans); fill: var(--ink); paint-order: stroke; stroke: var(--surface-sunken); stroke-width: 3px; stroke-linejoin: round; }
-.risk-label-signal { font-weight: 500; fill: var(--ink-muted); font-size: 8px; }
 .risk-dot { cursor: pointer; stroke: var(--surface-raised); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .risk-dot-red { fill: var(--risk-red); } .risk-dot-amber { fill: var(--risk-amber); } .risk-dot-green { fill: var(--risk-green); }
 .risk-node:focus-visible { outline: none; }
@@ -16,12 +11,6 @@
 .risk-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); font: 500 12px/18px var(--font-sans); color: var(--ink-muted); }
 .risk-legend span { display: inline-flex; align-items: center; gap: var(--space-2); }
 .risk-legend svg { width: 14px; height: 14px; }
-.risk-name { display: flex; flex-direction: column; min-width: 160px; }
-.risk-name b { font-weight: 600; color: var(--ink); }
-.risk-name small { color: var(--ink-subtle); font-size: 12px; }
-.risk-table-scroll { min-width: 0; }
-.risk-nodata { padding: var(--space-6); text-align: center; color: var(--ink-muted); }
-
 .risk-label-red { font-weight: 700; fill: var(--risk-red); }
 .risk-signal-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
 .risk-signal-list b { color: var(--ink); font-weight: 600; }

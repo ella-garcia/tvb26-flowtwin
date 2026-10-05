@@ -72,7 +72,7 @@ export default function RiskPage() {
 
   const columns: Column<Row>[] = [
     { key: "no", label: "No", render: (_r, i) => rowNo(i) },
-    { key: "supplier", label: "Supplier", render: (r) => <span className="risk-name"><b>{r.name}</b><small>{r.place}</small></span> },
+    { key: "supplier", label: "Supplier", render: (r) => <span className="ft-name"><b>{r.name}</b><small>{r.place}</small></span> },
     { key: "risk", label: "Risk", render: (r) => <RiskLight level={r.risk.level} /> },
     { key: "stop", label: program ? `Days to ${program.model} stop` : "Days to line stop", numeric: true, render: (r) => r.stopDays == null ? "None in 14 days" : days(r.stopDays) },
     { key: "transit", label: "Expected transit", numeric: true, render: (r) => `${num(r.risk.normalTransitDays, 1)} → ${num(r.risk.expectedTransitDays, 1)} days` },
@@ -101,7 +101,7 @@ export default function RiskPage() {
           ? `${plant ? `${plant.name} · ` : ""}For ${modelLabel(program)}, built at ${program.oemPlant} (${num(program.dailyVehicles)} vehicles a day) · 14-day outlook · updated ${date(asOf)}`
           : `${plant ? `${plant.name} · ${plant.city} plant · ` : ""}All models · 14-day outlook · updated ${date(asOf)}`} />
 
-      <div className="risk-stats">
+      <div className="ft-stats">
         <StatCard label="Suppliers at Act now" value={count("red")} icon="bell" tone="accent" />
         <StatCard label="Suppliers at Watch" value={count("amber")} icon="pulse" />
         <StatCard label={program ? `Soonest ${program.model} line stop` : "Soonest line stop"} value={soonest == null ? "None" : days(soonest)} icon="truck" />
@@ -113,7 +113,7 @@ export default function RiskPage() {
         <RiskMap suppliers={rows} plant={plant} signals={signals} asOf={asOf} onOpen={(id) => go("supplier", id)} />
       </Card>
 
-      <div className="risk-toolbar" role="group" aria-label="Filter suppliers">
+      <div className="ft-toolbar" role="group" aria-label="Filter suppliers">
         {filters.map((f) => <FilterChip key={f.id} pressed={filter === f.id} onClick={() => setFilter(f.id)}>{f.label}</FilterChip>)}
         <SearchField label="Search suppliers by name" placeholder="Search supplier" width={320} value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
@@ -123,7 +123,7 @@ export default function RiskPage() {
       ) : (
         <>
           <DataTable caption="Suppliers sorted by days to line stop" columns={columns} rows={shown} />
-          {shown.length === 0 && <div className="risk-nodata">No suppliers match this filter.</div>}
+          {shown.length === 0 && <div className="ft-nodata">No suppliers match this filter.</div>}
         </>
       )}
 

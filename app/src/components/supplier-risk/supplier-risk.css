@@ -43,5 +43,4 @@
 .supplier-risk-privacy strong { color: var(--ink); }
 .supplier-risk-privacy p { margin: 0; }
 .supplier-risk-grade { display: flex; flex-direction: column; gap: var(--space-1); }
-.supplier-risk-muted { color: var(--ink-subtle); }
 .supplier-risk-next { display: inline-flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
