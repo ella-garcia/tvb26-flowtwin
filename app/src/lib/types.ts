@@ -287,6 +287,12 @@ export interface Part {
   dailyUsage: number;          // units per production day at the key customer
   onHand: number;              // key customer's stock, units
   daysOfCover: number;         // onHand / dailyUsage
+  /** Units shipped by the supplier and not yet received (from ASNs or the stock upload). Absent = unknown. */
+  inTransit?: number;
+  /** Finished goods for this part at the supplier, units. Only when the supplier shares its data. Absent = not shared. */
+  supplierFgOnHand?: number;
+  /** Arrival date of the next delivery, when known (ASN / supplier confirmation). Absent = estimate from expected transit. */
+  nextDeliveryDate?: string;
   singleSource: boolean;
   /** Line-stopper = no substitute and the OEM line stops without it (a screw can be one). */
   criticality: "line-stopper" | "high" | "normal";

@@ -364,6 +364,20 @@ def assess(cid, sp, cinfo):
 
 
 # ----------------------------------------------------------------- build
+def pipeline(sp, usage, risk):
+    """Stock beyond the key customer's own: on the road and at the supplier, plus the next delivery date.
+
+    Only a connected supplier shares ASNs and finished goods, so the other fields stay absent (unknown / not shared)
+    and the app estimates the next delivery from expected transit. One truck is on the road per day of normal
+    transit beyond the first (a 2-day lane has one day of usage in transit); it lands after the expected transit.
+    """
+    if sp["status"] != "connected":
+        return {}
+    norm = risk["normalTransitDays"]
+    return dict(inTransit=int(round(usage * max(0, norm - 1))), supplierFgOnHand=int(round(usage * sp["fg"])),
+                nextDeliveryDate=iso(ASOF + timedelta(days=math.ceil(risk["expectedTransitDays"]))))
+
+
 def build():
     companies, rels, parts_out, risks_out, assessments = [], [], [], [], {}
     for c in CUSTOMERS:
@@ -375,12 +389,13 @@ def build():
         for cid, ci in sp["cust"].items():
             rels.append(dict(supplierId=sp["id"], customerId=cid, chainPosition="sub", shareOfSales=ci["share"],
                              requirements=dict(otifTarget=0.98, ppmTarget=50, approvalLevel=3, certifications=["IATF 16949"])))
-            for (num, name, ucost, usage, c0, single, crit) in ci["parts"]:
-                parts_out.append(dict(id=f"part-{num.lower()}", number=num, name=name, supplierId=sp["id"], customerId=cid, unitCostMxn=ucost,
-                                      dailyUsage=usage, onHand=int(round(usage * c0)), daysOfCover=round(c0, 2), singleSource=single, criticality=crit))
             a = assess(cid, sp, ci)
             assessments[(cid, sp["id"])] = a
             risks_out.append(a["risk"])
+            for (num, name, ucost, usage, c0, single, crit) in ci["parts"]:
+                parts_out.append(dict(id=f"part-{num.lower()}", number=num, name=name, supplierId=sp["id"], customerId=cid, unitCostMxn=ucost,
+                                      dailyUsage=usage, onHand=int(round(usage * c0)), daysOfCover=round(c0, 2), singleSource=single, criticality=crit,
+                                      **pipeline(sp, usage, a["risk"])))
     return companies, rels, parts_out, risks_out, assessments
 
 

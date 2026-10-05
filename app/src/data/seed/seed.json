@@ -883,7 +883,10 @@
    "onHand": 14400,
    "daysOfCover": 4.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 0,
+   "supplierFgOnHand": 1800,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-4480-rcp",
@@ -896,7 +899,10 @@
    "onHand": 2160,
    "daysOfCover": 1.2,
    "singleSource": true,
-   "criticality": "line-stopper"
+   "criticality": "line-stopper",
+   "inTransit": 0,
+   "supplierFgOnHand": 900,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-4492-xmb",
@@ -909,7 +915,10 @@
    "onHand": 9000,
    "daysOfCover": 5.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 0,
+   "supplierFgOnHand": 900,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-6120-lmb",
@@ -922,7 +931,10 @@
    "onHand": 5400,
    "daysOfCover": 3.0,
    "singleSource": true,
-   "criticality": "line-stopper"
+   "criticality": "line-stopper",
+   "inTransit": 1800,
+   "supplierFgOnHand": 1800,
+   "nextDeliveryDate": "2026-10-11"
   },
   {
    "id": "part-qss-6133-grm",
@@ -935,7 +947,10 @@
    "onHand": 57600,
    "daysOfCover": 8.0,
    "singleSource": false,
-   "criticality": "normal"
+   "criticality": "normal",
+   "inTransit": 7200,
+   "supplierFgOnHand": 7200,
+   "nextDeliveryDate": "2026-10-11"
   },
   {
    "id": "part-qss-6140-clh",
@@ -948,7 +963,10 @@
    "onHand": 9000,
    "daysOfCover": 5.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 1800,
+   "supplierFgOnHand": 1800,
+   "nextDeliveryDate": "2026-10-11"
   },
   {
    "id": "part-qss-9011-fls",
@@ -961,7 +979,10 @@
    "onHand": 21600,
    "daysOfCover": 1.5,
    "singleSource": true,
-   "criticality": "line-stopper"
+   "criticality": "line-stopper",
+   "inTransit": 14400,
+   "supplierFgOnHand": 28800,
+   "nextDeliveryDate": "2026-10-08"
   },
   {
    "id": "part-qss-9027-clp",
@@ -974,7 +995,10 @@
    "onHand": 86400,
    "daysOfCover": 6.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 14400,
+   "supplierFgOnHand": 28800,
+   "nextDeliveryDate": "2026-10-08"
   },
   {
    "id": "part-qss-9033-wsh",
@@ -987,7 +1011,10 @@
    "onHand": 129600,
    "daysOfCover": 9.0,
    "singleSource": false,
-   "criticality": "normal"
+   "criticality": "normal",
+   "inTransit": 14400,
+   "supplierFgOnHand": 28800,
+   "nextDeliveryDate": "2026-10-08"
   },
   {
    "id": "part-qss-7205-trm",
@@ -1000,7 +1027,10 @@
    "onHand": 2700,
    "daysOfCover": 1.5,
    "singleSource": true,
-   "criticality": "line-stopper"
+   "criticality": "line-stopper",
+   "inTransit": 0,
+   "supplierFgOnHand": 2700,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-7218-hdl",
@@ -1013,7 +1043,10 @@
    "onHand": 5400,
    "daysOfCover": 3.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 0,
+   "supplierFgOnHand": 2700,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-5310-pab",
@@ -1026,7 +1059,10 @@
    "onHand": 1800,
    "daysOfCover": 2.0,
    "singleSource": true,
-   "criticality": "line-stopper"
+   "criticality": "line-stopper",
+   "inTransit": 900,
+   "supplierFgOnHand": 1800,
+   "nextDeliveryDate": "2026-10-08"
   },
   {
    "id": "part-qss-5322-ppc",
@@ -1039,7 +1075,10 @@
    "onHand": 7700,
    "daysOfCover": 7.0,
    "singleSource": false,
-   "criticality": "normal"
+   "criticality": "normal",
+   "inTransit": 1100,
+   "supplierFgOnHand": 2200,
+   "nextDeliveryDate": "2026-10-08"
   },
   {
    "id": "part-qss-3101-fmc",
@@ -1052,7 +1091,10 @@
    "onHand": 7200,
    "daysOfCover": 4.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 0,
+   "supplierFgOnHand": 2700,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-3108-lth",
@@ -1065,7 +1107,10 @@
    "onHand": 10800,
    "daysOfCover": 6.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 0,
+   "supplierFgOnHand": 2700,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-8401-hrn",
@@ -1104,7 +1149,10 @@
    "onHand": 28800,
    "daysOfCover": 8.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 0,
+   "supplierFgOnHand": 7200,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-2215-spc",
@@ -1117,7 +1165,10 @@
    "onHand": 36000,
    "daysOfCover": 10.0,
    "singleSource": false,
-   "criticality": "normal"
+   "criticality": "normal",
+   "inTransit": 0,
+   "supplierFgOnHand": 7200,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-slp-2210-pvt",
@@ -1130,7 +1181,10 @@
    "onHand": 19800,
    "daysOfCover": 9.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 0,
+   "supplierFgOnHand": 4400,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-2301-frg",
@@ -1169,7 +1223,10 @@
    "onHand": 32400,
    "daysOfCover": 9.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 0,
+   "supplierFgOnHand": 7200,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-2407-zsp",
@@ -1182,7 +1239,10 @@
    "onHand": 43200,
    "daysOfCover": 12.0,
    "singleSource": false,
-   "criticality": "normal"
+   "criticality": "normal",
+   "inTransit": 0,
+   "supplierFgOnHand": 7200,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-slp-2401-spr",
@@ -1195,7 +1255,10 @@
    "onHand": 26000,
    "daysOfCover": 10.0,
    "singleSource": false,
-   "criticality": "normal"
+   "criticality": "normal",
+   "inTransit": 0,
+   "supplierFgOnHand": 5200,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-qss-1101-tub",
@@ -1247,7 +1310,10 @@
    "onHand": 5760,
    "daysOfCover": 12.0,
    "singleSource": false,
-   "criticality": "normal"
+   "criticality": "normal",
+   "inTransit": 0,
+   "supplierFgOnHand": 480,
+   "nextDeliveryDate": "2026-10-07"
   },
   {
    "id": "part-slp-5110-cpt",
@@ -1260,7 +1326,10 @@
    "onHand": 10400,
    "daysOfCover": 4.0,
    "singleSource": false,
-   "criticality": "high"
+   "criticality": "high",
+   "inTransit": 0,
+   "supplierFgOnHand": 2600,
+   "nextDeliveryDate": "2026-10-07"
   }
  ],
  "signals": [

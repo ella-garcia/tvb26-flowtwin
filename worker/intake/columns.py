@@ -49,6 +49,11 @@ KINDS = {
                            "inventario", "cantidad en existencia", "saldo", "inventario disponible", "cantidad en stock"]),
         "as_of": (False, ["as of date", "as of", "date", "stock date", "fecha", "fecha de corte", "fecha corte",
                           "fecha de inventario", "fecha de existencia"]),
+        "in_transit": (False, ["in transit", "in transit units", "units in transit", "on the road", "shipped not received",
+                               "en transito", "transito", "cantidad en transito", "unidades en transito"]),
+        "next_delivery_date": (False, ["next delivery", "next delivery date", "eta", "expected arrival", "arrival date",
+                                       "proxima entrega", "fecha proxima entrega", "fecha de entrega", "fecha estimada de llegada",
+                                       "fecha de llegada", "fecha de arribo"]),
     },
     "tier1-releases": {
         "number": (True, ["part number", "part no", "part", "numero de parte", "no de parte", "no parte", "numero parte",

@@ -57,7 +57,7 @@ COLUMNS = {
     "shipments": "company_id customer_id year tonnes",
     "twins": "company_id synced_through built_at counts accuracy overall_accuracy days",
     "uploads": "company_id kind file_name rows source status uploaded_at storage_path",
-    "parts": "id number name supplier_id customer_id unit_cost_mxn daily_usage on_hand days_of_cover single_source criticality",
+    "parts": "id number name supplier_id customer_id unit_cost_mxn daily_usage on_hand days_of_cover single_source criticality in_transit supplier_fg_on_hand next_delivery_date",
     "risks": "customer_id supplier_id level score normal_transit_days expected_transit_days worst_case_transit_days min_cover_days days_to_line_stop line_stop_exposure_eur drivers flex otif_trend projection data_status updated_at",
     "alerts": "id customer_id supplier_id part_ids signal_id level title message created_at expected_shortfall_date line_stop_exposure_eur status actions chosen_action_id supplier_response",
     "invites": "id customer_id supplier_id supplier_name contact_email sent_at status plan",

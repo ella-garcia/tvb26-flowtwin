@@ -85,8 +85,13 @@ def write_stock(db, customer_id, recs, _file, ctx=None):
         p = dict(by_id[r["part_id"]])
         p["on_hand"] = r["on_hand"]
         p["days_of_cover"] = _cover(r["on_hand"], p["daily_usage"])
-        rows.append({k: p[k] for k in ("id", "number", "name", "supplier_id", "customer_id", "unit_cost_mxn", "daily_usage",
-                                       "on_hand", "days_of_cover", "single_source", "criticality")})
+        # Optional columns: a blank cell keeps what the part already had (every row carries both keys for the bulk upsert).
+        if r.get("in_transit") is not None:
+            p["in_transit"] = r["in_transit"]
+        if r.get("next_delivery_date") is not None:
+            p["next_delivery_date"] = r["next_delivery_date"].isoformat()
+        rows.append({k: p.get(k) for k in ("id", "number", "name", "supplier_id", "customer_id", "unit_cost_mxn", "daily_usage",
+                                           "on_hand", "days_of_cover", "single_source", "criticality", "in_transit", "next_delivery_date")})
     db.upsert("parts", rows, "id")
     return {"parts_updated": len(rows)}, sorted({r["supplier_id"] for r in recs})
 

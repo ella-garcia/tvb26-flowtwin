@@ -19,6 +19,9 @@ Everything is synthetic. Signals are hand-seeded ("seeded for demo"); v0 calls n
 7. **Flex** (+15% for 28 days): bottleneck load x 1.15 against a practical ceiling (95% of nominal) plus finished-goods stock; `serviceLevel` = 1 - unmet/demand, `canAbsorb` if >= 98.5%, `daysToRecover` = backlog / spare capacity. `measured` for connected suppliers, else `estimated`.
 8. **Score 0-100** = sum of driver points (integers that sum exactly to the score): signal delay vs cover (max 45, split over signals by log multiplier), criticality and single-source (max 16), thin cover (max 8), failed flex test (max 14), OTIF decline over 12 weeks (max 10), lead-time variability (max 8), missing data (invited 8, public-only 6).
 9. **Level**: red if score >= 65 or daysToLineStop <= 3; amber if >= 35; else green.
-10. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
+10. **Pipeline per part** (connected suppliers only; otherwise left out = unknown / not shared): `inTransit` = daily usage x (normal transit - 1),
+    `supplierFgOnHand` = daily usage x the supplier's finished-goods days (`fg`), `nextDeliveryDate` = asOf + ceil(expected transit).
+    The app estimates the next delivery from expected transit when the date is missing (lib/stock.ts).
+11. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
 
 Edit the tables at the top of the script (suppliers, parts, signals) to change the story, then re-run.

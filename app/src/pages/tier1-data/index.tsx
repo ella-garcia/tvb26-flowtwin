@@ -12,7 +12,7 @@ interface KindDef { id: string; label: string; contains: string }
 const KINDS: KindDef[] = [
   { id: "tier1-suppliers", label: "Suppliers", contains: "Who you buy from: name, city, state, contact and typical transit days." },
   { id: "tier1-parts", label: "Parts", contains: "Each part number, its supplier, daily usage and how critical it is to the line." },
-  { id: "tier1-stock", label: "Stock on hand", contains: "How many units of each part you hold today, and where." },
+  { id: "tier1-stock", label: "Stock on hand", contains: "How many units of each part you hold today. Optional: units in transit and the next delivery date (ETA)." },
   { id: "tier1-releases", label: "Demand releases", contains: "What you plan to pull from each supplier over the coming weeks." },
   { id: "tier1-receipts", label: "Goods receipts", contains: "What actually arrived and when, so we can measure real delivery times." },
 ];

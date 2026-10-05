@@ -7,13 +7,14 @@ import mexico from "../../data/geo/mexico-states.json";
 import { AccessDeniedError } from "../../lib/dataLayer";
 import { date, num, pct, rowNo } from "../../lib/format";
 import { DEFAULT_OTIF_TARGET, otifSummary, type OtifSummary } from "../../lib/otif";
+import { CRIT_RANK, partStock } from "../../lib/stock";
 import type { Part, RiskAssessment, RiskLevel, Signal } from "../../lib/types";
 import "./risk.css";
 
 type Filter = "all" | RiskLevel;
 interface Row {
   id: string; risk: RiskAssessment; name: string; place: string;
-  /** Parts whose cover is below the expected transit time: the next delivery arrives after stock runs out. */
+  /** Parts that run out before the next delivery arrives (lib/stock.ts, status "short"). */
   belowCover: Part[];
   partCount: number;
   /** Best (lowest) criticality rank among belowCover; 3 when none. */
@@ -21,7 +22,6 @@ interface Row {
   otif: OtifSummary | null;
 }
 
-const CRIT_RANK: Record<Part["criticality"], number> = { "line-stopper": 0, high: 1, normal: 2 };
 
 // Projection from the geo file: x=(lon+118.6)*cos(23deg)*26, y=(32.9-lat)*26.
 const P = mexico.projection;
@@ -54,7 +54,7 @@ export default function RiskPage() {
       const rows: Row[] = db.risks().map((risk) => {
         const c = db.company(risk.supplierId);
         const own = parts.filter((p) => p.supplierId === risk.supplierId && p.customerId === risk.customerId);
-        const belowCover = own.filter((p) => p.daysOfCover < risk.expectedTransitDays);
+        const belowCover = own.filter((p) => partStock(p, risk, db.asOf).status === "short");
         return {
           id: risk.supplierId, risk, name: c?.name ?? risk.supplierId, place: c ? `${c.city}, ${c.state}` : "",
           belowCover, partCount: own.length, critRank: Math.min(3, ...belowCover.map((p) => CRIT_RANK[p.criticality])),
@@ -101,7 +101,10 @@ export default function RiskPage() {
     { key: "transit", label: "Expected transit", numeric: true, render: (r) => `${num(r.risk.normalTransitDays, 1)} → ${num(r.risk.expectedTransitDays, 1)} days` },
     { key: "cover", label: "Lowest cover", numeric: true, render: (r) => days(r.risk.minCoverDays) },
     { key: "flex", label: "Can absorb +15%", render: (r) => <StatusPill tone={r.risk.flex.canAbsorb ? "success" : "danger"}>{r.risk.flex.canAbsorb ? "Yes" : "No"}</StatusPill> },
-    { key: "below", label: "Parts below cover", numeric: true, render: (r) => `${r.belowCover.length} of ${r.partCount}` },
+    { key: "below", label: "Parts below cover", numeric: true, render: (r) => (
+      <button type="button" className="ft-linkbtn" aria-label={`${r.belowCover.length} of ${r.partCount} parts below cover. View parts from ${r.name}`}
+        onClick={() => go("parts", r.id)}>{`${r.belowCover.length} of ${r.partCount}`}</button>
+    ) },
     { key: "otif", label: "OTIF (12 wk)", numeric: true, render: (r) => r.otif == null ? "No data" : (
       <span className="risk-otif">{pct(r.otif.average)}{Math.abs(r.otif.change) < 0.0005
         ? <small className="risk-flat">No change</small>
@@ -192,7 +195,7 @@ export default function RiskPage() {
       )}
 
       <FormulaSource
-        formula={`Score (0–100) = sum of driver points. Red (Act now) if a line stop is expected within 3 days or score ≥ 65. Suppliers are sorted by days to line stop, then by the most critical part at risk, then by score. A part is below safe cover when its days of cover are less than the expected transit time. Delivery record: 12-week average OTIF against the contract target (${pct(DEFAULT_OTIF_TARGET, 0)} unless set): A at or above target, B up to 3 points below, C further below.`}
+        formula={`Score (0–100) = sum of driver points. Red (Act now) if a line stop is expected within 3 days or score ≥ 65. Suppliers are sorted by days to line stop, then by the most critical part at risk, then by score. A part is below safe cover when its stock runs out before the next delivery arrives (supplier's delivery date, or today + expected transit rounded up to whole days when none is given). Delivery record: 12-week average OTIF against the contract target (${pct(DEFAULT_OTIF_TARGET, 0)} unless set): A at or above target, B up to 3 points below, C further below.`}
         data="Signals (weather, roads, theft, ports), supplier transit history, your stock cover, the +15% demand test and weekly delivery records. Where a supplier has not connected data, the score uses public signals only."
         provenance="estimated"
       />

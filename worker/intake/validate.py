@@ -129,8 +129,14 @@ def validate_stock(rows, mapping, ctx):
         p = _part(r, ctx)
         qty = r.get("on_hand", parse_number, required=True)
         as_of = r.get("as_of", parse_date)
+        in_transit = r.get("in_transit", parse_number)
+        next_delivery = r.get("next_delivery_date", parse_date)
         if qty is not None and qty < 0:
             r.fail("on_hand", "On-hand units cannot be negative")
+        if in_transit is not None and in_transit < 0:
+            r.fail("in_transit", "In-transit units cannot be negative")
+        if next_delivery and next_delivery < today - timedelta(days=1):
+            r.warn("next_delivery_date", f"Next delivery {next_delivery} is in the past")
         if as_of and as_of > today + timedelta(days=1):
             r.warn("as_of", f"As-of date {as_of} is in the future")
         if not r.ok:
@@ -142,7 +148,8 @@ def validate_stock(rows, mapping, ctx):
             r.warn("number", f"Part '{p['number']}' appears more than once: keeping the latest date", "warning")
             if (latest[key]["as_of"] or date.min) > (as_of or today):
                 continue
-        latest[key] = dict(row=r.n, part_id=key, supplier_id=p["supplier_id"], on_hand=qty, as_of=as_of or today)
+        latest[key] = dict(row=r.n, part_id=key, supplier_id=p["supplier_id"], on_hand=qty, as_of=as_of or today,
+                           in_transit=in_transit, next_delivery_date=next_delivery)
     return list(latest.values()), issues
 
 

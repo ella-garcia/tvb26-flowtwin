@@ -10,11 +10,13 @@ Open http://localhost:5173. The yellow **Testing** bar switches role (Key custom
 
 ## Demo path (about 5 minutes)
 1. **Key customer → Risk board**: one supplier at "Act now", soonest line stop in 2 days.
-2. Click **Hules y Mangueras de Orizaba**: rainy season pushes transit from 2 to 5 days; 3 days of cover on a line-stopper part; fails the +15% flex test.
-3. **Alerts**: choose "Pull the next order forward" → Acknowledge.
-4. **Invite**: invite another supplier (sponsored, free for them).
-5. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
-6. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
+2. **Parts & stock**: every part number with stock here, on the road and at the supplier; 6 run out before their next delivery.
+   From the board, "Parts below cover" opens this page filtered to one supplier.
+3. Click **Hules y Mangueras de Orizaba**: rainy season pushes transit from 2 to 5 days; 3 days of cover on a line-stopper part; fails the +15% flex test.
+4. **Alerts**: choose "Pull the next order forward" → Acknowledge.
+5. **Invite**: invite another supplier (sponsored, free for them).
+6. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
+7. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
 
 "Reset demo data" in the Testing bar restores the seed.
 

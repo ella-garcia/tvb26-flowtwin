@@ -214,6 +214,19 @@ def test_job_clean_suppliers_then_parts_then_stock():
     assert p["on_hand"] == 90 and p["days_of_cover"] == 3.0
 
 
+def test_stock_upload_reads_in_transit_and_next_delivery_and_keeps_them_when_blank():
+    m, recs, _ = run_kind("tier1-stock", "Número de parte,Existencia,En tránsito,Próxima entrega\nQSS-1,500,120,08/10/2026\n")
+    assert m["En tránsito"] == "in_transit" and m["Próxima entrega"] == "next_delivery_date"
+    assert recs[0]["in_transit"] == 120 and recs[0]["next_delivery_date"].isoformat() == "2026-10-08"
+    db = base_db()
+    run_parse_upload(db, job("tier1-stock"), fetch=lambda d, p: b"part number,on hand units,in transit,ETA\nQSS-1,40,20,2026-10-08\n")
+    p = {p["number"]: p for p in db.t["parts"]}["QSS-1"]
+    assert p["in_transit"] == 20 and p["next_delivery_date"] == "2026-10-08"
+    run_parse_upload(db, job("tier1-stock"), fetch=lambda d, p: b"part number,on hand units\nQSS-1,35\n")
+    p = {p["number"]: p for p in db.t["parts"]}["QSS-1"]
+    assert p["on_hand"] == 35 and p["in_transit"] == 20 and p["next_delivery_date"] == "2026-10-08"
+
+
 def test_job_missing_required_column_writes_nothing():
     db = base_db()
     res = run_parse_upload(db, job("tier1-stock"), fetch=lambda d, p: b"part number\nQSS-1\n")

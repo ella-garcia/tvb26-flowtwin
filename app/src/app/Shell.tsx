@@ -11,7 +11,7 @@ const ROLE_LABEL: Record<RoleId, string> = { customer: "Key customer", owner: "S
 
 // "supplier" is reached from the risk board (#supplier/<id>), so it is not on the rail.
 const RAIL: Record<RoleId, ModuleId[]> = {
-  customer: ["risk", "alerts", "invite", "tier1-data"],
+  customer: ["risk", "parts", "alerts", "invite", "tier1-data"],
   owner: ["my-risk", "data"],
   ops: ["data", "my-risk"],
   admin: ["signals", "companies"],

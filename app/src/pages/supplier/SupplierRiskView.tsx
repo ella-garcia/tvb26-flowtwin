@@ -6,6 +6,7 @@ import { Card, Empty, FormulaSource, GradePill, NotShared, ProvenanceTag, RiskLi
 import { DataTable, Icon, StatusPill, type Column } from "../../keystone";
 import { date, mxn, num, pct } from "../../lib/format";
 import { DEFAULT_OTIF_TARGET, otifSummary } from "../../lib/otif";
+import { partStock } from "../../lib/stock";
 import { segmentLabel } from "../../packs";
 import type { Alert, ChainPosition, Part, ProjectionDay, RiskAssessment, Signal } from "../../lib/types";
 import "./supplier.css";
@@ -158,6 +159,20 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
     { key: "dailyUsage", label: "Daily usage", numeric: true, align: "right", render: (p) => num(p.dailyUsage) },
     { key: "onHand", label: "On hand", numeric: true, align: "right", render: (p) => num(p.onHand) },
     { key: "daysOfCover", label: "Days of cover", numeric: true, align: "right", render: (p) => num(p.daysOfCover, 1) },
+    { key: "inTransit", label: "On the road", numeric: true, align: "right", render: (p) => p.inTransit == null ? <span className="supplier-muted">Unknown</span> : num(p.inTransit) },
+    { key: "supplierFg", label: "At supplier", numeric: true, align: "right", render: (p) => p.supplierFgOnHand == null ? <span className="supplier-muted">Not shared</span> : num(p.supplierFgOnHand) },
+    { key: "next", label: "Next delivery", render: (p) => {
+      const st = partStock(p, risk, db.asOf);
+      if (!st.nextDeliveryDate) return <span className="supplier-muted">No estimate</span>;
+      return (
+        <span className="supplier-next">
+          <span className="ks-num">{date(st.nextDeliveryDate)}</span>
+          {st.status === "short" && <StatusPill tone="danger">Runs out first</StatusPill>}
+          {st.status === "tight" && <StatusPill tone="warning">Tight</StatusPill>}
+          {st.nextDeliveryEstimated && <ProvenanceTag provenance="estimated" />}
+        </span>
+      );
+    } },
     { key: "unitCostMxn", label: "Unit cost", numeric: true, align: "right", render: (p) => mxn(p.unitCostMxn) },
   ];
 
@@ -235,7 +250,8 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
         {sortedParts.length === 0 ? <p className="supplier-note">No parts are shared for this supplier yet.</p> : (
           <DataTable<Part> caption="Parts from this supplier" columns={cols} rows={sortedParts} />
         )}
-        <p className="supplier-note">Ranked by line-stop risk, not by value. A MX$2 clip can stop a line.</p>
+        <p className="supplier-note">Ranked by line-stop risk, not by value. A MX$2 clip can stop a line.
+          {audience === "customer" && <> <button type="button" className="ft-linkbtn" onClick={() => go("parts", supplierId)}>See these parts on Parts &amp; stock</button></>}</p>
       </Card>
 
       <Card title="Delivery performance (OTIF, 12 weeks)">
@@ -244,11 +260,11 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
             <Sparkline values={otif} />
             <div>
               <div className="supplier-otif-value ks-num">{pct(otifNow!)}</div>
-              {otifDelta != null && (
-                <div className={otifDelta >= 0 ? "supplier-delta-up" : "supplier-delta-down"}>
-                  {otifDelta >= 0 ? "▲" : "▼"} {num(Math.abs(otifDelta) * 100, 1)} points, last 4 weeks vs first 4
-                </div>
-              )}
+              {otifDelta != null && (Math.abs(otifDelta) < 0.0005
+                ? <div className="supplier-muted">No change, last 4 weeks vs first 4</div>
+                : <div className={otifDelta > 0 ? "supplier-delta-up" : "supplier-delta-down"}>
+                    {otifDelta > 0 ? "▲" : "▼"} {num(Math.abs(otifDelta) * 100, 1)} points, last 4 weeks vs first 4
+                  </div>)}
             </div>
             {record && (
               <div className="supplier-grade">
