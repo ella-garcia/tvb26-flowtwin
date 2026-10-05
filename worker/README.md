@@ -45,3 +45,21 @@ gcloud run deploy flowtwin-worker --source worker --region <region> --no-allow-u
   --set-secrets SUPABASE_SERVICE_ROLE_KEY=<secret>:latest --set-env-vars SUPABASE_URL=<url>
 ```
 The container listens on `$PORT`.
+
+## Live signals, notifications and the hourly schedule (Phase 2)
+`scheduled.py` exposes two functions for the routes `POST /cron/hourly` and `POST /jobs/drain` (called by pg_cron at :05 every hour and every 2 minutes; see `worker_config` in the intake migration).
+
+`run_hourly(db)`:
+1. Ingest every source in `SIGNAL_SOURCES` (default `open-meteo,file`), upsert into `signals` (stable `id`, `source_id`, `external_ref`), and set `active = false` on signals of a live source that its latest successful fetch no longer returns. Nothing is deleted. A source that errors is recorded in the summary and skipped.
+2. `risk_runner.recompute_all`.
+3. Auto-resolve: alerts of pairs whose risk is now green get `status = 'resolved'`, `resolved_by = 'engine'`; the key customer is told (`auto-resolved`).
+4. Notify (email; Resend): `new-alert` and `level-up` (amber to red) to the key customer and the supplier, `supplier-responded` to the key customer. Addresses come from `companies.contact.email`. Every attempt is a row in `alert_notifications`; `(alert, reason, recipient)` is never sent twice. Without `RESEND_API_KEY` the status is `dry-run`.
+
+`drain_jobs(db, max_jobs=20)` runs `jobs.run_next` until the queue is idle.
+
+### Sources
+- `sources/open_meteo.py` Open-Meteo forecast (no key), 14 days, one request per 50 company locations (suppliers and key customers). A heavy-rain episode is a run of at least 3 consecutive days with at least 25 mm, or any day of at least 60 mm. Severity and transit multiplier by peak daily rainfall (table `RAIN_BANDS` at the top of the file): 25-40 mm medium x1.3, 40-60 mm high x1.8, 60 mm and over high x2.6; points inside a landslide-prone corridor (`LANDSLIDE_ZONES`, e.g. Orizaba-Puebla on MEX-150D) get at least x2.6 and the corridor's highways. Radius 40 km. Multipliers are hand-set; calibrate against carrier transit-time data.
+- `sources/smn.py` SMN/CONAGUA municipal forecast web service (`https://smn.conagua.gob.mx/tools/GUI/webservices/?method=1`, gzip JSON, 4 days, hourly refresh), opt-in with `SIGNAL_SOURCES=...,smn`. Same rain rule on the nearest municipality within 30 km. Warnings (avisos) and cyclone bulletins are not in this service and are not implemented.
+- `sources/file.py` the seeded demo signals (never marked inactive by another source).
+
+Tests: `tests/test_sources*.py`, `test_notify*.py`, `test_scheduled*.py` use fakes and mocked HTTP; no network.

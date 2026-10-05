@@ -1,0 +1,4 @@
+part number,name,supplier code,unit cost MXN,daily usage,single source (yes/no),criticality (line-stopper/high/normal)
+QSS-4471-BRK,Seat track bracket,edl,38.50,3600,no,high
+QSS-4480-RCP,Recliner mounting plate,edl,52.00,1800,yes,line-stopper
+QSS-6133-GRM,Seat track rubber grommet,hmo,3.20,7200,no,normal

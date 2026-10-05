@@ -13,7 +13,8 @@ class MemDB:
             if k in ("select", "order", "limit"):
                 continue
             if v.startswith("eq."):
-                rows = [r for r in rows if str(r.get(k)) == v[3:]]
+                as_text = lambda x: str(x).lower() if isinstance(x, bool) else str(x)  # PostgREST writes booleans as true/false
+                rows = [r for r in rows if as_text(r.get(k)) == v[3:]]
             elif v.startswith("in.("):
                 allowed = v[4:-1].split(",")
                 rows = [r for r in rows if r.get(k) in allowed]
@@ -29,7 +30,7 @@ class MemDB:
 
 def test_recompute_customer_writes_risks_and_alerts(db_rows, seed):
     from tests.conftest import SIG_MAP, rename  # noqa: F401
-    sigs = [{k: v for k, v in s.items() if k != "short"} for s in db_rows["signals"]]
+    sigs = [{**{k: v for k, v in s.items() if k != "short"}, "active": True} for s in db_rows["signals"]]
     existing = [{"id": "alert-hmo-qss", "customer_id": "qss"}]
     db = MemDB(dict(app_settings=[dict(id=1, as_of="2026-10-05", line_stop_cost_eur_per_minute=15000, contract_demand_swing=0.15,
                                        line_hours_per_day=16)],

@@ -1,11 +1,12 @@
 // Tier 1 alerts feed. Reads via useApp().db only; writes via dispatch.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useApp } from "../../app/AppContext";
 import { Card, Empty, NotShared, PageHeader, RiskLight } from "../../components/shared";
 import { Button, FilterChip, StatusPill, type PillTone } from "../../keystone";
 import { AccessDeniedError } from "../../lib/dataLayer";
 import { date, num } from "../../lib/format";
-import type { Alert, Part, RiskLevel } from "../../lib/types";
+import * as remote from "../../lib/remote";
+import type { Alert, AlertNotification, Part, RiskLevel } from "../../lib/types";
 import "./alerts.css";
 
 type Status = Alert["status"];
@@ -16,7 +17,8 @@ const CRIT: Record<Part["criticality"], string> = { "line-stopper": "Line stoppe
 const rank = (l: RiskLevel) => (l === "red" ? 0 : l === "amber" ? 1 : 2);
 
 export default function AlertsPage() {
-  const { db, dispatch, go } = useApp();
+  const { db, dispatch, go, mode } = useApp();
+  const [notes, setNotes] = useState<Record<string, AlertNotification[]>>({});
   const [filter, setFilter] = useState<Filter>("all");
   const [picked, setPicked] = useState<Record<string, string>>({});
 
@@ -29,6 +31,19 @@ export default function AlertsPage() {
       throw e;
     }
   }, [db]);
+
+  const alertKey = loaded.alerts.map((a) => a.id).join(",");
+  useEffect(() => {
+    if (mode !== "live" || !alertKey) { setNotes({}); return; }
+    let cancelled = false;
+    remote.fetchNotifications(alertKey.split(",")).then((rows) => {
+      if (cancelled) return;
+      const by: Record<string, AlertNotification[]> = {};
+      for (const r of rows) (by[r.alertId] ??= []).push(r);
+      setNotes(by);
+    }).catch(() => { if (!cancelled) setNotes({}); }); // the line is optional; the alert still shows without it
+    return () => { cancelled = true; };
+  }, [mode, alertKey]);
 
   if (loaded.error) return <><PageHeader title="Alerts" /><NotShared message={loaded.error} /></>;
   const { alerts, parts } = loaded;
@@ -110,6 +125,17 @@ export default function AlertsPage() {
                     ))}
                   </fieldset>
                 )}
+
+                {(notes[a.id]?.length || a.resolvedBy === "engine") ? (
+                  <div className="alerts-notes">
+                    {[...(notes[a.id] ?? [])].sort((x, y) => (y.sentAt ?? "").localeCompare(x.sentAt ?? "")).map((n, i) => {
+                      const word = n.dryRun ? "dry run" : n.status === "failed" ? "failed" : n.status === "skipped" ? "skipped" : "sent";
+                      const when = n.sentAt ? new Date(n.sentAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+                      return <p key={n.id ?? i} className="alerts-meta">{n.channel === "whatsapp" ? "Messaged" : "Emailed"} to {n.recipient ?? "a recipient"}{when ? ` · ${when}` : ""} ({word})</p>;
+                    })}
+                    {a.resolvedBy === "engine" && <p className="alerts-meta">Resolved automatically when the risk turned green</p>}
+                  </div>
+                ) : null}
 
                 <div className="alerts-buttons">
                   {a.status === "new" && (

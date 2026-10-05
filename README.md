@@ -28,3 +28,26 @@ Open http://localhost:5173. The yellow **Testing** bar switches role (Key custom
 - Signals are seeded, not live. The projection is a simple Monte Carlo model, not ISOMORPH yet.
 - €15k per minute line-stop cost is from the advisor call and still to validate.
 - Supplier-side edits in "My data" are kept for the session only.
+
+## Phase 2 backend (Supabase + worker)
+- `supabase/` — migrations (schema, sharing rules, intake, signals, notifications, scheduling), `seed.sql`, RLS tests (`supabase/tests/run.sh`).
+- `worker/` — FastAPI service for Cloud Run: risk engine, Tier 1 upload parsing, Open-Meteo/SMN signals, email alerts (Resend; dry-run without a key). Routes: `/health`, `/jobs/run-next`, `/jobs/drain`, `/cron/hourly`, `/recompute-risk`.
+- App live mode: set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (see `app/.env.example`).
+
+### Local development
+```
+supabase start && supabase db reset && supabase/tests/run.sh
+```
+Known local issue (CLI v2.108): the storage service expects an index the newer local storage schema dropped, so uploads fail with `42P10`. After each `supabase db reset`, restart storage and add the index (local only; cloud projects are unaffected):
+```
+docker restart supabase_storage_flowtwin-v0
+docker exec supabase_db_flowtwin-v0 psql -U supabase_admin -d postgres -c "create unique index if not exists bucketid_objname on storage.objects (bucket_id, name);"
+```
+Updating the Supabase CLI should remove the need for this.
+
+### Scheduling in the cloud
+pg_cron calls the worker every hour (`/cron/hourly`) and every 2 minutes (`/jobs/drain`) once `public.worker_config` has the worker URL and token:
+```sql
+update public.worker_config set worker_url = 'https://<your-worker>.run.app', worker_token = '<WORKER_TOKEN>' where id = 1;
+```
+Run that in the Supabase SQL editor; never commit the token.

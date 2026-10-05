@@ -105,6 +105,66 @@ set local role anon;
 select public.t_throws('anon: cannot call reset_demo', $$select reset_demo()$$);
 reset role;
 
+-- ---- Phase 2: supplier_profiles, receipts, demand_releases, uploads (key-customer intake)
+reset role;
+insert into public.receipts (customer_id, supplier_id, part_id, po_number, promised_date, received_date, quantity_ordered, quantity_received) values
+  ('qss', 'edl', 'part-qss-4471-brk', 'T-PO1', '2026-09-01', '2026-09-01', 10, 10),
+  ((select customer_id from parts where customer_id = 'slp-interiors' limit 1), (select supplier_id from parts where customer_id = 'slp-interiors' limit 1),
+   (select id from parts where customer_id = 'slp-interiors' limit 1), 'T-PO2', '2026-09-01', '2026-09-02', 10, 10);
+insert into public.demand_releases (customer_id, part_id, week_start, quantity) values
+  ('qss', 'part-qss-4471-brk', '2026-10-05', 100), ('qss', 'part-qss-6120-lmb', '2026-10-05', 100),
+  ((select customer_id from parts where customer_id = 'slp-interiors' limit 1), (select id from parts where customer_id = 'slp-interiors' limit 1), '2026-10-05', 50);
+insert into public.uploads (company_id, kind, file_name, source, status) values ('slp-interiors', 'tier1-parts', 'slp.csv', 'CSV', 'uploaded');
+
+set local role authenticated;
+select public.t_works('p2: switch to customer qss', $$select switch_test_identity('customer', 'qss')$$);
+select public.t_assert('p2 customer qss: supplier_profiles only own pairs', (select count(*) > 0 and bool_and(customer_id = 'qss') from supplier_profiles));
+select public.t_assert('p2 customer qss: receipts only own (1 row)', (select count(*) = 1 and bool_and(customer_id = 'qss') from receipts));
+select public.t_assert('p2 customer qss: demand_releases only own (2 rows)', (select count(*) = 2 and bool_and(customer_id = 'qss') from demand_releases));
+select public.t_assert('p2 customer qss: does not see another customer upload', (select count(*) = 0 from uploads where company_id = 'slp-interiors'));
+select public.t_works('p2 customer qss: can insert own upload',
+  $$insert into uploads (company_id, kind, file_name, source, status, issues, mapping) values ('qss', 'tier1-stock', 's.csv', 'CSV', 'uploaded', '[{"row":2,"column":"x","message":"m","severity":"warning"}]', '{"a":"b"}')$$);
+select public.t_assert('p2 customer qss: reads its own upload', (select count(*) = 1 and bool_and(company_id = 'qss') from uploads));
+select public.t_works('p2 customer qss: can update its own upload', $$update uploads set status = 'needs-input' where company_id = 'qss' and kind = 'tier1-stock'$$);
+select public.t_throws('p2 customer qss: cannot insert upload for another customer',
+  $$insert into uploads (company_id, kind, file_name, source, status) values ('slp-interiors', 'tier1-stock', 's.csv', 'CSV', 'uploaded')$$);
+select public.t_throws('p2 customer qss: cannot update another customer upload',
+  $q$do $d$ declare n int; begin update uploads set status = 'waiting' where company_id = 'slp-interiors'; get diagnostics n = row_count; if n = 0 then raise exception 'no rows'; end if; end $d$$q$);
+select public.t_throws('p2 customer qss: cannot insert receipts directly',
+  $$insert into receipts (customer_id, supplier_id, po_number, promised_date, quantity_ordered) values ('qss', 'edl', 'X', '2026-09-01', 1)$$);
+select public.t_throws('p2 customer qss: cannot insert demand_releases directly',
+  $$insert into demand_releases (customer_id, part_id, week_start, quantity) values ('qss', 'part-qss-4471-brk', '2026-11-02', 1)$$);
+select public.t_throws('p2 customer qss: cannot write supplier_profiles', $$update supplier_profiles set utilization = 0.1$$);
+select public.t_works('p2 customer qss: can queue parse-upload job for itself',
+  $$insert into jobs (kind, company_id, payload) values ('parse-upload', 'qss', '{}')$$);
+select public.t_throws('p2 customer qss: cannot queue job for another customer',
+  $$insert into jobs (kind, company_id, payload) values ('parse-upload', 'slp-interiors', '{}')$$);
+
+select public.t_works('p2: switch to owner edl', $$select switch_test_identity('owner', 'edl')$$);
+select public.t_assert('p2 owner edl: supplier_profiles only supplier edl', (select count(*) > 0 and bool_and(supplier_id = 'edl') from supplier_profiles));
+select public.t_assert('p2 owner edl: receipts only its own supplier rows', (select count(*) = 1 and bool_and(supplier_id = 'edl') from receipts));
+select public.t_assert('p2 owner edl: demand_releases only for its parts',
+  (select count(*) = 1 and bool_and(part_id = 'part-qss-4471-brk') from demand_releases));
+select public.t_assert('p2 owner edl: sees no customer intake uploads', (select count(*) = 0 from uploads where company_id in ('qss', 'slp-interiors')));
+select public.t_throws('p2 owner edl: cannot insert upload for a customer',
+  $$insert into uploads (company_id, kind, file_name, source, status) values ('qss', 'tier1-parts', 's.csv', 'CSV', 'uploaded')$$);
+
+select public.t_works('p2: switch to owner hmo', $$select switch_test_identity('owner', 'hmo')$$);
+select public.t_assert('p2 owner hmo: no receipts (none for hmo)', (select count(*) = 0 from receipts));
+select public.t_assert('p2 owner hmo: only its own part release',
+  (select count(*) = 1 and bool_and(part_id = 'part-qss-6120-lmb') from demand_releases));
+
+select public.t_works('p2: switch to customer slp-interiors', $$select switch_test_identity('customer', 'slp-interiors')$$);
+select public.t_assert('p2 customer slp: sees only own profiles', (select count(*) > 0 and bool_and(customer_id = 'slp-interiors') from supplier_profiles));
+select public.t_assert('p2 customer slp: sees only own receipts and releases',
+  (select count(*) = 1 from receipts) and (select count(*) = 1 and bool_and(customer_id = 'slp-interiors') from demand_releases));
+select public.t_assert('p2 customer slp: sees only its upload', (select count(*) = 1 and bool_and(company_id = 'slp-interiors') from uploads));
+
+select public.t_works('p2: switch to admin', $$select switch_test_identity('admin', 'qss')$$);
+select public.t_assert('p2 admin: 0 profiles, receipts, releases',
+  (select count(*) = 0 from supplier_profiles) and (select count(*) = 0 from receipts) and (select count(*) = 0 from demand_releases));
+reset role;
+
 -- ---- report
 select (case when ok then 'PASS' else 'FAIL' end) || '  ' || name from public.t_results order by n;
 select count(*) filter (where not ok) > 0 as failed, count(*) filter (where not ok) as nfail from public.t_results \gset

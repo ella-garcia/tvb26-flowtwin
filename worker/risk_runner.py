@@ -25,23 +25,30 @@ def recompute_customer(db: DB, customer_id: str, as_of=None) -> dict:
     if not customers:
         raise ValueError(f"customer {customer_id} not found")
     parts = db.select("parts", {"customer_id": f"eq.{customer_id}"})
-    signals = db.select("signals")
+    signals = db.select("signals", {"active": "eq.true"})  # retired signals no longer affect projections
     sup_ids = sorted({p["supplier_id"] for p in parts})
     suppliers = {}
+    profiles = {r["supplier_id"]: r for r in db.select("supplier_profiles", {"customer_id": f"eq.{customer_id}"})}
     if sup_ids:
         ids = ",".join(sup_ids)
         companies = db.select("companies", {"id": f"in.({ids})"})
         for c in companies:
             op = {t: db.select(t, {"company_id": f"eq.{c['id']}"}) for t in ("lanes", "partners", "machines")}
             invited = db.select("invites", {"supplier_id": f"eq.{c['id']}"})
-            suppliers[c["id"]] = build_supplier(c, op["lanes"], op["partners"], op["machines"], invited)
+            suppliers[c["id"]] = build_supplier(c, op["lanes"], op["partners"], op["machines"], invited, profiles.get(c["id"]))
     risks, alerts = compute_customer(customers[0], suppliers, parts, signals, settings, as_of)
     db.upsert("risks", risks, "customer_id,supplier_id")
     created = updated = 0
     existing = {a["id"]: a for a in db.select("alerts", {"customer_id": f"eq.{customer_id}"})}
     for a in alerts:
         if a["id"] in existing:
-            db.update("alerts", {"id": a["id"]}, {k: a[k] for k in ALERT_OWNED})
+            patch = {k: a[k] for k in ALERT_OWNED}
+            prev = existing[a["id"]]
+            # An alert the engine closed when the risk turned green reopens if the risk comes back.
+            # Alerts a person resolved stay resolved.
+            if prev.get("status") == "resolved" and prev.get("resolved_by") == "engine" and a.get("level") != "green":
+                patch.update(status="new", resolved_by=None)
+            db.update("alerts", {"id": a["id"]}, patch)
             updated += 1
         else:
             db.upsert("alerts", [a], "id")

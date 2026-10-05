@@ -1,7 +1,6 @@
 """Queue + file source, against an in-memory fake of the DB client (no network)."""
 import jobs
 from sources import FileSignalSource, SmnConaguaSource
-import pytest
 
 
 class FakeDB:
@@ -56,7 +55,7 @@ def test_ingest_signals_upserts_and_queues_recompute():
     assert db.inserts[0][1][0]["kind"] == "recompute-risk"
 
 
-def test_smn_stub_is_explicit():
-    with pytest.raises(NotImplementedError):
-        SmnConaguaSource().fetch()
+def test_file_source_and_smn_offline():
+    # SMN is a live source now (see test_sources_smn.py); with no municipal records and no company in range it yields nothing.
+    assert SmnConaguaSource(records=[], companies=[]).fetch() == []
     assert len(FileSignalSource().fetch()) == 8

@@ -5,12 +5,15 @@ Run: python3 data-gen/seed_to_sql.py
 Column kinds: s = scalar, j = jsonb (kept as camelCase JSON), a = text[].
 Keys absent from a seed row become DEFAULT. Seed keys that are not columns (e.g. signals.short) are dropped.
 """
-import json, re
+import json, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SEED = ROOT / "app/src/data/seed/seed.json"
 OUT = ROOT / "supabase/seed.sql"
+PROFILES = ROOT / "worker/data/supplier_profiles.json"
+sys.path.insert(0, str(ROOT / "worker"))
+from engine.otif import otif_series  # same synthetic 12-week OTIF generator the engine uses
 
 # (seed key, table, columns). Columns are snake_case; kinds default to scalar.
 J, A = "j", "a"
@@ -101,6 +104,22 @@ def main():
         out.append(",\n".join(vals) + ";\n")
         if table in ("alerts", "invites"):
             snapshots[table] = [{c: r[camel(c)] for c in COLUMNS[table].split() if camel(c) in r} for r in rows]
+    # supplier_profiles: one row per (customer, supplier) relationship, from worker/data/supplier_profiles.json
+    prof = json.loads(PROFILES.read_text())
+    pcols = ("customer_id supplier_id highways lead_time_variability utilization capacity_ceiling finished_goods_days "
+             "bottleneck otif_weekly data_status source").split()
+    prows = []
+    for rel in seed.get("relationships", []):
+        p = prof.get(rel["supplierId"])
+        if not p:
+            continue
+        prows.append("  (" + ", ".join([
+            lit(rel["customerId"], "s"), lit(rel["supplierId"], "s"), lit(p["highways"], A), lit(p["lead_time_variability"], "s"),
+            lit(p["utilization"], "s"), lit(p["ceiling"], "s"), lit(p["fg_days"], "s"), lit(p["bottleneck"], "s"),
+            lit(otif_series(rel["supplierId"], p["otif"]), J), lit(p["data_status"], "s"), lit("seed", "s")]) + ")")
+    out.append(f"-- supplier_profiles ({len(prows)})")
+    out.append(f"insert into public.supplier_profiles ({', '.join(pcols)}) values")
+    out.append(",\n".join(prows) + ";\n")
     s = seed.get("settings", {})
     out.append(
         "update public.app_settings set "

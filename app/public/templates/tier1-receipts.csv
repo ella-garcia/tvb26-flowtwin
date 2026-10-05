@@ -1,0 +1,4 @@
+PO number,supplier code,part number,promised date,received date,quantity ordered,quantity received
+PO-100231,edl,QSS-4471-BRK,2026-09-14,2026-09-14,18000,18000
+PO-100232,edl,QSS-4480-RCP,2026-09-21,2026-09-24,9000,7200
+PO-100233,hmo,QSS-6133-GRM,2026-09-28,2026-09-28,36000,36000

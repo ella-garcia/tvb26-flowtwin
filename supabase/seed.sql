@@ -162,6 +162,24 @@ insert into public.invites (id, customer_id, supplier_id, supplier_name, contact
   ('inv-cha', 'qss', 'cha', 'Cableados Hidrocálidos', 'rcalderon@cha.example', '2026-09-29', 'sent', 'sponsored'),
   ('inv-fdt', 'qss', 'fdt', 'Forjas de Toluca', 'apena@fdt.example', '2026-10-01', 'sent', 'sponsored');
 
+-- supplier_profiles (15)
+insert into public.supplier_profiles (customer_id, supplier_id, highways, lead_time_variability, utilization, capacity_ceiling, finished_goods_days, bottleneck, otif_weekly, data_status, source) values
+  ('qss', 'edl', ARRAY['MEX-45D']::text[], 0.38, 0.88, 0.95, 0.5, 'Press 4 (400 t)', '[0.964, 0.96, 0.962, 0.967, 0.952, 0.948, 0.945, 0.937, 0.932, 0.934, 0.919, 0.912]'::jsonb, 'connected', 'seed'),
+  ('qss', 'hmo', ARRAY['MEX-150D']::text[], 0.25, 0.91, 0.95, 1.0, 'Extrusion line 2', '[0.97, 0.978, 0.967, 0.974, 0.972, 0.966, 0.967, 0.972, 0.972, 0.962, 0.95, 0.935]'::jsonb, 'connected', 'seed'),
+  ('qss', 'tsr', ARRAY['MEX-57D']::text[], 0.3, 0.78, 0.95, 2.0, 'Cold heading machines', '[0.981, 0.98, 0.973, 0.966, 0.969, 0.969, 0.968, 0.966, 0.963, 0.964, 0.952, 0.957]'::jsonb, 'connected', 'seed'),
+  ('qss', 'pip', ARRAY['MEX-190','MEX-57D']::text[], 0.22, 0.82, 0.95, 1.5, 'Injection press 7 (450 t)', '[0.979, 0.968, 0.984, 0.975, 0.975, 0.966, 0.969, 0.964, 0.965, 0.956, 0.955, 0.957]'::jsonb, 'connected', 'seed'),
+  ('qss', 'rdp', ARRAY['MEX-200','MEX-15D']::text[], 0.28, 0.74, 0.95, 2.0, 'Imported resin supply (port)', '[0.977, 0.969, 0.968, 0.969, 0.97, 0.968, 0.97, 0.965, 0.961, 0.96, 0.963, 0.956]'::jsonb, 'connected', 'seed'),
+  ('qss', 'etb', ARRAY['MEX-45D']::text[], 0.12, 0.7, 0.95, 1.5, 'Foam pouring line 1', '[0.974, 0.99, 0.987, 0.99, 0.986, 0.982, 0.986, 0.984, 0.986, 0.981, 0.985, 0.985]'::jsonb, 'connected', 'seed'),
+  ('qss', 'cha', ARRAY['MEX-45D']::text[], 0.15, 0.72, 0.95, 1.0, 'Harness assembly cells', '[0.95, 0.945, 0.952, 0.952, 0.949, 0.947, 0.955, 0.952, 0.943, 0.94, 0.945, 0.949]'::jsonb, 'invited', 'seed'),
+  ('qss', 'mds', ARRAY['MEX-45D']::text[], 0.1, 0.66, 0.95, 2.0, 'CNC cell B', '[0.988, 0.982, 0.982, 0.989, 0.987, 0.995, 0.991, 0.991, 0.985, 0.993, 0.986, 0.983]'::jsonb, 'connected', 'seed'),
+  ('slp-interiors', 'mds', ARRAY['MEX-45D']::text[], 0.1, 0.66, 0.95, 2.0, 'CNC cell B', '[0.988, 0.982, 0.982, 0.989, 0.987, 0.995, 0.991, 0.991, 0.985, 0.993, 0.986, 0.983]'::jsonb, 'connected', 'seed'),
+  ('qss', 'fdt', ARRAY['MEX-15D','MEX-57D']::text[], 0.14, 0.75, 0.95, 1.5, 'Forging press 3', '[0.962, 0.955, 0.956, 0.953, 0.949, 0.953, 0.955, 0.951, 0.955, 0.957, 0.953, 0.956]'::jsonb, 'invited', 'seed'),
+  ('qss', 'rpo', ARRAY['MEX-57D']::text[], 0.11, 0.68, 0.95, 2.0, 'Coiling line 4', '[0.991, 0.993, 0.992, 0.988, 0.99, 0.992, 0.984, 0.986, 0.991, 0.991, 0.987, 0.989]'::jsonb, 'connected', 'seed'),
+  ('slp-interiors', 'rpo', ARRAY['MEX-57D']::text[], 0.11, 0.68, 0.95, 2.0, 'Coiling line 4', '[0.991, 0.993, 0.992, 0.988, 0.99, 0.992, 0.984, 0.986, 0.991, 0.991, 0.987, 0.989]'::jsonb, 'connected', 'seed'),
+  ('qss', 'tps', ARRAY['MEX-57D']::text[], 0.2, 0.76, 0.95, 1.5, 'Roll-forming line (estimated)', '[0.959, 0.958, 0.958, 0.943, 0.95, 0.954, 0.952, 0.95, 0.963, 0.953, 0.958, 0.952]'::jsonb, 'public-only', 'seed'),
+  ('slp-interiors', 'tps', ARRAY['MEX-57D']::text[], 0.2, 0.76, 0.95, 1.5, 'Roll-forming line (estimated)', '[0.959, 0.958, 0.958, 0.943, 0.95, 0.954, 0.952, 0.95, 0.963, 0.953, 0.958, 0.952]'::jsonb, 'public-only', 'seed'),
+  ('slp-interiors', 'pis', ARRAY['MEX-57D']::text[], 0.13, 0.71, 0.95, 1.0, 'Powder-coat line', '[0.98, 0.983, 0.981, 0.978, 0.982, 0.983, 0.985, 0.981, 0.988, 0.985, 0.981, 0.977]'::jsonb, 'connected', 'seed');
+
 update public.app_settings set line_stop_cost_eur_per_minute = 15000, contract_demand_swing = 0.15, line_hours_per_day = 16, as_of = '2026-10-05'::date where id = 1;
 
 -- reset_demo() restores these (table column shape, snake_case)

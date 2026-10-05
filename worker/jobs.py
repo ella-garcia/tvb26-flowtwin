@@ -30,8 +30,11 @@ def run_job(db: DB, job: dict) -> dict:
         if job.get("company_id"):
             return recompute_customer(db, job["company_id"], as_of)
         return recompute_all(db, as_of)
+    if kind == "parse-upload":
+        from intake import run_parse_upload
+        return run_parse_upload(db, job)
     if kind == "ingest-signals":
-        source = get_source(payload.get("source", "file"), payload)
+        source = get_source(payload.get("source", "file"), payload, db)
         rows = source.fetch()
         db.upsert("signals", rows, "id")
         db.insert("jobs", [{"kind": "recompute-risk", "company_id": None, "payload": {"reason": "ingest-signals"}}])

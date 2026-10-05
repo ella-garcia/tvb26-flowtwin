@@ -9,6 +9,7 @@ from pydantic import BaseModel
 import config
 import jobs
 import risk_runner
+import scheduled
 from db import DB
 
 app = FastAPI(title="FlowTwin worker", version="0.1.0")
@@ -56,5 +57,20 @@ def recompute_risk(req: RecomputeRequest, db: DB = Depends(get_db)):
         return risk_runner.recompute_customer(db, req.customer_id, req.as_of)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=502, detail=f"Supabase unreachable: {type(e).__name__}") from e
+
+
+@app.post("/cron/hourly", dependencies=[Depends(require_token)])
+def cron_hourly(db: DB = Depends(get_db)):
+    """Called by pg_cron every hour: ingest signals, recompute risk, auto-resolve, notify."""
+    return scheduled.run_hourly(db)
+
+
+@app.post("/jobs/drain", dependencies=[Depends(require_token)])
+def jobs_drain(db: DB = Depends(get_db)):
+    """Called by pg_cron every 2 minutes: run queued jobs (e.g. uploads) until idle."""
+    try:
+        return scheduled.drain_jobs(db, max_jobs=20)
     except httpx.HTTPError as e:
         raise HTTPException(status_code=502, detail=f"Supabase unreachable: {type(e).__name__}") from e

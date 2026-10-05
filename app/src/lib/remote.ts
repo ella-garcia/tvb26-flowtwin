@@ -1,7 +1,7 @@
 // Live mode: Supabase client, session, identity switch, data load and write-through calls.
 // Seed mode never imports anything from here at runtime beyond `isLive`.
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { Alert, Invite, RoleId, Seed, Settings, UploadRecord } from "./types";
+import type { Alert, AlertNotification, Invite, RoleId, Seed, Settings, UploadRecord } from "./types";
 import { rowsToApp, rowToDb } from "./caseMap";
 
 const URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
@@ -101,3 +101,48 @@ export const sendInvite = async (invite: Invite) => must(await supabase().from("
 export const recordUpload = async (u: UploadRecord) =>
   must(await supabase().from("uploads").upsert(rowToDb(u), { onConflict: "company_id,kind" }));
 export const resetRemoteDemo = async () => must(await supabase().rpc("reset_demo"));
+
+// ---- Tier 1 uploads and notifications ----
+/** Upload a file to the private 'uploads' bucket at <company>/<kind>/<timestamp>-<name>. Returns the storage path. */
+export async function uploadFile(companyId: string, kind: string, file: File): Promise<string> {
+  const path = `${companyId}/${kind}/${Date.now()}-${file.name}`;
+  const { error } = await supabase().storage.from("uploads").upload(path, file, { upsert: false });
+  if (error) throw new Error(error.message);
+  return path;
+}
+
+/** Record the upload as waiting, then queue the parse job for the worker. Returns the job id when known. */
+export async function queueParseJob(companyId: string, kind: string, storagePath: string, fileName: string): Promise<number | undefined> {
+  const sb = supabase();
+  must(await sb.from("uploads").upsert({
+    company_id: companyId, kind, file_name: fileName, rows: 0, source: "Upload", status: "waiting",
+    storage_path: storagePath, uploaded_at: new Date().toISOString(), issues: [], mapping: {},
+  }, { onConflict: "company_id,kind" }));
+  const r = await sb.from("jobs").insert({
+    kind: "parse-upload", company_id: companyId,
+    payload: { company_id: companyId, kind, storage_path: storagePath, file_name: fileName },
+  }).select("id");
+  if (r.error) throw new Error(r.error.message);
+  return (r.data?.[0] as { id?: number } | undefined)?.id;
+}
+
+export async function fetchUploads(companyId: string): Promise<UploadRecord[]> {
+  const { data, error } = await supabase().from("uploads").select("*").eq("company_id", companyId);
+  if (error) throw new Error(error.message);
+  return rowsToApp<UploadRecord>(data);
+}
+
+export async function fetchNotifications(alertIds: string[]): Promise<AlertNotification[]> {
+  if (alertIds.length === 0) return [];
+  const { data, error } = await supabase().from("alert_notifications").select("*").in("alert_id", alertIds);
+  if (error) throw new Error(error.message);
+  return rowsToApp<Record<string, unknown>>(data).map((r) => ({
+    id: r.id != null ? String(r.id) : undefined,
+    alertId: String(r.alertId),
+    recipient: (r.recipient ?? r.recipientEmail ?? r.email ?? r.to) as string | undefined,
+    channel: r.channel as string | undefined,
+    status: r.status as string | undefined,
+    dryRun: typeof r.dryRun === "boolean" ? r.dryRun : r.status === "dry-run" || r.status === "dry_run",
+    sentAt: (r.sentAt ?? r.createdAt) as string | undefined,
+  }));
+}

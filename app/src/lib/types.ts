@@ -227,7 +227,13 @@ export interface UploadRecord {
   source: string;             // "Excel", "CONTPAQi export", …
   status: "waiting" | "uploaded" | "needs-input";
   uploadedAt?: string;
+  /** Set by the upload worker (live mode). */
+  issues?: UploadIssue[];
+  mapping?: Record<string, string>;   // "your column" -> canonical field it was read as
+  jobId?: number;
 }
+
+export interface UploadIssue { row?: number; column?: string; message: string; severity: "error" | "warning" | "info" }
 
 /** The whole seed, as loaded by the data layer. Produced by data-gen/generate_seed.py. */
 export interface Seed {
@@ -256,6 +262,7 @@ export interface Seed {
   risks: RiskAssessment[];
   alerts: Alert[];
   invites: Invite[];
+  alertNotifications?: AlertNotification[];
 }
 
 // ======================= Early warning (v0 core) =======================
@@ -304,6 +311,9 @@ export interface Signal {
   transitMultiplier: number;
   source: string;              // "SMN/CONAGUA seasonal outlook (seeded)", …
   provenance: Provenance;
+  shortLabel?: string;         // "Open-Meteo forecast"
+  sourceId?: string;           // "open-meteo", "demo", "smn"
+  active?: boolean;            // false = hidden from the risk engine
 }
 
 export type RiskLevel = "green" | "amber" | "red";
@@ -373,6 +383,18 @@ export interface Alert {
   actions: AlertAction[];
   chosenActionId?: string;
   supplierResponse?: { by: string; at: string; message: string; confirmedCapacity: boolean };
+  resolvedBy?: string;         // 'engine' when the risk turned green on its own
+}
+
+/** An email (or dry run) sent about an alert. */
+export interface AlertNotification {
+  id?: string;
+  alertId: string;
+  recipient?: string;
+  channel?: string;
+  status?: string;             // "sent", "dry-run", "failed", …
+  dryRun?: boolean;
+  sentAt?: string;
 }
 
 /** A key customer inviting a supplier onto the platform (sponsored, free for the supplier). */

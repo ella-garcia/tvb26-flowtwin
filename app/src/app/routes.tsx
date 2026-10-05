@@ -7,6 +7,7 @@ import AlertsPage from "../pages/alerts";
 import SupplierPage from "../pages/supplier";
 import InvitePage from "../pages/invite";
 import MyRiskPage from "../pages/my-risk";
+import Tier1DataPage from "../pages/tier1-data";
 import DataPage from "../pages/data";
 import SignalsPage from "../pages/admin/Signals";
 import CompaniesPage from "../pages/admin/Companies";
@@ -24,6 +25,7 @@ export const MODULES: Record<ModuleId, ModuleDef> = {
   alerts: { label: "Alerts", icon: "bell", Page: AlertsPage },
   supplier: { label: "Supplier", icon: "users", Page: SupplierPage },
   invite: { label: "Invite", icon: "plus", Page: InvitePage },
+  "tier1-data": { label: "Data", icon: "upload", Page: Tier1DataPage },
   "my-risk": { label: "My risk", icon: "pulse", Page: MyRiskPage },
   data: { label: "My data", icon: "upload", Page: DataPage },
   signals: { label: "Signals", icon: "map", Page: SignalsPage },
