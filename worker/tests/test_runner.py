@@ -29,7 +29,6 @@ class MemDB:
 
 
 def test_recompute_customer_writes_risks_and_alerts(db_rows, seed):
-    from tests.conftest import SIG_MAP, rename  # noqa: F401
     sigs = [{**{k: v for k, v in s.items() if k != "short"}, "active": True} for s in db_rows["signals"]]
     existing = [{"id": "alert-hmo-qss", "customer_id": "qss"}]
     db = MemDB(dict(app_settings=[dict(id=1, as_of="2026-10-05", line_stop_cost_eur_per_minute=15000, contract_demand_swing=0.15,

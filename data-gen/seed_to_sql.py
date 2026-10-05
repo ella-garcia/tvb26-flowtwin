@@ -3,9 +3,9 @@
 
 Run: python3 data-gen/seed_to_sql.py
 Column kinds: s = scalar, j = jsonb (kept as camelCase JSON), a = text[].
-Keys absent from a seed row become DEFAULT. Seed keys that are not columns (e.g. signals.short) are dropped.
+Keys absent from a seed row become DEFAULT. Seed keys that are not columns are dropped; SEED_KEY maps the few that differ.
 """
-import json, re, sys
+import json, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -14,6 +14,7 @@ OUT = ROOT / "supabase/seed.sql"
 PROFILES = ROOT / "worker/data/supplier_profiles.json"
 sys.path.insert(0, str(ROOT / "worker"))
 from engine.otif import otif_series  # same synthetic 12-week OTIF generator the engine uses
+from naming import camel
 
 # (seed key, table, columns). Columns are snake_case; kinds default to scalar.
 J, A = "j", "a"
@@ -45,7 +46,7 @@ TABLES = [
 COLUMNS = {
     "companies": "id name city state lat lon kind size_band employees scian pack_ids synthetic contact",
     "relationships": "supplier_id customer_id chain_position share_of_sales requirements",
-    "signals": "id kind title description state lat lon radius_km highways starts_at ends_at severity transit_multiplier source provenance",
+    "signals": "id kind title description state lat lon radius_km highways starts_at ends_at severity transit_multiplier source provenance short_label",
     "emission_factors": "id version name value unit scope source year",
     "sites": "id company_id name type city lat lon pallet_positions rented_positions",
     "partners": "id company_id name role city lat lon linked_company_id material lead_time_days lead_time_variability",
@@ -67,9 +68,11 @@ COLUMNS = {
     "shares": "id supplier_id customer_id request_id items approved_by approved_at version revoked scorecard carbon",
 }
 
-def camel(s):
-    parts = s.split("_")
-    return parts[0] + "".join(p.title() for p in parts[1:])
+# column -> seed key where it is not just the camelCase of the column
+SEED_KEY = {"short_label": "short"}
+
+def seed_key(c):
+    return SEED_KEY.get(c) or camel(c)
 
 def q(s):
     return "'" + str(s).replace("'", "''") + "'"
@@ -96,13 +99,13 @@ def main():
         rows = seed.get(key) or []
         if not rows:
             continue
-        cols = [c for c in COLUMNS[table].split() if any(camel(c) in r for r in rows)]
+        cols = [c for c in COLUMNS[table].split() if any(seed_key(c) in r for r in rows)]
         out.append(f"-- {table} ({len(rows)})")
         out.append(f"insert into public.{table} ({', '.join(cols)}) values")
         vals = []
         for r in rows:
             vals.append("  (" + ", ".join(
-                lit(r[camel(c)], kinds.get(c, "s")) if camel(c) in r else "DEFAULT" for c in cols) + ")")
+                lit(r[seed_key(c)], kinds.get(c, "s")) if seed_key(c) in r else "DEFAULT" for c in cols) + ")")
         out.append(",\n".join(vals) + ";\n")
         if table in ("alerts", "invites"):
             snapshots[table] = [{c: r[camel(c)] for c in COLUMNS[table].split() if camel(c) in r} for r in rows]
