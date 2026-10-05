@@ -157,6 +157,19 @@ sup(id="pis", name="Pinturas Industriales de San Luis", city="San Luis Potosí",
     cust={"slp-interiors": dict(share=0.60, parts=[
         ("SLP-5101-PWD", "Powder coat, textured black (kg)", 96.0, 480, 12.0, False, "normal"),
         ("SLP-5110-CPT", "Coated door support bracket", 7.4, 2600, 4.0, False, "high")])})
+# Imported material: crosses the border at Nuevo Laredo, so the route has border and customs legs (D, Oct 2026).
+# Leg days are normal times; signals slow only the legs they reach (worker/engine/projection.py SIGNAL_LEGS).
+sup(id="pfl", name="Polímeros Frontera", city="Laredo", state="Texas", lat=27.53, lon=-99.49, size="small", emp=45,
+    scian="424610", status="connected", cv=0.18, hw=["MEX-85D", "MEX-57D"], bn="Customs clearance at Nuevo Laredo", util=0.70, ceil=0.95, fg=3.0,
+    contact=dict(name="Carlos Garza", email="cgarza@pfl.example", role="Logistics manager"),
+    otif=(0.962, 0.95, "flat"),
+    route=[dict(kind="road", label="Road to the border", place="Laredo, Texas", lat=27.53, lon=-99.49, days=0.5, highways=["I-35"]),
+           dict(kind="border", label="Border crossing", place="Nuevo Laredo", lat=27.60, lon=-99.53, days=0.5, highways=[]),
+           dict(kind="customs", label="Mexican customs clearance", place="Nuevo Laredo", lat=27.48, lon=-99.51, days=1.0, highways=[]),
+           dict(kind="road", label="Road to Querétaro", place="MEX-85D and MEX-57D", lat=25.67, lon=-100.31, days=2.0,
+                highways=["MEX-85D", "MEX-57D"])],
+    cust={"qss": dict(share=0.15, parts=[
+        ("QSS-5401-PPH", "PP homopolymer pellets, imported (kg)", 38.0, 1500, 5.0, True, "high")])})
 SUP = {s["id"]: s for s in S}
 
 
@@ -164,7 +177,7 @@ def eng_supplier(sp):
     """Supplier spec -> engine supplier dict (companies row merged with its profile)."""
     return dict(id=sp["id"], name=sp["name"], city=sp["city"], lat=sp["lat"], lon=sp["lon"], highways=sp["hw"],
                 lead_time_variability=sp["cv"], utilization=sp["util"], ceiling=sp["ceil"], fg_days=sp["fg"],
-                bottleneck=sp["bn"], otif=sp["otif"], data_status=sp["status"])
+                bottleneck=sp["bn"], otif=sp["otif"], data_status=sp["status"], **({"route": sp["route"]} if sp.get("route") else {}))
 
 # ----------------------------------------------------------------- signals
 SIGNALS = [
@@ -208,6 +221,11 @@ SIGNALS = [
          description="Daily storms flood low-lying roads around Toluca and slow trucks on MEX-15D.",
          state="México", lat=19.29, lon=-99.65, radiusKm=50, highways=[], startsAt="2026-09-30", endsAt="2026-10-15",
          severity="low", transitMultiplier=1.1, source="SMN daily forecast (seeded for demo)"),
+    dict(id="sig-customs-nld", kind="customs", short="Customs system outage at Nuevo Laredo",
+         title="Customs system outage, Nuevo Laredo commercial bridge",
+         description="Repeated failures of the customs system slowed the release of cargo at the Nuevo Laredo commercial bridge. Trucks queue for kilometres and the backlog clears slowly; release takes about three times longer. Modelled on press reports of ANAM outages.",
+         state="Tamaulipas", lat=27.50, lon=-99.52, radiusKm=25, highways=[], startsAt="2026-10-03", endsAt="2026-10-20",
+         severity="high", transitMultiplier=3.0, source="Press reports of ANAM system outages (seeded for demo)"),
 ]
 for s in SIGNALS: s["provenance"] = "estimated"
 
@@ -324,7 +342,7 @@ def main():
 
     # --- alerts: one per red and per significant amber
     alerts = []
-    meta = {"hmo": ("new", "2026-10-05"), "tsr": ("new", "2026-10-04"), "edl": ("supplier-responded", "2026-10-04"),
+    meta = {"pfl": ("new", "2026-10-05"), "hmo": ("new", "2026-10-05"), "tsr": ("new", "2026-10-04"), "edl": ("supplier-responded", "2026-10-04"),
             "pip": ("acknowledged", "2026-10-03"), "rdp": ("new", "2026-10-02")}
     for (cid, sid), a in sorted(ass.items(), key=lambda kv: -kv[1]["risk"]["lineStopExposureEur"]):
         r = a["risk"]

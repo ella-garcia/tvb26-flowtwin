@@ -44,3 +44,14 @@
 .supplier-risk-privacy p { margin: 0; }
 .supplier-risk-grade { display: flex; flex-direction: column; gap: var(--space-1); }
 .supplier-risk-next { display: inline-flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.supplier-risk-route { width: 100%; height: auto; max-width: 640px; }
+.supplier-risk-axis { font: 500 11px/1 var(--font-sans); fill: var(--ink-subtle); }
+.supplier-risk-leg { stroke: var(--surface-raised); stroke-width: 1.5; }
+.supplier-risk-leg-road { fill: var(--chart-3); }
+.supplier-risk-leg-border { fill: var(--chart-2); }
+.supplier-risk-leg-customs { fill: var(--primary); }
+.supplier-risk-leg-port, .supplier-risk-leg-sea { fill: var(--ink-subtle); }
+.supplier-risk-legs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.supplier-risk-legs li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; }
+.supplier-risk-legs b { color: var(--ink); font-weight: 600; }
+.supplier-risk-leg-up { font-style: normal; font-weight: 600; color: var(--danger); }

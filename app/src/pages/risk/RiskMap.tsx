@@ -9,8 +9,8 @@ const P = mexico.projection;
 const px = (lon: number) => (lon - P.lon0) * P.cosLat * P.k;
 const py = (lat: number) => (P.lat0 - lat) * P.k;
 const KM_TO_PX = P.k / 111.2;
-// Central Mexico: Manzanillo to Veracruz, Monterrey/Saltillo to Orizaba.
-const VIEWBOX = "318 160 262 232";
+// Central and north-east Mexico: Manzanillo to Veracruz, the Nuevo Laredo / Laredo border crossing to Orizaba.
+const VIEWBOX = "318 122 262 270";
 
 const short = (s: string, n = 24) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 

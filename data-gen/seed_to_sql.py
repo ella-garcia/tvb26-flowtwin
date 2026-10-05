@@ -36,7 +36,7 @@ TABLES = [
     ("uploads", "uploads", {}),
     ("programs", "vehicle_programs", {}),
     ("parts", "parts", {"program_ids": A}),
-    ("risks", "risks", {"drivers": J, "flex": J, "otif_trend": J, "projection": J, "part_stop_days": J}),
+    ("risks", "risks", {"drivers": J, "flex": J, "otif_trend": J, "projection": J, "part_stop_days": J, "legs": J}),
     ("alerts", "alerts", {"part_ids": A, "actions": J, "supplier_response": J}),
     ("invites", "invites", {}),
     ("requests", "requests", {"items": A}),
@@ -61,7 +61,7 @@ COLUMNS = {
     "uploads": "company_id kind file_name rows source status uploaded_at storage_path",
     "parts": "id number name supplier_id customer_id unit_cost_mxn daily_usage on_hand days_of_cover single_source criticality in_transit supplier_fg_on_hand next_delivery_date program_ids",
     "vehicle_programs": "id customer_id oem model oem_plant daily_vehicles",
-    "risks": "customer_id supplier_id level score normal_transit_days expected_transit_days worst_case_transit_days min_cover_days days_to_line_stop part_stop_days line_stop_exposure_eur drivers flex otif_trend projection data_status updated_at",
+    "risks": "customer_id supplier_id level score normal_transit_days expected_transit_days worst_case_transit_days min_cover_days days_to_line_stop part_stop_days legs line_stop_exposure_eur drivers flex otif_trend projection data_status updated_at",
     "alerts": "id customer_id supplier_id part_ids signal_id level title message created_at expected_shortfall_date line_stop_exposure_eur status actions chosen_action_id supplier_response",
     "invites": "id customer_id supplier_id supplier_name contact_email sent_at status plan",
     "requests": "id from_company_id to_company_id items fiscal_year sent_at due_date status note",
@@ -115,7 +115,7 @@ def main():
     # supplier_profiles: one row per (customer, supplier) relationship, from worker/data/supplier_profiles.json
     prof = json.loads(PROFILES.read_text())
     pcols = ("customer_id supplier_id highways lead_time_variability utilization capacity_ceiling finished_goods_days "
-             "bottleneck otif_weekly data_status source").split()
+             "bottleneck otif_weekly data_status source route").split()
     prows, psnap = [], []
     for rel in seed.get("relationships", []):
         p = prof.get(rel["supplierId"])
@@ -124,10 +124,10 @@ def main():
         prows.append("  (" + ", ".join([
             lit(rel["customerId"], "s"), lit(rel["supplierId"], "s"), lit(p["highways"], A), lit(p["lead_time_variability"], "s"),
             lit(p["utilization"], "s"), lit(p["ceiling"], "s"), lit(p["fg_days"], "s"), lit(p["bottleneck"], "s"),
-            lit(otif_series(rel["supplierId"], p["otif"]), J), lit(p["data_status"], "s"), lit("seed", "s")]) + ")")
+            lit(otif_series(rel["supplierId"], p["otif"]), J), lit(p["data_status"], "s"), lit("seed", "s"), lit(p.get("route"), J)]) + ")")
         psnap.append(dict(zip(pcols, [rel["customerId"], rel["supplierId"], p["highways"], p["lead_time_variability"], p["utilization"],
                                       p["ceiling"], p["fg_days"], p["bottleneck"], otif_series(rel["supplierId"], p["otif"]),
-                                      p["data_status"], "seed"])))
+                                      p["data_status"], "seed", p.get("route")])))
     snapshots["supplier_profiles"] = psnap
     out.append(f"-- supplier_profiles ({len(prows)})")
     out.append(f"insert into public.supplier_profiles ({', '.join(pcols)}) values")

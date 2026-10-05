@@ -14,6 +14,7 @@ import { OtifCard } from "./OtifCard";
 import { PartsCard } from "./PartsCard";
 import { ProjectionChart, ProjectionLegend } from "./ProjectionChart";
 import { RelatedAlerts } from "./RelatedAlerts";
+import { RouteCard } from "./RouteCard";
 import "./supplier-risk.css";
 
 export interface SupplierRiskViewProps { customerId: string; supplierId: string; audience: "customer" | "supplier" }
@@ -105,6 +106,8 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
           data={`Active signals on the lane, normal transit of ${num(risk.normalTransitDays, 1)} days, and ${customerName}'s stock and daily usage.`}
           provenance={prov} />
       </Card>
+
+      {risk.legs && risk.legs.length > 1 && <RouteCard legs={risk.legs} provenance={prov} />}
 
       <FlexCard flex={risk.flex} />
       <PartsCard parts={parts} programs={programs} risk={risk} supplierId={supplierId} audience={audience} />

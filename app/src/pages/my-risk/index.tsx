@@ -67,7 +67,7 @@ function improvements(r: RiskAssessment | undefined): { icon: IconName; text: st
       : "Connect your data. Right now the score relies on public information, so it is cautious about you." });
   }
   if (!r.flex.canAbsorb) out.push({ icon: "gear", text: `Confirm press capacity. Today ${r.flex.bottleneck} limits an extra ${Math.round(r.flex.demandIncrease * 100)}% of orders.` });
-  if (r.drivers.some((d) => d.kind === "road" || d.kind === "weather" || d.kind === "port" || d.kind === "blockade")) {
+  if (r.drivers.some((d) => d.kind === "road" || d.kind === "weather" || d.kind === "port" || d.kind === "customs" || d.kind === "blockade")) {
     out.push({ icon: "truck", text: "Add a daytime departure window and a backup route, so trucks can avoid the affected highways." });
   }
   if (r.drivers.some((d) => d.kind === "theft")) out.push({ icon: "lock", text: "Move night departures to daytime windows where you can. Fewer night trips lowers theft risk." });

@@ -295,6 +295,27 @@
     "email": "dochoa@pis.example",
     "role": "Owner"
    }
+  },
+  {
+   "id": "pfl",
+   "name": "Polímeros Frontera",
+   "city": "Laredo",
+   "state": "Texas",
+   "lat": 27.53,
+   "lon": -99.49,
+   "kind": "supplier",
+   "sizeBand": "small",
+   "employees": 45,
+   "scian": "424610",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Carlos Garza",
+    "email": "cgarza@pfl.example",
+    "role": "Logistics manager"
+   }
   }
  ],
  "relationships": [
@@ -499,6 +520,20 @@
    "customerId": "slp-interiors",
    "chainPosition": "sub",
    "shareOfSales": 0.6,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "pfl",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.15,
    "requirements": {
     "otifTarget": 0.98,
     "ppmTarget": 50,
@@ -1458,6 +1493,27 @@
    "programIds": [
     "prog-slp-c2"
    ]
+  },
+  {
+   "id": "part-qss-5401-pph",
+   "number": "QSS-5401-PPH",
+   "name": "PP homopolymer pellets, imported (kg)",
+   "supplierId": "pfl",
+   "customerId": "qss",
+   "unitCostMxn": 38.0,
+   "dailyUsage": 1500,
+   "onHand": 7500,
+   "daysOfCover": 5.0,
+   "singleSource": true,
+   "criticality": "high",
+   "inTransit": 4500,
+   "supplierFgOnHand": 4500,
+   "nextDeliveryDate": "2026-10-13",
+   "programIds": [
+    "prog-qss-k3",
+    "prog-qss-m5",
+    "prog-qss-t1"
+   ]
   }
  ],
  "programs": [
@@ -1650,6 +1706,24 @@
    "transitMultiplier": 1.1,
    "source": "SMN daily forecast (seeded for demo)",
    "provenance": "estimated"
+  },
+  {
+   "id": "sig-customs-nld",
+   "kind": "customs",
+   "short": "Customs system outage at Nuevo Laredo",
+   "title": "Customs system outage, Nuevo Laredo commercial bridge",
+   "description": "Repeated failures of the customs system slowed the release of cargo at the Nuevo Laredo commercial bridge. Trucks queue for kilometres and the backlog clears slowly; release takes about three times longer. Modelled on press reports of ANAM outages.",
+   "state": "Tamaulipas",
+   "lat": 27.5,
+   "lon": -99.52,
+   "radiusKm": 25,
+   "highways": [],
+   "startsAt": "2026-10-03",
+   "endsAt": "2026-10-20",
+   "severity": "high",
+   "transitMultiplier": 3.0,
+   "source": "Press reports of ANAM system outages (seeded for demo)",
+   "provenance": "estimated"
   }
  ],
  "risks": [
@@ -1664,6 +1738,15 @@
    "minCoverDays": 1.2,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Celaya",
+     "normalDays": 1.0,
+     "expectedDays": 1.4
+    }
+   ],
    "lineStopExposureEur": 76000,
    "drivers": [
     {
@@ -1843,6 +1926,15 @@
    "partStopDays": {
     "part-qss-6120-lmb": 2
    },
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Orizaba",
+     "normalDays": 2.0,
+     "expectedDays": 5.2
+    }
+   ],
    "lineStopExposureEur": 6848000,
    "drivers": [
     {
@@ -2020,6 +2112,15 @@
    "minCoverDays": 1.5,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Monterrey",
+     "normalDays": 2.0,
+     "expectedDays": 2.1
+    }
+   ],
    "lineStopExposureEur": 283000,
    "drivers": [
     {
@@ -2192,6 +2293,15 @@
    "minCoverDays": 1.5,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Puebla",
+     "normalDays": 1.0,
+     "expectedDays": 1.1
+    }
+   ],
    "lineStopExposureEur": 862000,
    "drivers": [
     {
@@ -2370,6 +2480,15 @@
    "minCoverDays": 2.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Manzanillo",
+     "normalDays": 2.0,
+     "expectedDays": 3.0
+    }
+   ],
    "lineStopExposureEur": 147000,
    "drivers": [
     {
@@ -2536,6 +2655,15 @@
    "minCoverDays": 4.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "León",
+     "normalDays": 1.0,
+     "expectedDays": 1.1
+    }
+   ],
    "lineStopExposureEur": 0,
    "drivers": [
     {
@@ -2697,6 +2825,15 @@
    "minCoverDays": 5.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Aguascalientes",
+     "normalDays": 1.0,
+     "expectedDays": 1.1
+    }
+   ],
    "lineStopExposureEur": 0,
    "drivers": [
     {
@@ -2863,6 +3000,15 @@
    "minCoverDays": 8.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Silao",
+     "normalDays": 1.0,
+     "expectedDays": 1.1
+    }
+   ],
    "lineStopExposureEur": 0,
    "drivers": [
     {
@@ -3013,6 +3159,15 @@
    "minCoverDays": 9.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Silao",
+     "normalDays": 1.0,
+     "expectedDays": 1.1
+    }
+   ],
    "lineStopExposureEur": 0,
    "drivers": [
     {
@@ -3163,6 +3318,15 @@
    "minCoverDays": 9.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Toluca",
+     "normalDays": 1.0,
+     "expectedDays": 1.2
+    }
+   ],
    "lineStopExposureEur": 0,
    "drivers": [
     {
@@ -3330,6 +3494,15 @@
    "minCoverDays": 9.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "San Luis Potosí",
+     "normalDays": 1.0,
+     "expectedDays": 1.1
+    }
+   ],
    "lineStopExposureEur": 0,
    "drivers": [
     {
@@ -3486,6 +3659,15 @@
    "minCoverDays": 10.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "San Luis Potosí",
+     "normalDays": 1.0,
+     "expectedDays": 1.1
+    }
+   ],
    "lineStopExposureEur": 0,
    "drivers": [
     {
@@ -3642,6 +3824,15 @@
    "minCoverDays": 8.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Saltillo",
+     "normalDays": 2.0,
+     "expectedDays": 2.1
+    }
+   ],
    "lineStopExposureEur": 0,
    "drivers": [
     {
@@ -3803,6 +3994,15 @@
    "minCoverDays": 6.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "Saltillo",
+     "normalDays": 2.0,
+     "expectedDays": 2.1
+    }
+   ],
    "lineStopExposureEur": 0,
    "drivers": [
     {
@@ -3970,6 +4170,15 @@
    "minCoverDays": 4.0,
    "daysToLineStop": null,
    "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road",
+     "place": "San Luis Potosí",
+     "normalDays": 1.0,
+     "expectedDays": 1.1
+    }
+   ],
    "lineStopExposureEur": 0,
    "drivers": [
     {
@@ -4121,6 +4330,204 @@
      "transitP50": 1.1,
      "transitP90": 1.2,
      "coverDays": 3.9
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "pfl",
+   "level": "amber",
+   "score": 37,
+   "normalTransitDays": 4,
+   "expectedTransitDays": 7.2,
+   "worstCaseTransitDays": 9.1,
+   "minCoverDays": 5.0,
+   "daysToLineStop": null,
+   "partStopDays": {},
+   "legs": [
+    {
+     "kind": "road",
+     "label": "Road to the border",
+     "place": "Laredo, Texas",
+     "normalDays": 0.5,
+     "expectedDays": 0.5
+    },
+    {
+     "kind": "border",
+     "label": "Border crossing",
+     "place": "Nuevo Laredo",
+     "normalDays": 0.5,
+     "expectedDays": 1.5
+    },
+    {
+     "kind": "customs",
+     "label": "Mexican customs clearance",
+     "place": "Nuevo Laredo",
+     "normalDays": 1.0,
+     "expectedDays": 3.0
+    },
+    {
+     "kind": "road",
+     "label": "Road to Querétaro",
+     "place": "MEX-85D and MEX-57D",
+     "normalDays": 2.0,
+     "expectedDays": 2.1
+    }
+   ],
+   "lineStopExposureEur": 13000,
+   "drivers": [
+    {
+     "label": "Customs system outage at Nuevo Laredo adds 3.0 days at Nuevo Laredo (border and customs)",
+     "kind": "customs",
+     "signalId": "sig-customs-nld",
+     "contribution": 18
+    },
+    {
+     "label": "PP homopolymer pellets, imported (kg) is a single-source high part",
+     "kind": "cover",
+     "contribution": 11
+    },
+    {
+     "label": "Partial closure on MEX-57D adds 0.6 days to transit from Laredo",
+     "kind": "road",
+     "signalId": "sig-closure-57d",
+     "contribution": 4
+    },
+    {
+     "label": "Lead-time variability of 18%",
+     "kind": "history",
+     "contribution": 3
+    },
+    {
+     "label": "Night cargo theft on MEX-45D / MEX-57D adds about 0.1 days (escorts, daytime-only departures)",
+     "kind": "theft",
+     "signalId": "sig-theft-45d57d",
+     "contribution": 1
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.3,
+    "bottleneck": "Customs clearance at Nuevo Laredo",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.96,
+    0.961,
+    0.968,
+    0.963,
+    0.965,
+    0.965,
+    0.955,
+    0.96,
+    0.973,
+    0.963,
+    0.966,
+    0.965
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 6.8,
+     "transitP50": 7.8,
+     "transitP90": 8.9,
+     "coverDays": 4.0
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 6.7,
+     "transitP50": 7.7,
+     "transitP90": 8.9,
+     "coverDays": 3.0
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 6.7,
+     "transitP50": 7.7,
+     "transitP90": 8.9,
+     "coverDays": 2.0
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 6.8,
+     "transitP50": 7.7,
+     "transitP90": 9.1,
+     "coverDays": 1.2
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 6.2,
+     "transitP50": 7.1,
+     "transitP90": 8.1,
+     "coverDays": 1.9
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 6.2,
+     "transitP50": 7.1,
+     "transitP90": 8.2,
+     "coverDays": 1.9
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 6.2,
+     "transitP50": 7.1,
+     "transitP90": 8.3,
+     "coverDays": 1.9
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 6.2,
+     "transitP50": 7.3,
+     "transitP90": 8.2,
+     "coverDays": 1.9
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 6.1,
+     "transitP50": 7.1,
+     "transitP90": 8.2,
+     "coverDays": 1.9
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 6.3,
+     "transitP50": 7.2,
+     "transitP90": 8.1,
+     "coverDays": 1.9
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 6.2,
+     "transitP50": 7.1,
+     "transitP90": 8.2,
+     "coverDays": 1.9
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 6.2,
+     "transitP50": 7.1,
+     "transitP90": 8.1,
+     "coverDays": 1.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 6.2,
+     "transitP50": 7.2,
+     "transitP90": 8.2,
+     "coverDays": 1.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 6.2,
+     "transitP50": 7.1,
+     "transitP90": 8.0,
+     "coverDays": 1.9
     }
    ],
    "dataStatus": "connected",
@@ -4295,6 +4702,38 @@
     "message": "Press 4 is back in production since Monday night. We confirm capacity for the next two QSS orders and will add a Saturday shift if the +15% arrives. Departures for QSS will leave before 18:00.",
     "confirmedCapacity": true
    }
+  },
+  {
+   "id": "alert-pfl-qss",
+   "customerId": "qss",
+   "supplierId": "pfl",
+   "partIds": [
+    "part-qss-5401-pph"
+   ],
+   "level": "amber",
+   "title": "Transit from Laredo goes from 4 to 7 days",
+   "message": "QRO Seating Systems holds 5 days of cover of pp homopolymer pellets, imported (kg) (QSS-5401-PPH). Transit is 7.2 days against 4 planned (up to 9.1 in the worst case). Without action, projected cover falls to 1.2 days around 8 Oct 2026; no stop is expected in the next 14 days, but a bad week could stop the line.",
+   "createdAt": "2026-10-05",
+   "lineStopExposureEur": 13000,
+   "status": "new",
+   "actions": [
+    {
+     "id": "act-pfl-1",
+     "label": "Ask the customs broker for priority release",
+     "description": "Ask the customs broker to file the pedimento early and request priority release at Nuevo Laredo as soon as the system is back."
+    },
+    {
+     "id": "act-pfl-2",
+     "label": "Cross at the Colombia bridge",
+     "description": "Route loads through the Colombia bridge (Nuevo León), about 40 km west, which has its own customs office and shorter queues."
+    },
+    {
+     "id": "act-pfl-3",
+     "label": "Add 3 days of safety stock",
+     "description": "Hold 3 extra days of PP pellets at QSS while the Nuevo Laredo queues last."
+    }
+   ],
+   "signalId": "sig-customs-nld"
   }
  ],
  "invites": [

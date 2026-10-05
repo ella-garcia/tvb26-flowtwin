@@ -27,7 +27,7 @@ def compute_pair(customer, supplier, parts, signals, settings, as_of):
     level = traffic_light(score, dtls)
     risk = dict(customer_id=customer["id"], supplier_id=supplier["id"], level=level, score=score,
                 normal_transit_days=proj["normal"], expected_transit_days=proj["expected"], worst_case_transit_days=proj["worst"],
-                min_cover_days=proj["min_cover"], days_to_line_stop=dtls, part_stop_days=proj["part_stops"],
+                min_cover_days=proj["min_cover"], days_to_line_stop=dtls, part_stop_days=proj["part_stops"], legs=proj["legs"],
                 line_stop_exposure_eur=proj["exposure"],
                 drivers=drivers, flex=flex, otif_trend=otif, projection=proj["projection"],
                 data_status=supplier["data_status"], updated_at=as_of.isoformat())

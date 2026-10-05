@@ -7,7 +7,7 @@ import { DataTable, FilterChip, StatusPill, type Column } from "../../keystone";
 import { PageHeader, ProvenanceTag, ScopedError } from "../../components/shared";
 import { date } from "../../lib/format";
 
-const KIND_LABEL: Record<SignalKind, string> = { weather: "Weather", road: "Road", theft: "Theft", port: "Port", blockade: "Blockade", supplier: "Supplier" };
+const KIND_LABEL: Record<SignalKind, string> = { weather: "Weather", road: "Road", theft: "Theft", port: "Port", customs: "Customs", blockade: "Blockade", supplier: "Supplier" };
 
 export default function SignalsPage() {
   const { db } = useApp();

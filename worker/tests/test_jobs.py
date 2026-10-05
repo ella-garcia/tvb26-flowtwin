@@ -51,7 +51,7 @@ def test_unknown_kind_marks_failed_with_error():
 def test_ingest_signals_upserts_and_queues_recompute():
     db = FakeDB([{"id": 1, "kind": "ingest-signals", "status": "queued", "payload": {"source": "file"}}])
     res = jobs.run_next(db)
-    assert res["status"] == "done" and res["result"]["signals_upserted"] == 8
+    assert res["status"] == "done" and res["result"]["signals_upserted"] == 9
     assert db.upserts[0][0] == "signals" and db.upserts[0][2] == "id"
     assert "short" not in db.upserts[0][1][0] and "starts_at" in db.upserts[0][1][0]
     assert db.inserts[0][1][0]["kind"] == "recompute-risk"
@@ -60,7 +60,7 @@ def test_ingest_signals_upserts_and_queues_recompute():
 def test_file_source_and_smn_offline():
     # SMN is a live source now (see test_sources_smn.py); with no municipal records and no company in range it yields nothing.
     assert SmnConaguaSource(records=[], companies=[]).fetch() == []
-    assert len(FileSignalSource().fetch()) == 8
+    assert len(FileSignalSource().fetch()) == 9
 
 
 class FlakyDB(FakeDB):

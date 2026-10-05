@@ -25,6 +25,11 @@ Everything is synthetic. Signals are hand-seeded ("seeded for demo"); v0 calls n
 11. **Vehicle programmes** (fictional OEMs): QSS builds K3 compact SUV and T1 pickup (OEM A, Silao) and M5 midsize sedan (OEM B,
     Aguascalientes); SLP Interiors builds C2 crossover (OEM C). `PART_PROGRAMS` maps model-specific parts; all other parts go into
     every programme of their customer. Each risk also carries `partStopDays` ({partId: day}) so the app can tell which model stops.
-12. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
+12. **Route legs** (imports): a supplier spec may carry `route` = legs `{kind: road|border|customs|port|sea, label, place, lat, lon,
+    days, highways}`. Normal transit = sum of leg days; each day's multiplier = leg multipliers weighted by leg days; a signal slows
+    only the leg kinds it can reach (`SIGNAL_LEGS` in worker/engine/projection.py: customs -> border/customs, road/blockade/theft -> road
+    by highway or distance, weather/supplier -> any leg in range). Suppliers without a route keep the single road leg and identical
+    numbers. Demo: Polímeros Frontera (Laredo, Texas) via Nuevo Laredo with a customs outage signal (x3, 3-20 Oct).
+13. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
 
 Edit the tables at the top of the script (suppliers, parts, signals) to change the story, then re-run.

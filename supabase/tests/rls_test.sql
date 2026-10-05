@@ -38,7 +38,7 @@ select public.t_assert('customer: profile defaults to customer/qss', (select rol
 select public.t_assert('customer qss: risks only where customer_id=qss',
   (select count(*) > 0 and bool_and(customer_id = 'qss') from risks));
 select public.t_assert('customer qss: alerts only where customer_id=qss',
-  (select count(*) = 5 and bool_and(customer_id = 'qss') from alerts));
+  (select count(*) = 6 and bool_and(customer_id = 'qss') from alerts));
 select public.t_assert('customer qss: parts only where customer_id=qss',
   (select count(*) > 0 and bool_and(customer_id = 'qss') from parts));
 select public.t_assert('customer qss: sees 0 lanes', (select count(*) = 0 from lanes));
@@ -80,7 +80,7 @@ select public.t_throws('owner edl: cannot insert machine for another company',
 
 -- ---- admin
 select public.t_works('switch to admin', $$select switch_test_identity('admin', 'qss')$$);
-select public.t_assert('admin: sees companies', (select count(*) = 14 from companies));
+select public.t_assert('admin: sees companies', (select count(*) = 15 from companies));
 select public.t_assert('admin: sees signals', (select count(*) > 0 from signals));
 select public.t_assert('admin: 0 lanes', (select count(*) = 0 from lanes));
 select public.t_assert('admin: 0 risks', (select count(*) = 0 from risks));

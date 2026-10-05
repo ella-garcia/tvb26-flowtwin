@@ -65,7 +65,8 @@ def seed_profile_row(cid, sid):
     p = static_profiles()[sid]
     return dict(customer_id=cid, supplier_id=sid, highways=p["highways"], lead_time_variability=p["lead_time_variability"],
                 utilization=p["utilization"], capacity_ceiling=p["ceiling"], finished_goods_days=p["fg_days"],
-                bottleneck=p["bottleneck"], otif_weekly=otif_series(sid, p["otif"]), data_status=p["data_status"], source="seed")
+                bottleneck=p["bottleneck"], otif_weekly=otif_series(sid, p["otif"]), data_status=p["data_status"], source="seed",
+                route=p.get("route"))
 
 
 def test_db_profile_rows_reproduce_json_results(db_rows):

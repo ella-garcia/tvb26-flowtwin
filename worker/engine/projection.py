@@ -36,17 +36,59 @@ def multiplier_on(supplier, signals, d):
     return m
 
 
+# ---- route legs (imports: border, customs, port). A supplier without `route` keeps the single-leg rule above unchanged.
+# Leg kinds each signal kind can slow down; None = any leg in reach (weather, a supplier's own problem).
+SIGNAL_LEGS = {"customs": {"border", "customs"}, "port": {"port", "sea", "customs"}, "road": {"road"},
+               "blockade": {"road"}, "theft": {"road"}, "weather": None, "supplier": None}
+
+
+def leg_hit(leg, sig):
+    """A signal slows a leg if the leg kind is one it can affect and the leg is within radius_km or shares a highway."""
+    kinds = SIGNAL_LEGS.get(sig["kind"])
+    if kinds is not None and leg["kind"] not in kinds:
+        return False
+    near = hav(leg["lat"], leg["lon"], sig["lat"], sig["lon"]) <= sig["radius_km"]
+    return near or bool(set(leg.get("highways") or []) & set(sig.get("highways") or []))
+
+
+def hit_legs(supplier, sig):
+    """Legs a signal slows ([] if none). Without a route: the one implicit road leg, by the single-leg rule."""
+    if supplier.get("route"):
+        return [leg for leg in supplier["route"] if leg_hit(leg, sig)]
+    return [None] if affects(supplier, sig) else []
+
+
+def leg_multiplier_on(leg, signals, d):
+    m = 1.0
+    for sig in signals:
+        if active_on(sig, d) and leg_hit(leg, sig):
+            m *= float(sig["transit_multiplier"])
+    return m
+
+
 def project(customer, supplier, parts, signals, settings, as_of):
     """Return the projection bundle for one (customer, supplier) pair.
 
     supplier carries the profile fields: lat, lon, highways, lead_time_variability.
     """
     rng = random.Random(hash_seed(customer["id"], supplier["id"], "mc"))
-    km = hav(supplier["lat"], supplier["lon"], customer["lat"], customer["lon"]) * 1.3  # road km ~ 1.3 x straight line
-    normal = max(1, math.ceil(km / 400))  # ~1 day per 400 km incl. loading, min 1
     sigma = 0.6 * supplier["lead_time_variability"]
     days = [as_of + timedelta(days=i) for i in range(HORIZON)]
-    M = [multiplier_on(supplier, signals, d) for d in days]
+    route = supplier.get("route")
+    if route:
+        # Normal transit = sum of the legs; the day's multiplier is the leg multipliers weighted by each leg's normal days.
+        normal = round(sum(float(leg["days"]) for leg in route), 1)
+        normal = int(normal) if normal == int(normal) else normal  # "4 days", like single-leg suppliers
+        leg_m = [[leg_multiplier_on(leg, signals, d) for d in days] for leg in route]
+        M = [sum(float(leg["days"]) * lm[i] for leg, lm in zip(route, leg_m)) / normal for i in range(HORIZON)]
+        legs = [dict(kind=leg["kind"], label=leg["label"], place=leg["place"], normalDays=float(leg["days"]),
+                     expectedDays=round(float(leg["days"]) * sorted(lm)[HORIZON // 2], 1)) for leg, lm in zip(route, leg_m)]
+    else:
+        km = hav(supplier["lat"], supplier["lon"], customer["lat"], customer["lon"]) * 1.3  # road km ~ 1.3 x straight line
+        normal = max(1, math.ceil(km / 400))  # ~1 day per 400 km incl. loading, min 1
+        M = [multiplier_on(supplier, signals, d) for d in days]
+        legs = [dict(kind="road", label="Road", place=supplier["city"], normalDays=float(normal),
+                     expectedDays=round(normal * sorted(M)[HORIZON // 2], 1))]
 
     proj_t = []  # per-day (P10, P50, P90), independent draws
     for m in M:
@@ -81,6 +123,6 @@ def project(customer, supplier, parts, signals, settings, as_of):
     projection = [dict(date=d.isoformat(), transitP10=round(t[0], 1), transitP50=round(t[1], 1), transitP90=round(t[2], 1),
                        coverDays=round(exposed["cover_d"][i], 1)) for i, (d, t) in enumerate(zip(days, proj_t))]
     p50s = sorted(t[1] for t in proj_t)
-    return dict(normal=normal, days=days, proj_t=proj_t, exposed=exposed, exposure=exposure, days_to_line_stop=dtls, part_stops=part_stops,
+    return dict(normal=normal, days=days, proj_t=proj_t, exposed=exposed, exposure=exposure, days_to_line_stop=dtls, part_stops=part_stops, legs=legs,
                 projection=projection, expected=round(p50s[len(p50s) // 2], 1), worst=round(max(t[2] for t in proj_t), 1),
                 min_cover=min(float(p["days_of_cover"]) for p in parts))

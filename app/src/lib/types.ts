@@ -184,7 +184,7 @@ export interface VehicleProgram {
   dailyVehicles: number;       // planned vehicles per day
 }
 
-export type SignalKind = "weather" | "road" | "theft" | "port" | "blockade" | "supplier";
+export type SignalKind = "weather" | "road" | "theft" | "port" | "blockade" | "supplier" | "customs";
 /** An external or supplier event that can delay deliveries. */
 export interface Signal {
   id: string;
@@ -209,6 +209,15 @@ export interface Signal {
 }
 
 export type RiskLevel = "green" | "amber" | "red";
+
+/** One leg of a supplier's route to the key customer, with its normal and expected (median, next 14 days) time. */
+export interface TransitLeg {
+  kind: "road" | "border" | "customs" | "port" | "sea";
+  label: string;               // "Mexican customs clearance"
+  place: string;               // "Nuevo Laredo"
+  normalDays: number;
+  expectedDays: number;
+}
 
 /** Forward projection for one supplier's main lane, from the twin. */
 export interface ProjectionDay {
@@ -251,6 +260,8 @@ export interface RiskAssessment {
   daysToLineStop: number | null;
   /** Stop day per part (line-stopper and high parts that run out within 14 days). Lets the app say which model stops. */
   partStopDays?: Record<string, number>;
+  /** Transit split by route leg (road, border, customs, port). One road leg for a domestic supplier. */
+  legs?: TransitLeg[];
   lineStopExposureEur: number; // expected cost if it stops (minutes × cost per minute × probability)
   drivers: RiskDriver[];
   flex: FlexResult;

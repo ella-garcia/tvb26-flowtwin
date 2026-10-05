@@ -154,5 +154,23 @@
   "transitMultiplier": 1.1,
   "source": "SMN daily forecast (seeded for demo)",
   "provenance": "estimated"
+ },
+ {
+  "id": "sig-customs-nld",
+  "kind": "customs",
+  "short": "Customs system outage at Nuevo Laredo",
+  "title": "Customs system outage, Nuevo Laredo commercial bridge",
+  "description": "Repeated failures of the customs system slowed the release of cargo at the Nuevo Laredo commercial bridge. Trucks queue for kilometres and the backlog clears slowly; release takes about three times longer. Modelled on press reports of ANAM outages.",
+  "state": "Tamaulipas",
+  "lat": 27.5,
+  "lon": -99.52,
+  "radiusKm": 25,
+  "highways": [],
+  "startsAt": "2026-10-03",
+  "endsAt": "2026-10-20",
+  "severity": "high",
+  "transitMultiplier": 3.0,
+  "source": "Press reports of ANAM system outages (seeded for demo)",
+  "provenance": "estimated"
  }
 ]
