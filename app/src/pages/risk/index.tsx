@@ -1,15 +1,15 @@
 // Tier 1 risk board: summary, map, suppliers table. Reads via useApp().db only.
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { Card, CompanyMark, DataStatusPill, Empty, FlexPill, FormulaSource, GradePill, ModelSelect, NotShared, OtifDelta, PageHeader, RiskLight } from "../../components/shared";
+import { Card, CompanyMark, DataStatusPill, Empty, FlexPill, FormulaSource, GradePill, ModelSelect, OtifDelta, PageHeader, RiskLight, ScopedError } from "../../components/shared";
 import { DataTable, FilterChip, IconButton, SearchField, StatCard, type Column } from "../../keystone";
 import mexico from "../../data/geo/mexico-states.json";
-import { AccessDeniedError } from "../../lib/dataLayer";
 import { date, days, num, pct, riskWord, rowNo } from "../../lib/format";
 import { DEFAULT_OTIF_TARGET, otifSummary, type OtifSummary } from "../../lib/otif";
 import { CRIT_RANK, partStock } from "../../lib/stock";
 import { ALL_PROGRAMS, modelLabel, partsOn, stopDaysFor } from "../../lib/programs";
-import type { Part, RiskAssessment, RiskLevel, Signal } from "../../lib/types";
+import { scoped, useScoped } from "../../lib/useScoped";
+import type { Part, RiskAssessment, RiskLevel } from "../../lib/types";
 import "./risk.css";
 
 type Filter = "all" | RiskLevel;
@@ -48,39 +48,34 @@ export default function RiskPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
 
-  const loaded = useMemo(() => {
-    try {
-      const program = programId === ALL_PROGRAMS ? undefined : db.programs().find((g) => g.id === programId);
-      const parts = partsOn(db.parts(), program ? program.id : ALL_PROGRAMS);
-      let targets = new Map<string, number>();
-      try { targets = new Map(db.suppliersOf(toggles.companyId).map((x) => [x.company.id, x.requirements.otifTarget])); } catch { /* default target */ }
-      const rows: Row[] = db.risks().flatMap((risk) => {
-        const c = db.company(risk.supplierId);
-        const own = parts.filter((p) => p.supplierId === risk.supplierId && p.customerId === risk.customerId);
-        if (program && own.length === 0) return []; // supplier delivers nothing for this model
-        const belowCover = own.filter((p) => partStock(p, risk, db.asOf).status === "short");
-        return [{
-          id: risk.supplierId, risk, name: c?.name ?? risk.supplierId, place: c ? `${c.city}, ${c.state}` : "",
-          stopDays: program ? stopDaysFor(risk, own) : risk.daysToLineStop,
-          belowCover, partCount: own.length, critRank: Math.min(3, ...belowCover.map((p) => CRIT_RANK[p.criticality])),
-          otif: otifSummary(risk.otifTrend, targets.get(risk.supplierId) ?? DEFAULT_OTIF_TARGET),
-        }];
-      });
-      // Time to line stop first, then how critical the parts at risk are, then score. Never by money.
-      rows.sort((a, b) => {
-        const da = a.stopDays, dbb = b.stopDays;
-        if (da !== dbb) { if (da == null) return 1; if (dbb == null) return -1; return da - dbb; }
-        return a.critRank - b.critRank || b.risk.score - a.risk.score;
-      });
-      return { rows, program, signals: db.signals(), plant: db.company(toggles.companyId), error: null as string | null };
-    } catch (e) {
-      if (e instanceof AccessDeniedError) return { rows: [] as Row[], program: undefined, signals: [] as Signal[], plant: undefined, error: e.message };
-      throw e;
-    }
+  const loaded = useScoped(() => {
+    const program = programId === ALL_PROGRAMS ? undefined : db.programs().find((g) => g.id === programId);
+    const parts = partsOn(db.parts(), program ? program.id : ALL_PROGRAMS);
+    const rel = scoped(() => db.suppliersOf(toggles.companyId));
+    const targets = new Map(rel.ok ? rel.data.map((x) => [x.company.id, x.requirements.otifTarget]) : []); // else the default target
+    const rows: Row[] = db.risks().flatMap((risk) => {
+      const c = db.company(risk.supplierId);
+      const own = parts.filter((p) => p.supplierId === risk.supplierId && p.customerId === risk.customerId);
+      if (program && own.length === 0) return []; // supplier delivers nothing for this model
+      const belowCover = own.filter((p) => partStock(p, risk, db.asOf).status === "short");
+      return [{
+        id: risk.supplierId, risk, name: c?.name ?? risk.supplierId, place: c ? `${c.city}, ${c.state}` : "",
+        stopDays: program ? stopDaysFor(risk, own) : risk.daysToLineStop,
+        belowCover, partCount: own.length, critRank: Math.min(3, ...belowCover.map((p) => CRIT_RANK[p.criticality])),
+        otif: otifSummary(risk.otifTrend, targets.get(risk.supplierId) ?? DEFAULT_OTIF_TARGET),
+      }];
+    });
+    // Time to line stop first, then how critical the parts at risk are, then score. Never by money.
+    rows.sort((a, b) => {
+      const da = a.stopDays, dbb = b.stopDays;
+      if (da !== dbb) { if (da == null) return 1; if (dbb == null) return -1; return da - dbb; }
+      return a.critRank - b.critRank || b.risk.score - a.risk.score;
+    });
+    return { rows, program, signals: db.signals(), plant: db.company(toggles.companyId) };
   }, [db, toggles.companyId, programId]);
 
-  if (loaded.error) return <><PageHeader title="Supplier risk" /><NotShared message={loaded.error} /></>;
-  const { rows, program, signals, plant } = loaded;
+  if (!loaded.ok) return <ScopedError title="Supplier risk" error={loaded.error} />;
+  const { rows, program, signals, plant } = loaded.data;
 
   const count = (l: RiskLevel) => rows.filter((r) => r.risk.level === l).length;
   const stops = rows.map((r) => r.stopDays).filter((d): d is number => d != null);

@@ -1,14 +1,14 @@
 // Tier 1 alerts feed. Reads via useApp().db only; writes via dispatch.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { AlertStatusPill, Card, CritPill, Empty, NotShared, PageHeader, RiskLight } from "../../components/shared";
+import { AlertStatusPill, Card, CritPill, Empty, PageHeader, RiskLight, ScopedError } from "../../components/shared";
 import { Button, FilterChip, StatusPill } from "../../keystone";
-import { AccessDeniedError } from "../../lib/dataLayer";
 import { date, dateTime } from "../../lib/format";
 import { ALERT_STATUS } from "../../lib/labels";
 import { modelLabel, programsOf } from "../../lib/programs";
 import * as remote from "../../lib/remote";
-import type { Alert, AlertNotification, Part, RiskLevel, VehicleProgram } from "../../lib/types";
+import { useScoped } from "../../lib/useScoped";
+import type { Alert, AlertNotification, Part, RiskLevel } from "../../lib/types";
 import "./alerts.css";
 
 type Status = Alert["status"];
@@ -21,17 +21,12 @@ export default function AlertsPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [picked, setPicked] = useState<Record<string, string>>({});
 
-  const loaded = useMemo(() => {
-    try {
-      const alerts = [...db.alerts()].sort((a, b) => rank(a.level) - rank(b.level) || b.createdAt.localeCompare(a.createdAt));
-      return { alerts, parts: db.parts(), programs: db.programs(), error: null as string | null };
-    } catch (e) {
-      if (e instanceof AccessDeniedError) return { alerts: [] as Alert[], parts: [] as Part[], programs: [] as VehicleProgram[], error: e.message };
-      throw e;
-    }
+  const loaded = useScoped(() => {
+    const alerts = [...db.alerts()].sort((a, b) => rank(a.level) - rank(b.level) || b.createdAt.localeCompare(a.createdAt));
+    return { alerts, parts: db.parts(), programs: db.programs() };
   }, [db]);
 
-  const alertKey = loaded.alerts.map((a) => a.id).join(",");
+  const alertKey = loaded.ok ? loaded.data.alerts.map((a) => a.id).join(",") : "";
   useEffect(() => {
     if (mode !== "live" || !alertKey) { setNotes({}); return; }
     let cancelled = false;
@@ -44,8 +39,8 @@ export default function AlertsPage() {
     return () => { cancelled = true; };
   }, [mode, alertKey]);
 
-  if (loaded.error) return <><PageHeader title="Alerts" /><NotShared message={loaded.error} /></>;
-  const { alerts, parts, programs } = loaded;
+  if (!loaded.ok) return <ScopedError title="Alerts" error={loaded.error} />;
+  const { alerts, parts, programs } = loaded.data;
   const shown = alerts.filter((a) => filter === "all" || a.status === filter);
   const n = (s: Status) => alerts.filter((a) => a.status === s).length;
   const chips: { id: Filter; label: string }[] = [

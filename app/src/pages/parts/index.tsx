@@ -1,14 +1,14 @@
 // Tier 1 parts & stock: one row per part number, with stock along the pipeline
 // (here, on the road, at the supplier) against the next delivery. Reads via useApp().db only.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { CompanyMark, CritPill, Empty, FormulaSource, ModelSelect, NotShared, PageHeader, ProvenanceTag } from "../../components/shared";
+import { CompanyMark, CritPill, Empty, FormulaSource, ModelSelect, PageHeader, ProvenanceTag, ScopedError } from "../../components/shared";
 import { DataTable, FilterChip, SearchField, StatCard, StatusPill, type Column } from "../../keystone";
-import { AccessDeniedError } from "../../lib/dataLayer";
 import { date, days, num, rowNo } from "../../lib/format";
 import { CRIT_LABEL } from "../../lib/labels";
 import { CRIT_RANK, partStock, type PartStock, type StockStatus } from "../../lib/stock";
 import { ALL_PROGRAMS, modelLabel, partsOn } from "../../lib/programs";
+import { useScoped } from "../../lib/useScoped";
 import type { Part, VehicleProgram } from "../../lib/types";
 import "./parts.css";
 
@@ -33,30 +33,25 @@ export default function PartsPage() {
   const [query, setQuery] = useState("");
   useEffect(() => { setSupplier(route.sub ?? "all"); }, [route.sub]);
 
-  const loaded = useMemo(() => {
-    try {
-      const customerId = toggles.companyId;
-      const risks = new Map(db.risks().filter((r) => r.customerId === customerId).map((r) => [r.supplierId, r]));
-      const programs = db.programs();
-      const program = programs.find((g) => g.id === programId);
-      const rows: Row[] = partsOn(db.parts().filter((p) => p.customerId === customerId), program ? program.id : ALL_PROGRAMS).map((p) => ({
-        ...partStock(p, risks.get(p.supplierId), db.asOf),
-        id: p.id,
-        supplierName: db.company(p.supplierId)?.name ?? p.supplierId,
-        models: programs.filter((g) => p.programIds?.includes(g.id)),
-      }));
-      rows.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]
-        || CRIT_RANK[a.part.criticality] - CRIT_RANK[b.part.criticality]
-        || a.part.daysOfCover - b.part.daysOfCover);
-      return { rows, program, plant: db.company(customerId), error: null as string | null };
-    } catch (e) {
-      if (e instanceof AccessDeniedError) return { rows: [] as Row[], program: undefined, plant: undefined, error: e.message };
-      throw e;
-    }
+  const loaded = useScoped(() => {
+    const customerId = toggles.companyId;
+    const risks = new Map(db.risks().filter((r) => r.customerId === customerId).map((r) => [r.supplierId, r]));
+    const programs = db.programs();
+    const program = programs.find((g) => g.id === programId);
+    const rows: Row[] = partsOn(db.parts().filter((p) => p.customerId === customerId), program ? program.id : ALL_PROGRAMS).map((p) => ({
+      ...partStock(p, risks.get(p.supplierId), db.asOf),
+      id: p.id,
+      supplierName: db.company(p.supplierId)?.name ?? p.supplierId,
+      models: programs.filter((g) => p.programIds?.includes(g.id)),
+    }));
+    rows.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]
+      || CRIT_RANK[a.part.criticality] - CRIT_RANK[b.part.criticality]
+      || a.part.daysOfCover - b.part.daysOfCover);
+    return { rows, program, plant: db.company(customerId) };
   }, [db, toggles.companyId, programId]);
 
-  if (loaded.error) return <><PageHeader title="Parts & stock" /><NotShared message={loaded.error} /></>;
-  const { rows, program, plant } = loaded;
+  if (!loaded.ok) return <ScopedError title="Parts & stock" error={loaded.error} />;
+  const { rows, program, plant } = loaded.data;
 
   const suppliers = [...new Map(rows.map((r) => [r.part.supplierId, r.supplierName])).entries()].sort((a, b) => a[1].localeCompare(b[1]));
   const q = query.trim().toLowerCase();

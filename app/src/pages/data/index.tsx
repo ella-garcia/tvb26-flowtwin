@@ -1,10 +1,10 @@
 // My data: light onboarding for the supplier's operations associate. About 15 minutes.
-import { useMemo, useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent } from "react";
 import { useApp } from "../../app/AppContext";
-import { AccessDeniedError } from "../../lib/dataLayer";
+import { useScoped } from "../../lib/useScoped";
 import type { Machine, Partner, UploadKind, UploadRecord } from "../../lib/types";
 import { Button, DataTable, Icon, StatusPill, type Column } from "../../keystone";
-import { Card, Empty, NotShared, PageHeader } from "../../components/shared";
+import { Card, Empty, PageHeader, ScopedError } from "../../components/shared";
 import { date, num } from "../../lib/format";
 import "./data.css";
 
@@ -34,16 +34,12 @@ export default function DataPage() {
   const { db, dispatch, pack } = useApp();
   const companyId = db.viewer.companyId;
 
-  const read = useMemo(() => {
-    try {
-      return {
-        machines: db.machines(companyId),
-        suppliers: db.partners(companyId).filter((p) => p.role === "supplier"),
-        uploads: db.uploads(companyId),
-        parts: db.parts().filter((p) => p.supplierId === companyId),
-      };
-    } catch (e) { if (e instanceof AccessDeniedError) return { error: e.message }; throw e; }
-  }, [db, companyId]);
+  const read = useScoped(() => ({
+    machines: db.machines(companyId),
+    suppliers: db.partners(companyId).filter((p) => p.role === "supplier"),
+    uploads: db.uploads(companyId),
+    parts: db.parts().filter((p) => p.supplierId === companyId),
+  }), [db, companyId]);
 
   const [machineEdits, setMachineEdits] = useState<Record<string, Partial<Machine>>>({});
   const [partnerEdits, setPartnerEdits] = useState<Record<string, Partial<Partner>>>({});
@@ -51,8 +47,8 @@ export default function DataPage() {
   const [saved, setSaved] = useState<Record<string, boolean>>({});
   const mark = (k: string) => setSaved((s) => ({ ...s, [k]: true }));
 
-  if ("error" in read) return <><PageHeader title="Your data" /><NotShared message={read.error ?? ""} /></>;
-  const { machines, suppliers, uploads, parts } = read;
+  if (!read.ok) return <ScopedError title="Your data" error={read.error} />;
+  const { machines, suppliers, uploads, parts } = read.data;
 
   const m = (r: Machine): Machine => ({ ...r, ...machineEdits[r.id] });
   const setM = (id: string, patch: Partial<Machine>) => { setMachineEdits((e) => ({ ...e, [id]: { ...e[id], ...patch } })); mark("machines"); };

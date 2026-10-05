@@ -5,6 +5,7 @@ import { Button, DataTable, StatusPill, type Column, type PillTone } from "../..
 import { Card, PageHeader } from "../../components/shared";
 import { dateTime, num } from "../../lib/format";
 import * as remote from "../../lib/remote";
+import { scoped } from "../../lib/useScoped";
 import type { UploadIssue, UploadRecord } from "../../lib/types";
 import "./tier1-data.css";
 
@@ -124,7 +125,8 @@ export default function Tier1DataPage() {
   };
 
   const demo = !live;
-  const demoUploads = demo ? Object.fromEntries((() => { try { return db.uploads(companyId); } catch { return []; } })().map((u) => [u.kind as string, u])) : {};
+  const own = demo ? scoped(() => db.uploads(companyId)) : null;
+  const demoUploads = Object.fromEntries((own?.ok ? own.data : []).map((u) => [u.kind as string, u]));
   const current = (k: string) => (demo ? demoUploads[k] : uploads[k]);
 
   return (

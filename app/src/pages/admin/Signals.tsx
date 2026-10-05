@@ -1,10 +1,10 @@
 // Admin: external signals that feed the risk lights.
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { AccessDeniedError } from "../../lib/dataLayer";
+import { useScoped } from "../../lib/useScoped";
 import type { Signal, SignalKind } from "../../lib/types";
 import { DataTable, FilterChip, StatusPill, type Column } from "../../keystone";
-import { ProvenanceTag, NotShared, PageHeader } from "../../components/shared";
+import { PageHeader, ProvenanceTag, ScopedError } from "../../components/shared";
 import { date } from "../../lib/format";
 
 const KIND_LABEL: Record<SignalKind, string> = { weather: "Weather", road: "Road", theft: "Theft", port: "Port", blockade: "Blockade", supplier: "Supplier" };
@@ -13,15 +13,14 @@ export default function SignalsPage() {
   const { db } = useApp();
   const [kind, setKind] = useState<SignalKind | "all">("all");
   const [showInactive, setShowInactive] = useState(false);
-  const read = useMemo(() => {
-    try { return { signals: db.signals() }; } catch (e) { if (e instanceof AccessDeniedError) return { error: e.message }; throw e; }
-  }, [db]);
+  const read = useScoped(() => db.signals(), [db]);
   const head = <PageHeader title="Signals" caption="External events that feed the risk lights. Seeded for the demo; live feeds come later." />;
-  if ("error" in read) return <>{head}<NotShared message={read.error ?? ""} /></>;
+  if (!read.ok) return <>{head}<ScopedError error={read.error} /></>;
+  const signals = read.data;
 
-  const kinds = Array.from(new Set(read.signals.map((s) => s.kind)));
-  const inactiveCount = read.signals.filter((s) => s.active === false).length;
-  const rows = read.signals.filter((s) => (kind === "all" || s.kind === kind) && (showInactive || s.active !== false));
+  const kinds = Array.from(new Set(signals.map((s) => s.kind)));
+  const inactiveCount = signals.filter((s) => s.active === false).length;
+  const rows = signals.filter((s) => (kind === "all" || s.kind === kind) && (showInactive || s.active !== false));
   const sev = (s: Signal["severity"]) => <StatusPill tone={s === "high" ? "danger" : s === "medium" ? "warning" : "neutral"}>{s === "high" ? "High" : s === "medium" ? "Medium" : "Low"}</StatusPill>;
   const cols: Column<Signal>[] = [
     { key: "kind", label: "Kind", render: (r) => <StatusPill tone="neutral">{KIND_LABEL[r.kind]}</StatusPill> },

@@ -6,6 +6,7 @@ import { num, riskWord } from "../lib/format";
 import { ALERT_STATUS, ALERT_STATUS_FOR_SUPPLIER, CRIT_LABEL, CRIT_TONE, DATA_STATUS } from "../lib/labels";
 import type { OtifGrade } from "../lib/otif";
 import { ALL_PROGRAMS, modelLabel } from "../lib/programs";
+import { scoped } from "../lib/useScoped";
 import type { Alert, FlexResult, Part, Provenance, RiskAssessment } from "../lib/types";
 
 /** Page header: title (Keystone `title` style) with an optional company mark, caption and actions on the right. */
@@ -70,6 +71,11 @@ export function NotShared({ message }: { message: string }) {
   );
 }
 
+/** A refused read (useScoped's error): the page title, when given, above <NotShared>. */
+export function ScopedError({ title, error }: { title?: string; error: string }) {
+  return <>{title && <PageHeader title={title} />}<NotShared message={error} /></>;
+}
+
 /** Empty state: names what will appear and how to get it. */
 export function Empty({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
   return <div className="ft-empty"><h3 className="ft-heading">{title}</h3>{children && <p>{children}</p>}{action}</div>;
@@ -130,8 +136,8 @@ export function OtifDelta({ change, long }: { change: number; long?: boolean }) 
 /** Vehicle model picker for the key customer. Hidden when no programmes are mapped. The choice is shared by every page. */
 export function ModelSelect() {
   const { db, programId, setProgramId } = useApp();
-  let programs: ReturnType<typeof db.programs> = [];
-  try { programs = db.programs(); } catch { programs = []; }
+  const read = scoped(() => db.programs());
+  const programs = read.ok ? read.data : [];
   if (programs.length === 0) return null;
   const value = programs.some((g) => g.id === programId) ? programId : ALL_PROGRAMS;
   return (

@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { useApp } from "../../app/AppContext";
-import { AccessDeniedError } from "../../lib/dataLayer";
-import { Card, NotShared, PageHeader } from "../../components/shared";
+import { useScoped } from "../../lib/useScoped";
+import { Card, PageHeader, ScopedError } from "../../components/shared";
 import { Button, DataTable, Icon, StatusPill, type Column } from "../../keystone";
 import { date, rowNo } from "../../lib/format";
-import type { Invite, RiskAssessment } from "../../lib/types";
 import "./invite.css";
 
 const SHARED = ["Risk light and the reasons behind it", "Parts you buy from them, and your stock of those parts", "Result of the +15% demand test", "Delivery performance (OTIF)"];
@@ -19,16 +18,13 @@ export default function InvitePage() {
   const [touched, setTouched] = useState(false);
   const [sent, setSent] = useState<string | null>(null);
 
-  let invites: Invite[] = [], risks: RiskAssessment[] = [];
-  let customerName = "your company";
-  try {
-    invites = db.invites();
-    risks = db.risks().filter((r) => r.customerId === toggles.companyId);
-    customerName = db.company(toggles.companyId)?.name ?? customerName;
-  } catch (e) {
-    if (e instanceof AccessDeniedError) return <NotShared message={e.message} />;
-    throw e;
-  }
+  const read = useScoped(() => ({
+    invites: db.invites(),
+    risks: db.risks().filter((r) => r.customerId === toggles.companyId),
+    customerName: db.company(toggles.companyId)?.name ?? "your company",
+  }), [db, toggles.companyId]);
+  if (!read.ok) return <ScopedError title="Invite suppliers" error={read.error} />;
+  const { invites, risks, customerName } = read.data;
 
   const connected: Row[] = risks.filter((r) => r.dataStatus === "connected").map((r) => ({
     id: `c-${r.supplierId}`, name: db.company(r.supplierId)?.name ?? r.supplierId, contact: "On the platform", status: "Joined" as const, when: r.updatedAt,

@@ -1,10 +1,10 @@
 // My risk: what the supplier's customers see about it, plus alerts and ways to improve the score.
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { AccessDeniedError } from "../../lib/dataLayer";
+import { useScoped } from "../../lib/useScoped";
 import type { Alert, RiskAssessment } from "../../lib/types";
 import { Button, FilterChip, Icon, StatusPill, type IconName } from "../../keystone";
-import { AlertStatusPill, Card, Empty, NotShared, PageHeader, RiskLight } from "../../components/shared";
+import { AlertStatusPill, Card, Empty, PageHeader, RiskLight, ScopedError } from "../../components/shared";
 import { date } from "../../lib/format";
 import SupplierRiskView from "../supplier/SupplierRiskView";
 import "./my-risk.css";
@@ -82,13 +82,13 @@ export default function MyRiskPage() {
   const [picked, setPicked] = useState<string | null>(null);
   const supplierId = db.viewer.companyId;
 
-  const read = useMemo(() => {
-    try { return { risks: db.risks().filter((r) => r.supplierId === supplierId), alerts: db.alerts().filter((a) => a.supplierId === supplierId) }; }
-    catch (e) { if (e instanceof AccessDeniedError) return { error: e.message }; throw e; }
-  }, [db, supplierId]);
+  const read = useScoped(() => ({
+    risks: db.risks().filter((r) => r.supplierId === supplierId),
+    alerts: db.alerts().filter((a) => a.supplierId === supplierId),
+  }), [db, supplierId]);
 
-  if ("error" in read) return <><PageHeader title="What your customers see" /><NotShared message={read.error ?? ""} /></>;
-  const { risks, alerts } = read;
+  if (!read.ok) return <ScopedError title="What your customers see" error={read.error} />;
+  const { risks, alerts } = read.data;
   const customerIds = Array.from(new Set(risks.map((r) => r.customerId)));
   const customerId = picked && customerIds.includes(picked) ? picked : customerIds[0];
   const nameOf = (id: string) => db.company(id)?.name ?? id;

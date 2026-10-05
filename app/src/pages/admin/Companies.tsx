@@ -1,10 +1,9 @@
 // Admin: the public company directory. No risks, costs or operating data are read here.
-import { useMemo } from "react";
 import { useApp } from "../../app/AppContext";
-import { AccessDeniedError } from "../../lib/dataLayer";
+import { useScoped } from "../../lib/useScoped";
 import type { Company } from "../../lib/types";
 import { DataTable, StatusPill, type Column } from "../../keystone";
-import { NotShared, PageHeader } from "../../components/shared";
+import { PageHeader, ScopedError } from "../../components/shared";
 import { segmentLabel } from "../../packs";
 import { rowNo } from "../../lib/format";
 
@@ -12,11 +11,9 @@ const SIZE: Record<Company["sizeBand"], string> = { micro: "Micro", small: "Smal
 
 export default function CompaniesPage() {
   const { db, pack } = useApp();
-  const read = useMemo(() => {
-    try { return { companies: db.companies() }; } catch (e) { if (e instanceof AccessDeniedError) return { error: e.message }; throw e; }
-  }, [db]);
+  const read = useScoped(() => db.companies(), [db]);
   const head = <PageHeader title="Companies" caption="Everyone on the platform. Admins see names and places only, never risks or costs." />;
-  if ("error" in read) return <>{head}<NotShared message={read.error ?? ""} /></>;
+  if (!read.ok) return <>{head}<ScopedError error={read.error} /></>;
 
   // Relationships are private to each supplier, so the admin view derives the segment from the company kind:
   // key customers are direct suppliers of the brand; suppliers invited by them sit one step below.
@@ -30,5 +27,5 @@ export default function CompaniesPage() {
     { key: "segment", label: "Segment", render: (r) => segment(r) },
     { key: "synthetic", label: "Synthetic", render: (r) => r.synthetic ? "Yes" : "No" },
   ];
-  return <>{head}<DataTable columns={cols} rows={read.companies} caption="Companies" /></>;
+  return <>{head}<DataTable columns={cols} rows={read.data} caption="Companies" /></>;
 }
