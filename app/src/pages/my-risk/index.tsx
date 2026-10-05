@@ -6,7 +6,7 @@ import type { Alert, RiskAssessment } from "../../lib/types";
 import { Button, FilterChip, Icon, StatusPill, type IconName } from "../../keystone";
 import { AlertStatusPill, Card, Empty, PageHeader, RiskLight, ScopedError } from "../../components/shared";
 import { date } from "../../lib/format";
-import SupplierRiskView from "../supplier/SupplierRiskView";
+import { SupplierRiskView } from "../../components/supplier-risk";
 import "./my-risk.css";
 
 function AlertCard({ alert, customerName }: { alert: Alert; customerName: string }) {

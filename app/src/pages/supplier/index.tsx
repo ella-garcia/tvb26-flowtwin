@@ -1,9 +1,7 @@
 import { useApp } from "../../app/AppContext";
 import { Breadcrumb } from "../../keystone";
 import { Empty } from "../../components/shared";
-import { SupplierRiskView } from "./SupplierRiskView";
-
-export { SupplierRiskView } from "./SupplierRiskView";
+import { SupplierRiskView } from "../../components/supplier-risk";
 
 export default function SupplierPage() {
   const { route, toggles, go } = useApp();
