@@ -243,7 +243,72 @@ def test_job_unreadable_file_is_needs_input():
 def test_job_rejects_unknown_kind_and_non_customer():
     with pytest.raises(ValueError):
         run_parse_upload(base_db(), job("tier1-nope"), fetch=lambda d, p: b"")
-    j = job("tier1-parts")
-    j["payload"]["company_id"] = "edl"
-    with pytest.raises(ValueError):
+    j = job("tier1-parts", path="edl/x/1-file.csv")
+    j["company_id"] = j["payload"]["company_id"] = "edl"
+    with pytest.raises(ValueError, match="not a key customer"):
         run_parse_upload(base_db(), j, fetch=lambda d, p: b"")
+
+
+def _refused(j):
+    """Run a job whose tenancy check must fail before any file is read or row is written."""
+    db, fetched = base_db(), []
+    with pytest.raises(ValueError, match="refused"):
+        run_parse_upload(db, j, fetch=lambda d, p: fetched.append(p) or b"part number,on hand units\nQSS-1,1\n")
+    assert not fetched and "uploads" not in db.t and db.t["parts"][0]["on_hand"] == 0 and not db.inserted
+
+
+def test_job_refuses_payload_company_other_than_job_company():
+    j = job("tier1-stock", path="slp-interiors/x/1-file.csv")
+    j["payload"]["company_id"] = "slp-interiors"  # job row says qss (checked by RLS), payload points elsewhere
+    _refused(j)
+
+
+def test_job_refuses_missing_job_company():
+    j = job("tier1-stock")
+    j["company_id"] = None  # the payload alone is never trusted
+    _refused(j)
+
+
+def test_job_refuses_storage_path_outside_company_folder():
+    _refused(job("tier1-stock", path="slp-interiors/tier1-stock/1-file.csv"))
+    _refused(job("tier1-stock", path="qss-other/x/1-file.csv"))
+    _refused(job("tier1-stock", path="qss/../slp-interiors/x.csv"))
+
+
+def test_job_accepts_payload_without_company():
+    j = job("tier1-stock")
+    del j["payload"]["company_id"]
+    assert run_parse_upload(base_db(), j, fetch=lambda d, p: b"part number,on hand units\nQSS-1,5\n")["rows"] == 1
+
+
+def test_suppliers_upload_merges_email_into_existing_contact():
+    db = base_db()
+    db.t["companies"][1]["contact"] = {"name": "Roberto Laja", "role": "Owner", "email": "old@edl.mx"}
+    run_parse_upload(db, job("tier1-suppliers"),
+                     fetch=lambda d, p: b"supplier name,city,state,contact email,supplier code\nEstampados del Laja,Celaya,Guanajuato,new@edl.mx,edl\n")
+    edl = [c for c in db.t["companies"] if c["id"] == "edl"][0]
+    assert edl["contact"] == {"name": "Roberto Laja", "role": "Owner", "email": "new@edl.mx"}
+
+
+def test_write_stock_skips_part_missing_from_context_with_an_issue():
+    from intake.runner import write_stock
+    db, ctx = base_db(), {"parts": {norm("QSS-1"): base_db().t["parts"][0]}}
+    recs = [dict(row=2, part_id="part-qss-1", supplier_id="edl", on_hand=7), dict(row=3, part_id="part-gone", supplier_id="hmo", on_hand=1)]
+    written, affected = write_stock(db, "qss", recs, "f.csv", ctx=ctx)
+    assert written == {"parts_updated": 1} and affected == ["edl"] and db.t["parts"][0]["on_hand"] == 7
+    assert ctx["write_issues"] == [dict(row=3, column="part number", severity="error",
+                                        message="Part 'part-gone' is no longer in the parts list: row not saved")]
+
+
+def test_job_reports_rows_a_writer_skipped(monkeypatch):
+    real = VALIDATORS["tier1-stock"]
+
+    def drifting(rows, mapping, ctx):  # validation sees QSS-1, then the writer's lookup no longer has it
+        out = real(rows, mapping, ctx)
+        ctx["parts"].pop(norm("QSS-1"))
+        return out
+    monkeypatch.setitem(VALIDATORS, "tier1-stock", drifting)
+    db = base_db()
+    res = run_parse_upload(db, job("tier1-stock"), fetch=lambda d, p: b"part number,on hand units\nQSS-1,5\n")
+    assert res["status"] == "needs-input" and res["rows"] == 0 and res["errors"] == 1 and res["queued"] is None
+    assert db.t["uploads"][0]["rows"] == 0 and "no longer in the parts list" in db.t["uploads"][0]["issues"][-1]["message"]

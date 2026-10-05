@@ -74,6 +74,9 @@ SEED_KEY = {"short_label": "short"}
 def seed_key(c):
     return SEED_KEY.get(c) or camel(c)
 
+# Tables reset_demo() restores from demo_snapshot (plus supplier_profiles, built below).
+SNAPSHOT_TABLES = ("companies", "relationships", "vehicle_programs", "parts", "risks", "alerts", "invites")
+
 def q(s):
     return "'" + str(s).replace("'", "''") + "'"
 
@@ -107,13 +110,13 @@ def main():
             vals.append("  (" + ", ".join(
                 lit(r[seed_key(c)], kinds.get(c, "s")) if seed_key(c) in r else "DEFAULT" for c in cols) + ")")
         out.append(",\n".join(vals) + ";\n")
-        if table in ("alerts", "invites"):
-            snapshots[table] = [{c: r[camel(c)] for c in COLUMNS[table].split() if camel(c) in r} for r in rows]
+        if table in SNAPSHOT_TABLES:
+            snapshots[table] = [{c: r[seed_key(c)] for c in COLUMNS[table].split() if seed_key(c) in r} for r in rows]
     # supplier_profiles: one row per (customer, supplier) relationship, from worker/data/supplier_profiles.json
     prof = json.loads(PROFILES.read_text())
     pcols = ("customer_id supplier_id highways lead_time_variability utilization capacity_ceiling finished_goods_days "
              "bottleneck otif_weekly data_status source").split()
-    prows = []
+    prows, psnap = [], []
     for rel in seed.get("relationships", []):
         p = prof.get(rel["supplierId"])
         if not p:
@@ -122,6 +125,10 @@ def main():
             lit(rel["customerId"], "s"), lit(rel["supplierId"], "s"), lit(p["highways"], A), lit(p["lead_time_variability"], "s"),
             lit(p["utilization"], "s"), lit(p["ceiling"], "s"), lit(p["fg_days"], "s"), lit(p["bottleneck"], "s"),
             lit(otif_series(rel["supplierId"], p["otif"]), J), lit(p["data_status"], "s"), lit("seed", "s")]) + ")")
+        psnap.append(dict(zip(pcols, [rel["customerId"], rel["supplierId"], p["highways"], p["lead_time_variability"], p["utilization"],
+                                      p["ceiling"], p["fg_days"], p["bottleneck"], otif_series(rel["supplierId"], p["otif"]),
+                                      p["data_status"], "seed"])))
+    snapshots["supplier_profiles"] = psnap
     out.append(f"-- supplier_profiles ({len(prows)})")
     out.append(f"insert into public.supplier_profiles ({', '.join(pcols)}) values")
     out.append(",\n".join(prows) + ";\n")

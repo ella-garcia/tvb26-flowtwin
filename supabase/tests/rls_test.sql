@@ -95,7 +95,56 @@ select public.t_works('switch: customer slp-interiors accepted', $$select switch
 select public.t_assert('slp-interiors customer sees none of qss alerts', (select count(*) = 0 from alerts));
 
 -- ---- reset_demo
+-- Databases seeded before the full snapshot have only alerts/invites: snapshot the current rows for the rest (seeded DBs keep theirs).
+reset role;
+insert into demo_snapshot (name, rows)
+select 'companies', (select jsonb_agg(to_jsonb(x)) from companies x)
+union all select 'relationships', (select jsonb_agg(to_jsonb(x)) from relationships x)
+union all select 'vehicle_programs', (select jsonb_agg(to_jsonb(x)) from vehicle_programs x)
+union all select 'parts', (select jsonb_agg(to_jsonb(x)) from parts x)
+union all select 'risks', (select jsonb_agg(to_jsonb(x)) from risks x)
+union all select 'supplier_profiles', (select jsonb_agg(to_jsonb(x)) from supplier_profiles x)
+on conflict (name) do nothing;
+-- What an upload leaves behind: a new supplier with relationship, part, profile, receipt, release; changed stock and contact.
+insert into companies (id, name, city, state, lat, lon, kind, size_band, employees, scian) values
+  ('t-upload-co', 'T', 'Saltillo', 'Coahuila', 25.4, -101, 'supplier', 'small', 0, '336300');
+insert into relationships (supplier_id, customer_id, chain_position, requirements) values ('t-upload-co', 'qss', 'sub', '{}');
+insert into parts (id, number, name, supplier_id, customer_id, unit_cost_mxn, daily_usage, on_hand, days_of_cover, criticality)
+  values ('t-part', 'T-1', 'T', 't-upload-co', 'qss', 1, 1, 0, 0, 'normal');
+insert into supplier_profiles (customer_id, supplier_id) values ('qss', 't-upload-co');
+insert into receipts (customer_id, supplier_id, part_id, po_number, promised_date, quantity_ordered)
+  values ('qss', 't-upload-co', 't-part', 'T-R', '2026-09-01', 1);
+insert into demand_releases (customer_id, part_id, week_start, quantity) values ('qss', 'part-qss-4471-brk', '2026-10-12', 1);
+update parts set on_hand = on_hand + 999 where id = 'part-qss-4471-brk';
+update companies set contact = '{"email":"t@t.example"}' where id = 'edl';
+delete from vehicle_programs where customer_id = 'qss';
+insert into alert_notifications (alert_id, channel, recipient, audience, status, reason)
+  values ('alert-hmo-qss', 'email', 't@t.example', 'customer', 'dry-run', 'new-alert');
+set local role authenticated;
 select public.t_works('reset_demo runs', $$select reset_demo()$$);
+reset role;
+select public.t_assert('reset_demo removes the upload-created company and its rows',
+  not exists (select 1 from companies where id = 't-upload-co') and not exists (select 1 from relationships where supplier_id = 't-upload-co')
+  and not exists (select 1 from parts where id = 't-part') and not exists (select 1 from supplier_profiles where supplier_id = 't-upload-co'));
+select public.t_assert('reset_demo clears receipts and demand_releases',
+  (select count(*) = 0 from receipts) and (select count(*) = 0 from demand_releases));
+select public.t_assert('reset_demo restores parts, risks, programmes, profiles, relationships, companies from the snapshot',
+  (select bool_and((select count(*) from parts) = jsonb_array_length(rows)) from demo_snapshot where name = 'parts')
+  and (select bool_and((select count(*) from risks) = jsonb_array_length(rows)) from demo_snapshot where name = 'risks')
+  and (select bool_and((select count(*) from vehicle_programs) = jsonb_array_length(rows)) from demo_snapshot where name = 'vehicle_programs')
+  and (select bool_and((select count(*) from supplier_profiles) = jsonb_array_length(rows)) from demo_snapshot where name = 'supplier_profiles')
+  and (select bool_and((select count(*) from relationships) = jsonb_array_length(rows)) from demo_snapshot where name = 'relationships')
+  and (select bool_and((select count(*) from companies) = jsonb_array_length(rows)) from demo_snapshot where name = 'companies'));
+select public.t_assert('reset_demo restores stock and contact',
+  (select p.on_hand = (e->>'on_hand')::numeric from parts p, demo_snapshot d, jsonb_array_elements(d.rows) e
+   where d.name = 'parts' and e->>'id' = p.id and p.id = 'part-qss-4471-brk')
+  and (select c.contact is not distinct from e->'contact' from companies c, demo_snapshot d, jsonb_array_elements(d.rows) e
+       where d.name = 'companies' and e->>'id' = c.id and c.id = 'edl'));
+select public.t_assert('reset_demo keeps alert_notifications of re-inserted alerts (no duplicate e-mails)',
+  exists (select 1 from alert_notifications where alert_id = 'alert-hmo-qss' and recipient = 't@t.example'));
+delete from demo_snapshot where name = 'vehicle_programs';
+set local role authenticated;
+select public.t_works('reset_demo skips a table whose snapshot is missing', $$select reset_demo()$$);
 select switch_test_identity('customer', 'qss');
 select public.t_assert('reset_demo restores alert-hmo-qss to new', (select status = 'new' and chosen_action_id is null from alerts where id = 'alert-hmo-qss'));
 select public.t_assert('reset_demo restores edl response (status supplier-responded)', (select status = 'supplier-responded' from alerts where id = 'alert-edl-qss'));
@@ -141,6 +190,18 @@ select public.t_works('p2 customer qss: can queue parse-upload job for itself',
   $$insert into jobs (kind, company_id, payload) values ('parse-upload', 'qss', '{}')$$);
 select public.t_throws('p2 customer qss: cannot queue job for another customer',
   $$insert into jobs (kind, company_id, payload) values ('parse-upload', 'slp-interiors', '{}')$$);
+select public.t_throws('p2 customer qss: cannot queue parse-upload without a company',
+  $$insert into jobs (kind, company_id, payload) values ('parse-upload', null, '{"company_id":"slp-interiors"}')$$);
+select public.t_throws('p2 customer qss: cannot queue parse-upload whose payload names another company',
+  $$insert into jobs (kind, company_id, payload) values ('parse-upload', 'qss', '{"company_id":"slp-interiors"}')$$);
+select public.t_works('p2 customer qss: can queue parse-upload whose payload names itself',
+  $$insert into jobs (kind, company_id, payload) values ('parse-upload', 'qss', '{"company_id":"qss","storage_path":"qss/x/1-a.csv"}')$$);
+select public.t_throws('p2 customer qss: cannot queue recompute-risk for every customer (null company)',
+  $$insert into jobs (kind, company_id, payload) values ('recompute-risk', null, '{}')$$);
+select public.t_throws('p2 customer qss: cannot queue recompute-risk for another customer',
+  $$insert into jobs (kind, company_id, payload) values ('recompute-risk', 'slp-interiors', '{}')$$);
+select public.t_works('p2 customer qss: can queue recompute-risk for itself',
+  $$insert into jobs (kind, company_id, payload) values ('recompute-risk', 'qss', '{}')$$);
 
 select public.t_works('p2: switch to owner edl', $$select switch_test_identity('owner', 'edl')$$);
 select public.t_assert('p2 owner edl: supplier_profiles only supplier edl', (select count(*) > 0 and bool_and(supplier_id = 'edl') from supplier_profiles));
@@ -163,6 +224,8 @@ select public.t_assert('p2 customer slp: sees only own receipts and releases',
 select public.t_assert('p2 customer slp: sees only its upload', (select count(*) = 1 and bool_and(company_id = 'slp-interiors') from uploads));
 
 select public.t_works('p2: switch to admin', $$select switch_test_identity('admin', 'qss')$$);
+select public.t_works('p2 admin: can queue recompute-risk for every customer',
+  $$insert into jobs (kind, company_id, payload) values ('recompute-risk', null, '{}')$$);
 select public.t_assert('p2 admin: 0 profiles, receipts, releases',
   (select count(*) = 0 from supplier_profiles) and (select count(*) = 0 from receipts) and (select count(*) = 0 from demand_releases));
 reset role;
