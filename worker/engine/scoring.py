@@ -18,7 +18,7 @@ def score_drivers(customer, supplier, proj, flex, otif, signals):
         tw = sum(w.values())
         for s in sigs:
             extra = normal * (float(s["transit_multiplier"]) - 1)
-            short = s.get("short") or s["title"]
+            short = s.get("short_label") or s.get("short") or s["title"]  # DB column; `short` in the v0 seed
             if s["kind"] == "supplier":
                 lab = f"{short} delays outbound loads by about {extra:.1f} days"
             elif s["kind"] == "theft":
