@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "reac
 import { useApp } from "../../app/AppContext";
 import { Button, DataTable, StatusPill, type Column, type PillTone } from "../../keystone";
 import { Card, PageHeader } from "../../components/shared";
-import { date, num } from "../../lib/format";
+import { dateTime, num } from "../../lib/format";
 import * as remote from "../../lib/remote";
 import type { UploadIssue, UploadRecord } from "../../lib/types";
 import "./tier1-data.css";
@@ -159,7 +159,7 @@ export default function Tier1DataPage() {
                     style={{ display: "none" }} onChange={(e) => onFile(k.id, e)} />
                 </span>
                 <span className="t1-meta">
-                  {u?.fileName ? `${u.fileName} · ${num(u.rows)} rows${u.uploadedAt ? ` · ${date(u.uploadedAt)}, ${new Date(u.uploadedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "No file yet"}
+                  {u?.fileName ? `${u.fileName} · ${num(u.rows)} rows${u.uploadedAt ? ` · ${dateTime(u.uploadedAt)}` : ""}` : "No file yet"}
                 </span>
               </div>
               {errors[k.id] && <p className="t1-error" role="alert">{errors[k.id]}</p>}

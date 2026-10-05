@@ -2,10 +2,11 @@
 // (here, on the road, at the supplier) against the next delivery. Reads via useApp().db only.
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { CompanyMark, Empty, FormulaSource, ModelSelect, NotShared, PageHeader, ProvenanceTag } from "../../components/shared";
+import { CompanyMark, CritPill, Empty, FormulaSource, ModelSelect, NotShared, PageHeader, ProvenanceTag } from "../../components/shared";
 import { DataTable, FilterChip, SearchField, StatCard, StatusPill, type Column } from "../../keystone";
 import { AccessDeniedError } from "../../lib/dataLayer";
-import { date, num, rowNo } from "../../lib/format";
+import { date, days, num, rowNo } from "../../lib/format";
+import { CRIT_LABEL } from "../../lib/labels";
 import { CRIT_RANK, partStock, type PartStock, type StockStatus } from "../../lib/stock";
 import { ALL_PROGRAMS, modelLabel, partsOn } from "../../lib/programs";
 import type { Part, VehicleProgram } from "../../lib/types";
@@ -16,18 +17,12 @@ type StatusFilter = "all" | StockStatus;
 type CritFilter = "all" | Part["criticality"];
 
 const STATUS_ORDER: Record<StockStatus, number> = { short: 0, tight: 1, ok: 2 };
-const days = (n: number) => `${num(n, n % 1 ? 1 : 0)} ${n === 1 ? "day" : "days"}`;
+const CRIT_OPTIONS = (Object.keys(CRIT_RANK) as Part["criticality"][]).sort((a, b) => CRIT_RANK[a] - CRIT_RANK[b]);
 
 function StatusCell({ s }: { s: StockStatus }) {
   if (s === "short") return <StatusPill tone="danger">Runs out first</StatusPill>;
   if (s === "tight") return <StatusPill tone="warning">Tight</StatusPill>;
   return <StatusPill tone="success">OK</StatusPill>;
-}
-
-function CritPill({ c }: { c: Part["criticality"] }) {
-  if (c === "line-stopper") return <StatusPill tone="danger">Line stopper</StatusPill>;
-  if (c === "high") return <StatusPill tone="warning">High</StatusPill>;
-  return <StatusPill tone="neutral">Normal</StatusPill>;
 }
 
 export default function PartsPage() {
@@ -128,9 +123,7 @@ export default function PartsPage() {
         <label className="parts-select">Criticality
           <select value={crit} onChange={(e) => setCrit(e.target.value as CritFilter)}>
             <option value="all">All</option>
-            <option value="line-stopper">Line stopper</option>
-            <option value="high">High</option>
-            <option value="normal">Normal</option>
+            {CRIT_OPTIONS.map((c) => <option key={c} value={c}>{CRIT_LABEL[c]}</option>)}
           </select>
         </label>
         <SearchField label="Search parts by number or name" placeholder="Search part" width={260} value={query} onChange={(e) => setQuery(e.target.value)} />

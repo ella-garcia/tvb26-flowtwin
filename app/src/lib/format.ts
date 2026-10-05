@@ -8,5 +8,12 @@ export const pct = (v: number, digits = 1) => `${(v * 100).toFixed(digits).repla
 export const num = (v: number, digits = 0) => v.toLocaleString("en-US", { maximumFractionDigits: digits, minimumFractionDigits: digits });
 /** 30 Sep 2026 */
 export const date = (iso: string) => new Date(iso + (iso.length === 10 ? "T12:00:00" : "")).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+/** 5 Oct 2026, 14:30 (local time) */
+export const dateTime = (iso: string) =>
+  `${date(iso)}, ${new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+/** 1 day / 2 days / 2.5 days */
+export const days = (n: number) => `${num(n, n % 1 ? 1 : 0)} ${n === 1 ? "day" : "days"}`;
+/** The word that goes with a risk light: Act now / Watch / OK. */
+export const riskWord = (level: "green" | "amber" | "red") => (level === "red" ? "Act now" : level === "amber" ? "Watch" : "OK");
 /** Row numbers are zero-padded: 01, 02 … */
 export const rowNo = (i: number) => String(i + 1).padStart(2, "0");

@@ -1,11 +1,11 @@
 // Tier 1 risk board: summary, map, suppliers table. Reads via useApp().db only.
 import { useMemo, useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { Card, CompanyMark, Empty, FormulaSource, GradePill, ModelSelect, NotShared, PageHeader, RiskLight } from "../../components/shared";
-import { DataTable, FilterChip, IconButton, SearchField, StatCard, StatusPill, type Column } from "../../keystone";
+import { Card, CompanyMark, DataStatusPill, Empty, FlexPill, FormulaSource, GradePill, ModelSelect, NotShared, OtifDelta, PageHeader, RiskLight } from "../../components/shared";
+import { DataTable, FilterChip, IconButton, SearchField, StatCard, type Column } from "../../keystone";
 import mexico from "../../data/geo/mexico-states.json";
 import { AccessDeniedError } from "../../lib/dataLayer";
-import { date, num, pct, rowNo } from "../../lib/format";
+import { date, days, num, pct, riskWord, rowNo } from "../../lib/format";
 import { DEFAULT_OTIF_TARGET, otifSummary, type OtifSummary } from "../../lib/otif";
 import { CRIT_RANK, partStock } from "../../lib/stock";
 import { ALL_PROGRAMS, modelLabel, partsOn, stopDaysFor } from "../../lib/programs";
@@ -34,7 +34,6 @@ const KM_TO_PX = P.k / 111.2;
 // Central Mexico: Manzanillo to Veracruz, Monterrey/Saltillo to Orizaba.
 const VIEWBOX = "318 160 262 232";
 
-const days = (n: number) => `${num(n, n % 1 ? 1 : 0)} ${n === 1 ? "day" : "days"}`;
 const short = (s: string, n = 24) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 function Mark({ level, x, y, r = 6 }: { level: RiskLevel; x: number; y: number; r?: number }) {
@@ -106,21 +105,16 @@ export default function RiskPage() {
     { key: "stop", label: program ? `Days to ${program.model} stop` : "Days to line stop", numeric: true, render: (r) => r.stopDays == null ? "None in 14 days" : days(r.stopDays) },
     { key: "transit", label: "Expected transit", numeric: true, render: (r) => `${num(r.risk.normalTransitDays, 1)} → ${num(r.risk.expectedTransitDays, 1)} days` },
     { key: "cover", label: "Lowest cover", numeric: true, render: (r) => days(r.risk.minCoverDays) },
-    { key: "flex", label: "Can absorb +15%", render: (r) => <StatusPill tone={r.risk.flex.canAbsorb ? "success" : "danger"}>{r.risk.flex.canAbsorb ? "Yes" : "No"}</StatusPill> },
+    { key: "flex", label: "Can absorb +15%", render: (r) => <FlexPill flex={r.risk.flex} compact /> },
     { key: "below", label: "Parts below cover", numeric: true, render: (r) => (
       <button type="button" className="ft-linkbtn" aria-label={`${r.belowCover.length} of ${r.partCount} parts below cover. View parts from ${r.name}`}
         onClick={() => go("parts", r.id)}>{`${r.belowCover.length} of ${r.partCount}`}</button>
     ) },
     { key: "otif", label: "OTIF (12 wk)", numeric: true, render: (r) => r.otif == null ? "No data" : (
-      <span className="risk-otif">{pct(r.otif.average)}{Math.abs(r.otif.change) < 0.0005
-        ? <small className="risk-flat">No change</small>
-        : <small className={r.otif.change < 0 ? "risk-down" : "risk-up"}>{r.otif.change < 0 ? "▼" : "▲"} {num(Math.abs(r.otif.change) * 100, 1)} pts</small>}</span>
+      <span className="risk-otif">{pct(r.otif.average)}<OtifDelta change={r.otif.change} /></span>
     ) },
     { key: "grade", label: "Delivery record", render: (r) => r.otif == null ? "No data" : <GradePill grade={r.otif.grade} /> },
-    { key: "data", label: "Data", render: (r) => {
-      const d = r.risk.dataStatus;
-      return <StatusPill tone={d === "connected" ? "success" : d === "invited" ? "neutral" : "warning"}>{d === "connected" ? "Connected" : d === "invited" ? "Invited" : "Public only"}</StatusPill>;
-    } },
+    { key: "data", label: "Data", render: (r) => <DataStatusPill status={r.risk.dataStatus} /> },
     { key: "act", label: "", render: (r) => <IconButton icon="eye" label={`View supplier ${r.name}`} onClick={() => go("supplier", r.id)} /> },
   ];
 
@@ -162,7 +156,7 @@ export default function RiskPage() {
             )}
             {[...mapped].sort((a, b) => (a.r.risk.level === "red" ? 1 : 0) - (b.r.risk.level === "red" ? 1 : 0)).map(({ r, c }) => {
               const x = px(c!.lon), y = py(c!.lat);
-              const word = r.risk.level === "red" ? "Act now" : r.risk.level === "amber" ? "Watch" : "OK";
+              const word = riskWord(r.risk.level);
               return (
                 <g key={r.id} className="risk-node" tabIndex={0} role="link" aria-label={`${r.name}, ${word}. View supplier`}
                   onClick={() => go("supplier", r.id)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go("supplier", r.id); } }}>

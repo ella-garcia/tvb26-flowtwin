@@ -31,8 +31,6 @@
 .supplier-part-name { font-weight: 600; }
 .supplier-otif { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
 .supplier-otif-value { font: 600 28px/36px var(--font-sans); color: var(--ink); }
-.supplier-delta-up { color: var(--success); font-weight: 600; }
-.supplier-delta-down { color: var(--danger); font-weight: 600; }
 .supplier-spark { max-width: 100%; }
 .supplier-spark polyline { fill: none; stroke: var(--primary); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .supplier-spark circle { fill: var(--primary); }

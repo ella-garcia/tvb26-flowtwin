@@ -72,6 +72,12 @@ body { background: var(--canvas); }
 .ft-light-green { background: var(--risk-green-soft); color: var(--risk-green); }
 .ft-light i { width: 10px; height: 10px; border-radius: var(--radius-full); background: currentColor; display: inline-block; }
 
+/* Change markers (OtifDelta): arrow + words, never colour alone. */
+.ft-delta { font-weight: 600; }
+.ft-delta-up { color: var(--success); }
+.ft-delta-down { color: var(--danger); }
+.ft-delta-flat { color: var(--ink-subtle); }
+
 /* Keep the rail full height and in view on long pages. */
 .ft-frame > .ks-rail { position: sticky; top: env(safe-area-inset-top, 0px); align-self: flex-start; height: 100vh; min-height: 0; }
 .ft-frame > .ks-subnav { position: sticky; top: env(safe-area-inset-top, 0px); align-self: flex-start; height: 100vh; overflow-y: auto; }

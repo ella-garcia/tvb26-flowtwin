@@ -1,10 +1,11 @@
 // Tier 1 alerts feed. Reads via useApp().db only; writes via dispatch.
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { Card, Empty, NotShared, PageHeader, RiskLight } from "../../components/shared";
-import { Button, FilterChip, StatusPill, type PillTone } from "../../keystone";
+import { AlertStatusPill, Card, CritPill, Empty, NotShared, PageHeader, RiskLight } from "../../components/shared";
+import { Button, FilterChip, StatusPill } from "../../keystone";
 import { AccessDeniedError } from "../../lib/dataLayer";
-import { date } from "../../lib/format";
+import { date, dateTime } from "../../lib/format";
+import { ALERT_STATUS } from "../../lib/labels";
 import { modelLabel, programsOf } from "../../lib/programs";
 import * as remote from "../../lib/remote";
 import type { Alert, AlertNotification, Part, RiskLevel, VehicleProgram } from "../../lib/types";
@@ -12,9 +13,6 @@ import "./alerts.css";
 
 type Status = Alert["status"];
 type Filter = "all" | Status;
-const STATUS_LABEL: Record<Status, string> = { new: "New", acknowledged: "Acknowledged", "supplier-responded": "Supplier responded", resolved: "Resolved" };
-const STATUS_TONE: Record<Status, PillTone> = { new: "danger", acknowledged: "warning", "supplier-responded": "fresh", resolved: "success" };
-const CRIT: Record<Part["criticality"], string> = { "line-stopper": "Line stopper", high: "High", normal: "Normal" };
 const rank = (l: RiskLevel) => (l === "red" ? 0 : l === "amber" ? 1 : 2);
 
 export default function AlertsPage() {
@@ -52,7 +50,7 @@ export default function AlertsPage() {
   const n = (s: Status) => alerts.filter((a) => a.status === s).length;
   const chips: { id: Filter; label: string }[] = [
     { id: "all", label: `All (${alerts.length})` },
-    ...(Object.keys(STATUS_LABEL) as Status[]).map((s) => ({ id: s as Filter, label: `${STATUS_LABEL[s]} (${n(s)})` })),
+    ...(Object.keys(ALERT_STATUS) as Status[]).map((s) => ({ id: s as Filter, label: `${ALERT_STATUS[s].label} (${n(s)})` })),
   ];
 
   return (
@@ -78,7 +76,7 @@ export default function AlertsPage() {
               <Card key={a.id} className="alerts-card">
                 <div className="alerts-top">
                   <RiskLight level={a.level} />
-                  <StatusPill tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</StatusPill>
+                  <AlertStatusPill status={a.status} />
                   <span className="alerts-meta">{date(a.createdAt)}</span>
                 </div>
                 <div>
@@ -93,7 +91,7 @@ export default function AlertsPage() {
                       <ul className="alerts-parts">
                         {aParts.map((p) => (
                           <li key={p.id}><span className="ks-num">{p.number}</span> {p.name}
-                            <StatusPill tone={p.criticality === "line-stopper" ? "danger" : p.criticality === "high" ? "warning" : "neutral"}>{CRIT[p.criticality]}</StatusPill></li>
+                            <CritPill c={p.criticality} /></li>
                         ))}
                       </ul>
                     )}
@@ -131,7 +129,7 @@ export default function AlertsPage() {
                   <div className="alerts-notes">
                     {[...(notes[a.id] ?? [])].sort((x, y) => (y.sentAt ?? "").localeCompare(x.sentAt ?? "")).map((n, i) => {
                       const word = n.dryRun ? "dry run" : n.status === "failed" ? "failed" : n.status === "skipped" ? "skipped" : "sent";
-                      const when = n.sentAt ? new Date(n.sentAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+                      const when = n.sentAt ? dateTime(n.sentAt) : "";
                       return <p key={n.id ?? i} className="alerts-meta">{n.channel === "whatsapp" ? "Messaged" : "Emailed"} to {n.recipient ?? "a recipient"}{when ? ` · ${when}` : ""} ({word})</p>;
                     })}
                     {a.resolvedBy === "engine" && <p className="alerts-meta">Resolved automatically when the risk turned green</p>}

@@ -2,11 +2,11 @@
 // "My risk" page (audience "supplier": "this is exactly what your customer sees").
 import { useApp } from "../../app/AppContext";
 import { AccessDeniedError } from "../../lib/dataLayer";
-import { Card, Empty, FormulaSource, GradePill, NotShared, ProvenanceTag, RiskLight } from "../../components/shared";
+import { AlertStatusPill, Card, CritPill, DataStatusPill, Empty, FlexPill, FormulaSource, GradePill, NotShared, OtifDelta, ProvenanceTag, RiskLight } from "../../components/shared";
 import { DataTable, Icon, StatusPill, type Column } from "../../keystone";
-import { date, mxn, num, pct } from "../../lib/format";
+import { date, days, mxn, num, pct, rowNo } from "../../lib/format";
 import { DEFAULT_OTIF_TARGET, otifSummary } from "../../lib/otif";
-import { partStock } from "../../lib/stock";
+import { CRIT_RANK, partStock } from "../../lib/stock";
 import { programsOf } from "../../lib/programs";
 import { segmentLabel } from "../../packs";
 import type { Alert, ChainPosition, Part, ProjectionDay, RiskAssessment, Signal, VehicleProgram } from "../../lib/types";
@@ -14,25 +14,13 @@ import "./supplier.css";
 
 export interface SupplierRiskViewProps { customerId: string; supplierId: string; audience: "customer" | "supplier" }
 
-const CRIT_ORDER: Record<Part["criticality"], number> = { "line-stopper": 0, high: 1, normal: 2 };
 
-function CritPill({ c }: { c: Part["criticality"] }) {
-  if (c === "line-stopper") return <StatusPill tone="danger">Line stopper</StatusPill>;
-  if (c === "high") return <StatusPill tone="warning">High</StatusPill>;
-  return <StatusPill tone="neutral">Normal</StatusPill>;
-}
-
-const STATUS_WORD: Record<RiskAssessment["dataStatus"], { tone: "success" | "warning" | "neutral"; word: string; prov: "measured" | "estimated" }> = {
-  connected: { tone: "success", word: "Connected", prov: "measured" },
-  invited: { tone: "warning", word: "Invited", prov: "estimated" },
-  "public-only": { tone: "neutral", word: "Public data only", prov: "estimated" },
-};
 
 function headline(r: RiskAssessment, parts: Part[]): { text: string; tone: "danger" | "ok" | "plain" } {
   if (r.daysToLineStop == null) return { text: "No line stop expected in the next 14 days", tone: "ok" };
   const worst = [...parts].sort((a, b) => a.daysOfCover - b.daysOfCover).find((p) => p.criticality === "line-stopper") ?? [...parts].sort((a, b) => a.daysOfCover - b.daysOfCover)[0];
   const d = r.daysToLineStop;
-  const when = d <= 0 ? "today" : `in ${d} ${d === 1 ? "day" : "days"}`;
+  const when = d <= 0 ? "today" : `in ${days(d)}`;
   return { text: worst ? `If nothing changes, your line runs out of ${worst.number} ${when}` : `If nothing changes, your line may stop ${when}`, tone: "danger" };
 }
 
@@ -137,9 +125,9 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
     </Empty>;
   }
 
-  const status = STATUS_WORD[risk.dataStatus] ?? STATUS_WORD["public-only"];
+  const status = { prov: risk.dataStatus === "connected" ? "measured" as const : "estimated" as const };
   const head = headline(risk, parts);
-  const sortedParts = [...parts].sort((a, b) => CRIT_ORDER[a.criticality] - CRIT_ORDER[b.criticality] || a.daysOfCover - b.daysOfCover);
+  const sortedParts = [...parts].sort((a, b) => CRIT_RANK[a.criticality] - CRIT_RANK[b.criticality] || a.daysOfCover - b.daysOfCover);
   const sigOf = (id?: string) => (id ? signals.find((s) => s.id === id) : undefined);
   const drivers = [...risk.drivers].sort((a, b) => b.contribution - a.contribution);
   const f = risk.flex;
@@ -153,7 +141,7 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
     : <>Shared with <strong>{customerName}</strong>: risk light, drivers, parts and stock, flex test, delivery performance. <strong>Never shared:</strong> costs, prices and margins.</>;
 
   const cols: Column<Part>[] = [
-    { key: "no", label: "No", render: (_p, i) => String(i + 1).padStart(2, "0") },
+    { key: "no", label: "No", render: (_p, i) => rowNo(i) },
     { key: "number", label: "Part number", render: (p) => <span className="supplier-part-name">{p.number}</span> },
     { key: "name", label: "Name" },
     { key: "criticality", label: "Criticality", render: (p) => <CritPill c={p.criticality} /> },
@@ -193,7 +181,7 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
           {place && <span>{place}</span>}
           <span>{segmentLabel(pack, chain, sizeBand)}</span>
           <span className="supplier-score ks-num">Score {num(risk.score)} of 100</span>
-          <StatusPill tone={status.tone}>{status.word}</StatusPill>
+          <DataStatusPill status={risk.dataStatus} />
           <span>Updated {date(risk.updatedAt)}</span>
         </div>
         <p className={`supplier-headline ${head.tone === "danger" ? "supplier-headline-danger" : head.tone === "ok" ? "supplier-headline-ok" : ""}`}>{head.text}</p>
@@ -238,11 +226,11 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
         <div className="supplier-flex">
           <div className="supplier-flex-verdict">
             <span className="supplier-flex-word">{f.canAbsorb ? "Yes" : "No"}</span>
-            <StatusPill tone={f.canAbsorb ? "success" : "danger"}>{f.canAbsorb ? "Can absorb" : "Cannot absorb"}</StatusPill>
+            <FlexPill flex={f} />
           </div>
           <dl className="supplier-facts">
             <dt>Service level under surge</dt><dd className="ks-num">{pct(f.serviceLevel, 0)}</dd>
-            <dt>Days to recover</dt><dd className="ks-num">{f.daysToRecover == null ? "Not needed" : `${num(f.daysToRecover)} days`}</dd>
+            <dt>Days to recover</dt><dd className="ks-num">{f.daysToRecover == null ? "Not needed" : days(f.daysToRecover)}</dd>
             <dt>Headroom before the surge</dt><dd className="ks-num">{pct(f.headroom, 0)}</dd>
             <dt>Bottleneck</dt><dd>{f.bottleneck}</dd>
           </dl>
@@ -266,11 +254,7 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
             <Sparkline values={otif} />
             <div>
               <div className="supplier-otif-value ks-num">{pct(otifNow!)}</div>
-              {otifDelta != null && (Math.abs(otifDelta) < 0.0005
-                ? <div className="supplier-muted">No change, last 4 weeks vs first 4</div>
-                : <div className={otifDelta > 0 ? "supplier-delta-up" : "supplier-delta-down"}>
-                    {otifDelta > 0 ? "▲" : "▼"} {num(Math.abs(otifDelta) * 100, 1)} points, last 4 weeks vs first 4
-                  </div>)}
+              {otifDelta != null && <div><OtifDelta change={otifDelta} long /></div>}
             </div>
             {record && (
               <div className="supplier-grade">
@@ -290,9 +274,7 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
               {alerts.map((a) => (
                 <li key={a.id}>
                   <span>{a.title}</span>
-                  <StatusPill tone={a.status === "new" ? "danger" : a.status === "resolved" ? "success" : "warning"}>
-                    {a.status === "new" ? "New" : a.status === "acknowledged" ? "Acknowledged" : a.status === "supplier-responded" ? "Supplier responded" : "Resolved"}
-                  </StatusPill>
+                  <AlertStatusPill status={a.status} />
                 </li>
               ))}
             </ul>

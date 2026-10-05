@@ -3,23 +3,16 @@ import { useMemo, useState } from "react";
 import { useApp } from "../../app/AppContext";
 import { AccessDeniedError } from "../../lib/dataLayer";
 import type { Alert, RiskAssessment } from "../../lib/types";
-import { Button, FilterChip, Icon, StatusPill, type IconName, type PillTone } from "../../keystone";
-import { Card, Empty, NotShared, PageHeader, RiskLight } from "../../components/shared";
+import { Button, FilterChip, Icon, StatusPill, type IconName } from "../../keystone";
+import { AlertStatusPill, Card, Empty, NotShared, PageHeader, RiskLight } from "../../components/shared";
 import { date } from "../../lib/format";
 import SupplierRiskView from "../supplier/SupplierRiskView";
 import "./my-risk.css";
-
-const statusPill = (s: Alert["status"]): { tone: PillTone; label: string } =>
-  s === "new" ? { tone: "danger", label: "Needs your answer" }
-  : s === "acknowledged" ? { tone: "warning", label: "Seen by customer" }
-  : s === "supplier-responded" ? { tone: "success", label: "You answered" }
-  : { tone: "neutral", label: "Resolved" };
 
 function AlertCard({ alert, customerName }: { alert: Alert; customerName: string }) {
   const { db, dispatch } = useApp();
   const [message, setMessage] = useState("");
   const [capacity, setCapacity] = useState(false);
-  const pill = statusPill(alert.status);
   const unanswered = alert.status === "new" || alert.status === "acknowledged";
   const by = db.company(db.viewer.companyId)?.contact?.name ?? db.viewer.role;
 
@@ -30,7 +23,7 @@ function AlertCard({ alert, customerName }: { alert: Alert; customerName: string
           <RiskLight level={alert.level} />
           <h3>{alert.title}</h3>
         </div>
-        <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
+        <AlertStatusPill status={alert.status} audience="supplier" />
       </div>
       <p>{alert.message}</p>
       <p className="ft-muted" style={{ fontSize: 12 }}>
