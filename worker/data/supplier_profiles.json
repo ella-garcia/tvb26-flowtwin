@@ -1,0 +1,197 @@
+{
+ "edl": {
+  "highways": [
+   "MEX-45D"
+  ],
+  "lead_time_variability": 0.38,
+  "utilization": 0.88,
+  "ceiling": 0.95,
+  "fg_days": 0.5,
+  "bottleneck": "Press 4 (400 t)",
+  "otif": [
+   0.968,
+   0.915,
+   "decline"
+  ],
+  "data_status": "connected"
+ },
+ "hmo": {
+  "highways": [
+   "MEX-150D"
+  ],
+  "lead_time_variability": 0.25,
+  "utilization": 0.91,
+  "ceiling": 0.95,
+  "fg_days": 1.0,
+  "bottleneck": "Extrusion line 2",
+  "otif": [
+   0.972,
+   0.93,
+   "dip"
+  ],
+  "data_status": "connected"
+ },
+ "tsr": {
+  "highways": [
+   "MEX-57D"
+  ],
+  "lead_time_variability": 0.3,
+  "utilization": 0.78,
+  "ceiling": 0.95,
+  "fg_days": 2.0,
+  "bottleneck": "Cold heading machines",
+  "otif": [
+   0.978,
+   0.955,
+   "decline"
+  ],
+  "data_status": "connected"
+ },
+ "pip": {
+  "highways": [
+   "MEX-190",
+   "MEX-57D"
+  ],
+  "lead_time_variability": 0.22,
+  "utilization": 0.82,
+  "ceiling": 0.95,
+  "fg_days": 1.5,
+  "bottleneck": "Injection press 7 (450 t)",
+  "otif": [
+   0.975,
+   0.955,
+   "decline"
+  ],
+  "data_status": "connected"
+ },
+ "rdp": {
+  "highways": [
+   "MEX-200",
+   "MEX-15D"
+  ],
+  "lead_time_variability": 0.28,
+  "utilization": 0.74,
+  "ceiling": 0.95,
+  "fg_days": 2.0,
+  "bottleneck": "Imported resin supply (port)",
+  "otif": [
+   0.976,
+   0.955,
+   "decline"
+  ],
+  "data_status": "connected"
+ },
+ "etb": {
+  "highways": [
+   "MEX-45D"
+  ],
+  "lead_time_variability": 0.12,
+  "utilization": 0.7,
+  "ceiling": 0.95,
+  "fg_days": 1.5,
+  "bottleneck": "Foam pouring line 1",
+  "otif": [
+   0.985,
+   0.984,
+   "flat"
+  ],
+  "data_status": "connected"
+ },
+ "cha": {
+  "highways": [
+   "MEX-45D"
+  ],
+  "lead_time_variability": 0.15,
+  "utilization": 0.72,
+  "ceiling": 0.95,
+  "fg_days": 1.0,
+  "bottleneck": "Harness assembly cells",
+  "otif": [
+   0.95,
+   0.95,
+   "flat"
+  ],
+  "data_status": "invited"
+ },
+ "mds": {
+  "highways": [
+   "MEX-45D"
+  ],
+  "lead_time_variability": 0.1,
+  "utilization": 0.66,
+  "ceiling": 0.95,
+  "fg_days": 2.0,
+  "bottleneck": "CNC cell B",
+  "otif": [
+   0.988,
+   0.986,
+   "flat"
+  ],
+  "data_status": "connected"
+ },
+ "fdt": {
+  "highways": [
+   "MEX-15D",
+   "MEX-57D"
+  ],
+  "lead_time_variability": 0.14,
+  "utilization": 0.75,
+  "ceiling": 0.95,
+  "fg_days": 1.5,
+  "bottleneck": "Forging press 3",
+  "otif": [
+   0.955,
+   0.955,
+   "flat"
+  ],
+  "data_status": "invited"
+ },
+ "rpo": {
+  "highways": [
+   "MEX-57D"
+  ],
+  "lead_time_variability": 0.11,
+  "utilization": 0.68,
+  "ceiling": 0.95,
+  "fg_days": 2.0,
+  "bottleneck": "Coiling line 4",
+  "otif": [
+   0.989,
+   0.987,
+   "flat"
+  ],
+  "data_status": "connected"
+ },
+ "tps": {
+  "highways": [
+   "MEX-57D"
+  ],
+  "lead_time_variability": 0.2,
+  "utilization": 0.76,
+  "ceiling": 0.95,
+  "fg_days": 1.5,
+  "bottleneck": "Roll-forming line (estimated)",
+  "otif": [
+   0.955,
+   0.95,
+   "flat"
+  ],
+  "data_status": "public-only"
+ },
+ "pis": {
+  "highways": [
+   "MEX-57D"
+  ],
+  "lead_time_variability": 0.13,
+  "utilization": 0.71,
+  "ceiling": 0.95,
+  "fg_days": 1.0,
+  "bottleneck": "Powder-coat line",
+  "otif": [
+   0.982,
+   0.98,
+   "flat"
+  ],
+  "data_status": "connected"
+ }
+}

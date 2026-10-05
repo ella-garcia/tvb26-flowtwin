@@ -1,10 +1,11 @@
 // App state: testing toggles (pack, role, company, plan), route, and the demo data store.
 // Logins are out of scope for v0; the toggles stand in for them.
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
 import seedJson from "../data/seed/seed.json";
 import type { PlanId, RoleId, Seed } from "../lib/types";
 import { reduce, scope, type Action, type AppData, type Scope } from "../lib/dataLayer";
 import { getPack, type Pack } from "../packs";
+import * as remote from "../lib/remote";
 
 const SEED = seedJson as unknown as Seed;
 const STORE_KEY = "flowtwin-v0-data";
@@ -16,6 +17,12 @@ export type ModuleId =
   | "signals" | "companies";                           // admin
 
 export interface Route { module: ModuleId; sub?: string }
+
+export type DataMode = "live" | "seed";
+export type LoadStatus = "loading" | "ready" | "error";
+
+/** SEED with every collection emptied: the placeholder shown while live data loads. */
+const EMPTY: AppData = Object.fromEntries(Object.entries(SEED).map(([k, v]) => [k, Array.isArray(v) ? [] : v])) as unknown as AppData;
 
 export interface Toggles { packId: string; role: RoleId; companyId: string; plan: PlanId }
 
@@ -30,6 +37,16 @@ interface Ctx {
   db: Scope;
   dispatch: (a: Action) => void;
   resetDemo: () => void;
+  /** "live" = Supabase, "seed" = bundled demo data. */
+  mode: DataMode;
+  status: LoadStatus;
+  error: string | null;
+  /** Short message after a failed write-through; cleared by dismissNotice. */
+  notice: string | null;
+  dismissNotice: () => void;
+  /** Give up on Supabase for this session and use the bundled seed. */
+  useDemoData: () => void;
+  retry: () => void;
 }
 
 const AppCtx = createContext<Ctx | null>(null);
@@ -49,23 +66,55 @@ function parseHash(role: RoleId): Route {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [toggles, setT] = useState<Toggles>(() => load(TOGGLE_KEY, { packId: "auto", role: "customer", companyId: "qss", plan: "paid" }));
-  const [data, dispatch] = useReducer(reduce, undefined, () => {
+  const [forcedSeed, setForcedSeed] = useState(false);
+  const mode: DataMode = remote.isLive && !forcedSeed ? "live" : "seed";
+  const [data, rawDispatch] = useReducer(reduce, undefined, () => {
+    if (remote.isLive) return EMPTY;
     // Only the mutable slices persist; reference data always comes from the current seed.
     const saved = load<Partial<AppData>>(STORE_KEY, {});
     return { ...SEED, ...(saved.generatedAt === SEED.generatedAt ? saved : {}) } as AppData;
   });
   const [route, setRoute] = useState<Route>(() => parseHash(toggles.role));
+  const [status, setStatus] = useState<LoadStatus>(remote.isLive ? "loading" : "ready");
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
+  const reqId = useRef(0);
 
   useEffect(() => save(TOGGLE_KEY, toggles), [toggles]);
-  useEffect(() => save(STORE_KEY, {
-    generatedAt: data.generatedAt, requests: data.requests, shares: data.shares, uploads: data.uploads,
-    relationships: data.relationships, emissionFactors: data.emissionFactors, alerts: data.alerts, invites: data.invites,
-  }), [data]);
+  useEffect(() => {
+    if (mode !== "seed") return; // live data is never persisted locally
+    save(STORE_KEY, {
+      generatedAt: data.generatedAt, requests: data.requests, shares: data.shares, uploads: data.uploads,
+      relationships: data.relationships, emissionFactors: data.emissionFactors, alerts: data.alerts, invites: data.invites,
+    });
+  }, [data, mode]);
   useEffect(() => {
     const on = () => setRoute(parseHash(toggles.role));
     addEventListener("hashchange", on);
     return () => removeEventListener("hashchange", on);
   }, [toggles.role]);
+
+  // Live mode: (re)load whenever the identity changes or a reload is requested.
+  useEffect(() => {
+    if (mode !== "live") return;
+    const id = ++reqId.current;
+    setStatus("loading"); setError(null);
+    (async () => {
+      await remote.ensureSession();
+      await remote.switchIdentity(toggles.role, toggles.companyId);
+      const seed = await remote.loadAll();
+      if (id !== reqId.current) return; // a newer load superseded this one
+      rawDispatch({ type: "reset", seed });
+      setStatus("ready");
+    })().catch((e: unknown) => {
+      if (id !== reqId.current) return;
+      setError(e instanceof Error ? e.message : String(e));
+      setStatus("error");
+    });
+  }, [mode, toggles.role, toggles.companyId, reloadTick]);
+
+  const reload = useCallback(() => setReloadTick((n) => n + 1), []);
 
   const go = useCallback((module: ModuleId, sub?: string) => {
     location.hash = sub ? `${module}/${sub}` : module;
@@ -85,11 +134,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Local reducer first (instant UI), then the matching backend call in live mode.
+  const dispatch = useCallback((a: Action) => {
+    rawDispatch(a);
+    if (mode !== "live") return;
+    let call: Promise<void> | null = null;
+    switch (a.type) {
+      case "acknowledge-alert": call = remote.acknowledgeAlert(a.id, a.actionId); break;
+      case "resolve-alert": call = remote.resolveAlert(a.id); break;
+      case "respond-alert": call = remote.respondAlert(a.id, a.response); break;
+      case "send-invite": call = remote.sendInvite(a.invite); break;
+      case "record-upload": call = remote.recordUpload(a.upload); break;
+      default: break; // no backend yet: stays local
+    }
+    call?.catch((e: unknown) => {
+      setNotice(`Could not save to the server: ${e instanceof Error ? e.message : String(e)}. Showing the server's data.`);
+      reload();
+    });
+  }, [mode, reload]);
+
+  const resetDemo = useCallback(() => {
+    if (mode !== "live") { rawDispatch({ type: "reset", seed: SEED }); return; }
+    remote.resetRemoteDemo().then(reload).catch((e: unknown) => {
+      setNotice(`Could not reset the demo data: ${e instanceof Error ? e.message : String(e)}`);
+      reload();
+    });
+  }, [mode, reload]);
+
+  const useDemoData = useCallback(() => {
+    reqId.current++;
+    setForcedSeed(true); setStatus("ready"); setError(null); setNotice(null);
+    rawDispatch({ type: "reset", seed: SEED });
+  }, []);
+
   const value = useMemo<Ctx>(() => ({
     toggles, setToggles, route, go, pack: getPack(toggles.packId), data,
     db: scope(data, { role: toggles.role, companyId: toggles.companyId }),
-    dispatch, resetDemo: () => dispatch({ type: "reset", seed: SEED }),
-  }), [toggles, setToggles, route, go, data]);
+    dispatch, resetDemo, mode, status, error, notice, dismissNotice: () => setNotice(null), useDemoData, retry: reload,
+  }), [toggles, setToggles, route, go, data, dispatch, resetDemo, mode, status, error, notice, useDemoData, reload]);
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }

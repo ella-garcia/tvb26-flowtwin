@@ -19,12 +19,14 @@ const RAIL: Record<RoleId, ModuleId[]> = {
 const REACHABLE: Record<RoleId, ModuleId[]> = { ...RAIL, customer: [...RAIL.customer, "supplier"] };
 
 function TestingBar() {
-  const { toggles, setToggles, data, resetDemo, pack } = useApp();
+  const { toggles, setToggles, data, resetDemo, pack, mode } = useApp();
   const companies = data.companies.filter((c) =>
     toggles.role === "customer" ? c.kind === "customer" : toggles.role === "admin" ? false : c.kind === "supplier");
   return (
     <div className="ft-testbar" role="region" aria-label="Testing switcher">
       <span className="ft-testbar-tag">Testing</span>
+      <span className="ft-testbar-tag" title={mode === "live" ? "Reading from Supabase" : "Reading the bundled demo data"}
+        data-mode={mode}>{mode === "live" ? "Live data" : "Demo data"}</span>
       <label>Industry
         <select id="tg-pack" value={toggles.packId} onChange={(e) => setToggles({ packId: e.target.value })}>
           {PACKS.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -54,7 +56,7 @@ function TestingBar() {
 }
 
 export function Shell() {
-  const { toggles, route, go, db } = useApp();
+  const { toggles, route, go, db, status, error, notice, dismissNotice, useDemoData, retry } = useApp();
   const mod = MODULES[route.module] ?? MODULES[RAIL[toggles.role][0]];
   const allowed = REACHABLE[toggles.role].includes(route.module);
   const items: RailItem[] = RAIL[toggles.role].map((id) => ({ id, label: MODULES[id].label, icon: MODULES[id].icon }));
@@ -85,7 +87,18 @@ export function Shell() {
               <UserChip name={person?.name ?? ROLE_LABEL[toggles.role]} email={person ? `${ROLE_LABEL[toggles.role]} · ${person.email}` : ROLE_LABEL[toggles.role]} />
             </div>
           </div>
-          <Page />
+          {notice && (
+            <p role="status" className="ft-notice">{notice} <button type="button" className="ft-linkbtn" onClick={dismissNotice}>Dismiss</button></p>
+          )}
+          {status === "loading" && <p role="status" aria-live="polite" className="ft-notice">Loading data…</p>}
+          {status === "error" && (
+            <div role="alert" className="ft-notice">
+              <p>Could not reach the data server{error ? ` (${error})` : ""}.</p>
+              <button type="button" className="ft-linkbtn" onClick={retry}>Try again</button>{" "}
+              <button type="button" className="ft-linkbtn" onClick={useDemoData}>Use demo data instead</button>
+            </div>
+          )}
+          {status === "ready" && <Page />}
         </main>
       </div>
     </div>

@@ -69,3 +69,8 @@ body { background: var(--canvas); }
 /* Keep the rail full height and in view on long pages. */
 .ft-frame > .ks-rail { position: sticky; top: env(safe-area-inset-top, 0px); align-self: flex-start; height: 100vh; min-height: 0; }
 .ft-frame > .ks-subnav { position: sticky; top: env(safe-area-inset-top, 0px); align-self: flex-start; height: 100vh; overflow-y: auto; }
+
+/* Loading, error and failed-write messages in the main area. */
+.ft-notice { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--surface-sunken); color: var(--ink); font: 400 14px/20px var(--font-sans); }
+.ft-testbar-tag[data-mode="seed"] { background: var(--surface-raised); color: var(--ink-muted); box-shadow: inset 0 0 0 1px var(--border-strong); }

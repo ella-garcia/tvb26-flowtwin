@@ -1,0 +1,107 @@
+{
+ "supplier_id": "edl",
+ "customer_id": "qss",
+ "nodes": [
+  {
+   "id": "edl-plant",
+   "role": "plant",
+   "lat": 20.52,
+   "lon": -100.81
+  },
+  {
+   "id": "edl-p-coil-mty",
+   "role": "source",
+   "lat": 25.69,
+   "lon": -100.32,
+   "lead_time_days": 9,
+   "lead_time_variability": 0.38
+  },
+  {
+   "id": "edl-p-coil-slp",
+   "role": "source",
+   "lat": 22.15,
+   "lon": -100.98,
+   "lead_time_days": 4,
+   "lead_time_variability": 0.15
+  },
+  {
+   "id": "edl-p-fast-qro",
+   "role": "source",
+   "lat": 20.59,
+   "lon": -100.39,
+   "lead_time_days": 3,
+   "lead_time_variability": 0.1
+  },
+  {
+   "id": "edl-p-pack-leon",
+   "role": "source",
+   "lat": 21.12,
+   "lon": -101.68,
+   "lead_time_days": 2,
+   "lead_time_variability": 0.08
+  },
+  {
+   "id": "edl-p-qss",
+   "role": "destination",
+   "lat": 20.59,
+   "lon": -100.39
+  }
+ ],
+ "edges": [
+  {
+   "from_id": "edl-p-coil-mty",
+   "to_id": "edl-plant",
+   "km": 760,
+   "trips_per_week": 6,
+   "fill_rate": 0.92
+  },
+  {
+   "from_id": "edl-p-coil-slp",
+   "to_id": "edl-plant",
+   "km": 330,
+   "trips_per_week": 3,
+   "fill_rate": 0.9
+  },
+  {
+   "from_id": "edl-p-fast-qro",
+   "to_id": "edl-plant",
+   "km": 60,
+   "trips_per_week": 2,
+   "fill_rate": 0.7
+  },
+  {
+   "from_id": "edl-p-pack-leon",
+   "to_id": "edl-plant",
+   "km": 95,
+   "trips_per_week": 2,
+   "fill_rate": 0.85
+  },
+  {
+   "from_id": "edl-plant",
+   "to_id": "edl-p-qss",
+   "km": 65,
+   "trips_per_week": 12,
+   "fill_rate": 0.88
+  }
+ ],
+ "items": [
+  {
+   "id": "QSS-4471-BRK",
+   "daily_usage": 3600,
+   "days_of_cover": 4.0,
+   "criticality": "high"
+  },
+  {
+   "id": "QSS-4480-RCP",
+   "daily_usage": 1800,
+   "days_of_cover": 1.2,
+   "criticality": "line-stopper"
+  },
+  {
+   "id": "QSS-4492-XMB",
+   "daily_usage": 1800,
+   "days_of_cover": 5.0,
+   "criticality": "high"
+  }
+ ]
+}

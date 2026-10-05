@@ -1,0 +1,103 @@
+// Live mode: Supabase client, session, identity switch, data load and write-through calls.
+// Seed mode never imports anything from here at runtime beyond `isLive`.
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { Alert, Invite, RoleId, Seed, Settings, UploadRecord } from "./types";
+import { rowsToApp, rowToDb } from "./caseMap";
+
+const URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+/** Live mode when both env vars are set; otherwise the app runs on the bundled seed. */
+export const isLive = Boolean(URL && KEY);
+
+let client: SupabaseClient | null = null;
+export function supabase(): SupabaseClient {
+  if (!URL || !KEY) throw new Error("Supabase is not configured");
+  client ??= createClient(URL, KEY);
+  return client;
+}
+
+export async function ensureSession(): Promise<void> {
+  const sb = supabase();
+  const { data, error } = await sb.auth.getSession();
+  if (error) throw error;
+  if (data.session) return;
+  const r = await sb.auth.signInAnonymously();
+  if (r.error) throw r.error;
+}
+
+export async function switchIdentity(role: RoleId, company: string): Promise<void> {
+  const { error } = await supabase().rpc("switch_test_identity", { new_role: role, new_company: company });
+  if (error) throw error;
+}
+
+const PAGE = 1000;
+async function fetchTable(table: string, order?: string): Promise<Record<string, unknown>[]> {
+  const sb = supabase();
+  const all: Record<string, unknown>[] = [];
+  for (let from = 0; ; from += PAGE) {
+    let q = sb.from(table).select("*");
+    if (order) q = q.order(order);
+    const { data, error } = await q.range(from, from + PAGE - 1);
+    if (error) throw new Error(`${table}: ${error.message}`);
+    all.push(...(data ?? []));
+    if (!data || data.length < PAGE) break;
+  }
+  return all;
+}
+
+/** Load every table the current identity can read (RLS filters rows) and assemble the Seed shape. */
+export async function loadAll(): Promise<Seed> {
+  const t = async (name: string, order?: string) => fetchTable(name, order);
+  const [companies, relationships, signals, factors, sites, partners, lanes, machines, certs, kpis, energy, materials,
+    shipments, twins, uploads, parts, risks, alerts, invites, requests, shares, settings] = await Promise.all([
+    t("companies"), t("relationships"), t("signals"), t("emission_factors"), t("sites"), t("partners"), t("lanes"),
+    t("machines"), t("certifications"), t("kpis", "id"), t("energy"), t("materials", "id"), t("shipments", "id"),
+    t("twins"), t("uploads"), t("parts"), t("risks"), t("alerts"), t("invites"), t("requests"), t("shares"), t("app_settings"),
+  ]);
+  const s = settings[0] as Record<string, unknown> | undefined;
+  return {
+    generatedAt: new Date().toISOString(),
+    asOf: (s?.as_of as string) ?? new Date().toISOString().slice(0, 10),
+    companies: rowsToApp(companies),
+    relationships: rowsToApp(relationships),
+    sites: rowsToApp(sites),
+    partners: rowsToApp(partners),
+    lanes: rowsToApp(lanes),
+    machines: rowsToApp(machines),
+    certifications: rowsToApp(certs),
+    // kpis/materials/shipments have a surrogate `id` column that the app types do not carry.
+    kpis: rowsToApp<Record<string, unknown>>(kpis).map(({ id: _i, ...r }) => r) as unknown as Seed["kpis"],
+    energy: rowsToApp(energy),
+    materials: rowsToApp<Record<string, unknown>>(materials).map(({ id: _i, ...r }) => r) as unknown as Seed["materials"],
+    shipments: rowsToApp<Record<string, unknown>>(shipments).map(({ id: _i, ...r }) => r) as unknown as Seed["shipments"],
+    emissionFactors: rowsToApp(factors),
+    twins: rowsToApp(twins),
+    requests: rowsToApp(requests),
+    shares: rowsToApp(shares),
+    uploads: rowsToApp(uploads),
+    settings: {
+      lineStopCostEurPerMinute: Number(s?.line_stop_cost_eur_per_minute ?? 15000),
+      contractDemandSwing: Number(s?.contract_demand_swing ?? 0.15),
+      lineHoursPerDay: Number(s?.line_hours_per_day ?? 16),
+    } satisfies Settings,
+    parts: rowsToApp(parts),
+    signals: rowsToApp(signals),
+    risks: rowsToApp(risks),
+    alerts: rowsToApp(alerts),
+    invites: rowsToApp(invites),
+  };
+}
+
+// ---- Write-through (each throws on backend error) ----
+const must = (r: { error: { message: string } | null }) => { if (r.error) throw new Error(r.error.message); };
+
+export const acknowledgeAlert = async (id: string, actionId?: string) =>
+  must(await supabase().rpc("acknowledge_alert", { alert_id: id, action_id: actionId ?? null }));
+export const resolveAlert = async (id: string) => must(await supabase().rpc("resolve_alert", { alert_id: id }));
+export const respondAlert = async (id: string, response: NonNullable<Alert["supplierResponse"]>) =>
+  must(await supabase().rpc("respond_alert", { alert_id: id, response }));
+export const sendInvite = async (invite: Invite) => must(await supabase().from("invites").insert(rowToDb(invite)));
+export const recordUpload = async (u: UploadRecord) =>
+  must(await supabase().from("uploads").upsert(rowToDb(u), { onConflict: "company_id,kind" }));
+export const resetRemoteDemo = async () => must(await supabase().rpc("reset_demo"));
