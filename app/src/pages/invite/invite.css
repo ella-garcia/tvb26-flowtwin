@@ -1,0 +1,21 @@
+.invite-stack { display: flex; flex-direction: column; gap: var(--space-6); }
+.invite-two { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+@media (max-width: 1100px) { .invite-two { grid-template-columns: minmax(0, 1fr); } }
+.invite-form { display: flex; flex-direction: column; gap: var(--space-4); }
+.invite-field { display: flex; flex-direction: column; gap: var(--space-2); font: 600 14px/20px var(--font-sans); color: var(--ink); }
+.invite-field input { height: var(--control-height); padding: 0 var(--space-4); font: 400 16px var(--font-sans); color: var(--ink); background: var(--surface-raised);
+  border: 1px solid var(--border-control); border-radius: var(--radius-md); }
+.invite-field input:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.invite-field input[aria-invalid="true"] { border-color: var(--danger); }
+.invite-error { font: 500 13px/18px var(--font-sans); color: var(--danger); margin: 0; }
+.invite-fieldset { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-4); margin: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.invite-fieldset legend { font: 600 14px/20px var(--font-sans); color: var(--ink); padding: 0 var(--space-2); }
+.invite-check { display: flex; align-items: center; gap: var(--space-3); font: 400 14px/20px var(--font-sans); color: var(--ink); }
+.invite-check input { width: 18px; height: 18px; accent-color: var(--primary); }
+.invite-never { display: flex; align-items: center; gap: var(--space-2); font: 600 14px/20px var(--font-sans); color: var(--ink); padding-top: var(--space-3); border-top: 1px solid var(--border); }
+.invite-ok { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-4); border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--success-soft); color: var(--success); font: 600 14px/20px var(--font-sans); }
+.invite-gets { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-4); }
+.invite-gets li { display: flex; gap: var(--space-3); align-items: flex-start; color: var(--ink-muted); font: 400 14px/22px var(--font-sans); }
+.invite-gets svg { flex: none; margin-top: 2px; color: var(--ink); }
+.invite-gets strong { color: var(--ink); display: block; }
+.invite-note { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); margin: 0; }

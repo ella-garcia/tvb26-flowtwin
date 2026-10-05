@@ -1,0 +1,25 @@
+.alerts-filters { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.alerts-list { display: flex; flex-direction: column; gap: var(--space-4); }
+.alerts-card { gap: var(--space-4); }
+.alerts-top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.alerts-title { font: 600 18px/26px var(--font-sans); color: var(--ink); margin: 0; }
+.alerts-meta { font: 400 13px/20px var(--font-sans); color: var(--ink-muted); margin: 0; }
+.alerts-msg { font: 400 14px/22px var(--font-sans); color: var(--ink); margin: 0; }
+.alerts-facts { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin: 0; }
+.alerts-facts dt { font: 600 12px/18px var(--font-sans); color: var(--ink-subtle); }
+.alerts-facts dd { margin: 2px 0 0; color: var(--ink); font: 500 14px/22px var(--font-sans); }
+.alerts-parts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.alerts-parts li { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.alerts-actions { border: 0; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.alerts-actions legend { font: 600 13px/20px var(--font-sans); color: var(--ink); padding: 0 0 var(--space-2); }
+.alerts-opt { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-3) var(--space-4); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md); background: var(--surface); cursor: pointer; }
+.alerts-opt input { accent-color: var(--primary); margin-top: 3px; }
+.alerts-opt b { display: block; font: 600 14px/20px var(--font-sans); color: var(--ink); }
+.alerts-opt span { display: block; font: 400 13px/19px var(--font-sans); color: var(--ink-muted); }
+.alerts-opt:has(input:checked) { background: var(--surface-selected); border-color: var(--primary); }
+.alerts-opt:has(input:focus-visible) { box-shadow: var(--focus-ring); }
+.alerts-response { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-sunken); padding: var(--space-4); }
+.alerts-response p { margin: var(--space-1) 0 0; color: var(--ink); font-size: 14px; line-height: 22px; }
+.alerts-response header { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; font: 600 13px/20px var(--font-sans); color: var(--ink); }
+.alerts-buttons { display: flex; flex-wrap: wrap; gap: var(--space-3); }

@@ -1,0 +1,18 @@
+.my-risk-stack { display: flex; flex-direction: column; gap: var(--space-6); }
+.my-risk-chips { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; }
+.my-risk-alert { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); background: var(--surface); }
+.my-risk-alert-head { display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; justify-content: space-between; }
+.my-risk-alert h3 { margin: 0; font: 600 16px/24px var(--font-sans); color: var(--ink); }
+.my-risk-alert p { margin: 0; color: var(--ink-muted); font: 400 14px/22px var(--font-sans); }
+.my-risk-form { display: flex; flex-direction: column; gap: var(--space-3); }
+.my-risk-form label.my-risk-lbl { font: 600 13px/18px var(--font-sans); color: var(--ink); }
+.my-risk-form textarea { width: 100%; min-height: 84px; resize: vertical; box-sizing: border-box; font: 400 14px/22px var(--font-sans); color: var(--ink);
+  background: var(--surface-raised); border: 1px solid var(--border-control); border-radius: var(--radius-md); padding: var(--space-3); }
+.my-risk-form textarea:focus-visible, .my-risk-check input:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.my-risk-check { display: inline-flex; gap: var(--space-2); align-items: center; font: 500 14px/20px var(--font-sans); color: var(--ink); }
+.my-risk-check input { width: 18px; height: 18px; accent-color: var(--primary); }
+.my-risk-sent { border-left: 3px solid var(--border-strong); padding-left: var(--space-3); display: flex; flex-direction: column; gap: 4px; }
+.my-risk-sent small { color: var(--ink-subtle); font: 400 12px/18px var(--font-sans); }
+.my-risk-actions { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-3); }
+.my-risk-actions li { display: flex; gap: var(--space-3); align-items: flex-start; color: var(--ink); font: 400 14px/22px var(--font-sans); }
+.my-risk-actions li .ks-icon { flex: none; margin-top: 2px; color: var(--primary); }

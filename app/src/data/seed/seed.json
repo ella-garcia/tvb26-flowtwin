@@ -1,0 +1,4074 @@
+{
+ "generatedAt": "2026-10-05T07:00:00Z",
+ "asOf": "2026-10-05",
+ "companies": [
+  {
+   "id": "qss",
+   "name": "QRO Seating Systems",
+   "city": "Querétaro",
+   "state": "Querétaro",
+   "lat": 20.59,
+   "lon": -100.39,
+   "kind": "customer",
+   "sizeBand": "large",
+   "employees": 2400,
+   "scian": "336360",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Alejandra Ruiz",
+    "email": "a.ruiz@qss.example",
+    "role": "Supplier development manager"
+   }
+  },
+  {
+   "id": "slp-interiors",
+   "name": "SLP Interiors México",
+   "city": "San Luis Potosí",
+   "state": "San Luis Potosí",
+   "lat": 22.15,
+   "lon": -100.98,
+   "kind": "customer",
+   "sizeBand": "large",
+   "employees": 1650,
+   "scian": "336360",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Mauricio Del Valle",
+    "email": "m.delvalle@slp-interiors.example",
+    "role": "Purchasing director"
+   }
+  },
+  {
+   "id": "edl",
+   "name": "Estampados del Laja",
+   "city": "Celaya",
+   "state": "Guanajuato",
+   "lat": 20.52,
+   "lon": -100.81,
+   "kind": "supplier",
+   "sizeBand": "medium",
+   "employees": 118,
+   "scian": "336370",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Roberto Laja",
+    "email": "roberto@edl.example",
+    "role": "Owner"
+   }
+  },
+  {
+   "id": "hmo",
+   "name": "Hules y Mangueras de Orizaba",
+   "city": "Orizaba",
+   "state": "Veracruz",
+   "lat": 18.85,
+   "lon": -97.1,
+   "kind": "supplier",
+   "sizeBand": "medium",
+   "employees": 210,
+   "scian": "326220",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Gloria Montiel",
+    "email": "gmontiel@hmo.example",
+    "role": "Sales and logistics manager"
+   }
+  },
+  {
+   "id": "tsr",
+   "name": "Tornillos y Sujetadores Regiomontanos",
+   "city": "Monterrey",
+   "state": "Nuevo León",
+   "lat": 25.67,
+   "lon": -100.31,
+   "kind": "supplier",
+   "sizeBand": "small",
+   "employees": 64,
+   "scian": "332722",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Ernesto Garza",
+    "email": "egarza@tsr.example",
+    "role": "General manager"
+   }
+  },
+  {
+   "id": "pip",
+   "name": "Plásticos Inyectados de Puebla",
+   "city": "Puebla",
+   "state": "Puebla",
+   "lat": 19.04,
+   "lon": -98.2,
+   "kind": "supplier",
+   "sizeBand": "medium",
+   "employees": 150,
+   "scian": "326199",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Verónica Sandoval",
+    "email": "vsandoval@pip.example",
+    "role": "Operations director"
+   }
+  },
+  {
+   "id": "rdp",
+   "name": "Resinas del Pacífico",
+   "city": "Manzanillo",
+   "state": "Colima",
+   "lat": 19.11,
+   "lon": -104.34,
+   "kind": "supplier",
+   "sizeBand": "small",
+   "employees": 72,
+   "scian": "325211",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Julián Barragán",
+    "email": "jbarragan@rdp.example",
+    "role": "Owner"
+   }
+  },
+  {
+   "id": "etb",
+   "name": "Espumas y Tapizados del Bajío",
+   "city": "León",
+   "state": "Guanajuato",
+   "lat": 21.12,
+   "lon": -101.68,
+   "kind": "supplier",
+   "sizeBand": "medium",
+   "employees": 240,
+   "scian": "326150",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Patricia Olvera",
+    "email": "polvera@etb.example",
+    "role": "Commercial manager"
+   }
+  },
+  {
+   "id": "cha",
+   "name": "Cableados Hidrocálidos",
+   "city": "Aguascalientes",
+   "state": "Aguascalientes",
+   "lat": 21.88,
+   "lon": -102.29,
+   "kind": "supplier",
+   "sizeBand": "medium",
+   "employees": 180,
+   "scian": "335930",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Rocío Calderón",
+    "email": "rcalderon@cha.example",
+    "role": "Plant manager"
+   }
+  },
+  {
+   "id": "mds",
+   "name": "Mecanizados de Silao",
+   "city": "Silao",
+   "state": "Guanajuato",
+   "lat": 20.94,
+   "lon": -101.43,
+   "kind": "supplier",
+   "sizeBand": "small",
+   "employees": 85,
+   "scian": "332710",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Héctor Ibarra",
+    "email": "hibarra@mds.example",
+    "role": "Owner"
+   }
+  },
+  {
+   "id": "fdt",
+   "name": "Forjas de Toluca",
+   "city": "Toluca",
+   "state": "México",
+   "lat": 19.29,
+   "lon": -99.65,
+   "kind": "supplier",
+   "sizeBand": "medium",
+   "employees": 130,
+   "scian": "332111",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Armando Peña",
+    "email": "apena@fdt.example",
+    "role": "Sales manager"
+   }
+  },
+  {
+   "id": "rpo",
+   "name": "Resortes Potosinos",
+   "city": "San Luis Potosí",
+   "state": "San Luis Potosí",
+   "lat": 22.17,
+   "lon": -100.93,
+   "kind": "supplier",
+   "sizeBand": "medium",
+   "employees": 96,
+   "scian": "332612",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Lucía Navarro",
+    "email": "lnavarro@rpo.example",
+    "role": "Operations manager"
+   }
+  },
+  {
+   "id": "tps",
+   "name": "Tubería y Perfiles de Saltillo",
+   "city": "Saltillo",
+   "state": "Coahuila",
+   "lat": 25.42,
+   "lon": -101.0,
+   "kind": "supplier",
+   "sizeBand": "medium",
+   "employees": 140,
+   "scian": "331210",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Sergio Treviño",
+    "email": "strevino@tps.example",
+    "role": "Sales manager"
+   }
+  },
+  {
+   "id": "pis",
+   "name": "Pinturas Industriales de San Luis",
+   "city": "San Luis Potosí",
+   "state": "San Luis Potosí",
+   "lat": 22.12,
+   "lon": -101.02,
+   "kind": "supplier",
+   "sizeBand": "small",
+   "employees": 58,
+   "scian": "325510",
+   "packIds": [
+    "auto"
+   ],
+   "synthetic": true,
+   "contact": {
+    "name": "Diana Ochoa",
+    "email": "dochoa@pis.example",
+    "role": "Owner"
+   }
+  }
+ ],
+ "relationships": [
+  {
+   "supplierId": "edl",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.41,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "hmo",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.55,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "tsr",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.62,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "pip",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.38,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "rdp",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.3,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "etb",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.28,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "cha",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.2,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "mds",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.35,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "mds",
+   "customerId": "slp-interiors",
+   "chainPosition": "sub",
+   "shareOfSales": 0.12,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "fdt",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.18,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "rpo",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.33,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "rpo",
+   "customerId": "slp-interiors",
+   "chainPosition": "sub",
+   "shareOfSales": 0.22,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "tps",
+   "customerId": "qss",
+   "chainPosition": "sub",
+   "shareOfSales": 0.25,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "tps",
+   "customerId": "slp-interiors",
+   "chainPosition": "sub",
+   "shareOfSales": 0.3,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  },
+  {
+   "supplierId": "pis",
+   "customerId": "slp-interiors",
+   "chainPosition": "sub",
+   "shareOfSales": 0.6,
+   "requirements": {
+    "otifTarget": 0.98,
+    "ppmTarget": 50,
+    "approvalLevel": 3,
+    "certifications": [
+     "IATF 16949"
+    ]
+   }
+  }
+ ],
+ "sites": [
+  {
+   "id": "edl-plant",
+   "companyId": "edl",
+   "name": "Planta Celaya",
+   "type": "plant",
+   "city": "Celaya",
+   "lat": 20.52,
+   "lon": -100.81,
+   "palletPositions": 900,
+   "rentedPositions": 0
+  },
+  {
+   "id": "edl-wh",
+   "companyId": "edl",
+   "name": "Bodega rentada Apaseo el Grande",
+   "type": "warehouse",
+   "city": "Apaseo el Grande",
+   "lat": 20.55,
+   "lon": -100.69,
+   "palletPositions": 420,
+   "rentedPositions": 420
+  }
+ ],
+ "partners": [
+  {
+   "id": "edl-p-coil-mty",
+   "companyId": "edl",
+   "name": "Aceros del Norte",
+   "role": "supplier",
+   "city": "Monterrey",
+   "lat": 25.69,
+   "lon": -100.32,
+   "material": "steel-coil",
+   "leadTimeDays": 9,
+   "leadTimeVariability": 0.38
+  },
+  {
+   "id": "edl-p-coil-slp",
+   "companyId": "edl",
+   "name": "Laminados Potosinos",
+   "role": "supplier",
+   "city": "San Luis Potosí",
+   "lat": 22.15,
+   "lon": -100.98,
+   "material": "steel-coil",
+   "leadTimeDays": 4,
+   "leadTimeVariability": 0.15
+  },
+  {
+   "id": "edl-p-fast-qro",
+   "companyId": "edl",
+   "name": "Sujetadores del Bajío",
+   "role": "supplier",
+   "city": "Querétaro",
+   "lat": 20.59,
+   "lon": -100.39,
+   "material": "fasteners",
+   "leadTimeDays": 3,
+   "leadTimeVariability": 0.1
+  },
+  {
+   "id": "edl-p-pack-leon",
+   "companyId": "edl",
+   "name": "Empaques Leoneses",
+   "role": "supplier",
+   "city": "León",
+   "lat": 21.12,
+   "lon": -101.68,
+   "material": "packaging",
+   "leadTimeDays": 2,
+   "leadTimeVariability": 0.08
+  },
+  {
+   "id": "edl-p-qss",
+   "companyId": "edl",
+   "name": "QRO Seating Systems",
+   "role": "customer",
+   "city": "Querétaro",
+   "lat": 20.59,
+   "lon": -100.39,
+   "linkedCompanyId": "qss"
+  },
+  {
+   "id": "edl-p-cust-ags",
+   "companyId": "edl",
+   "name": "Carrocerías del Centro",
+   "role": "customer",
+   "city": "Aguascalientes",
+   "lat": 21.88,
+   "lon": -102.29
+  },
+  {
+   "id": "edl-p-cust-silao",
+   "companyId": "edl",
+   "name": "Sistemas de Escape Bajío",
+   "role": "customer",
+   "city": "Silao",
+   "lat": 20.94,
+   "lon": -101.43
+  }
+ ],
+ "lanes": [
+  {
+   "id": "edl-lane-coil-mty",
+   "companyId": "edl",
+   "fromId": "edl-p-coil-mty",
+   "toId": "edl-plant",
+   "direction": "inbound",
+   "highway": "MEX-57D",
+   "km": 760,
+   "tripsPerWeek": 6,
+   "fillRate": 0.92,
+   "theftRisk": "high",
+   "nightShare": 0.55,
+   "costPerTripMxn": 24500
+  },
+  {
+   "id": "edl-lane-coil-slp",
+   "companyId": "edl",
+   "fromId": "edl-p-coil-slp",
+   "toId": "edl-plant",
+   "direction": "inbound",
+   "highway": "MEX-57D",
+   "km": 330,
+   "tripsPerWeek": 3,
+   "fillRate": 0.9,
+   "theftRisk": "medium",
+   "nightShare": 0.3,
+   "costPerTripMxn": 11800
+  },
+  {
+   "id": "edl-lane-fast-qro",
+   "companyId": "edl",
+   "fromId": "edl-p-fast-qro",
+   "toId": "edl-plant",
+   "direction": "inbound",
+   "highway": "MEX-45D",
+   "km": 60,
+   "tripsPerWeek": 2,
+   "fillRate": 0.7,
+   "theftRisk": "low",
+   "nightShare": 0.05,
+   "costPerTripMxn": 2900
+  },
+  {
+   "id": "edl-lane-pack-leon",
+   "companyId": "edl",
+   "fromId": "edl-p-pack-leon",
+   "toId": "edl-plant",
+   "direction": "inbound",
+   "highway": "MEX-45D",
+   "km": 95,
+   "tripsPerWeek": 2,
+   "fillRate": 0.85,
+   "theftRisk": "low",
+   "nightShare": 0.1,
+   "costPerTripMxn": 3600
+  },
+  {
+   "id": "edl-lane-to-qss",
+   "companyId": "edl",
+   "fromId": "edl-plant",
+   "toId": "edl-p-qss",
+   "direction": "outbound",
+   "highway": "MEX-45D",
+   "km": 65,
+   "tripsPerWeek": 12,
+   "fillRate": 0.88,
+   "theftRisk": "high",
+   "nightShare": 0.6,
+   "costPerTripMxn": 4100
+  },
+  {
+   "id": "edl-lane-to-ags",
+   "companyId": "edl",
+   "fromId": "edl-plant",
+   "toId": "edl-p-cust-ags",
+   "direction": "outbound",
+   "highway": "MEX-45D",
+   "km": 230,
+   "tripsPerWeek": 4,
+   "fillRate": 0.81,
+   "theftRisk": "medium",
+   "nightShare": 0.35,
+   "costPerTripMxn": 8200
+  },
+  {
+   "id": "edl-lane-to-silao",
+   "companyId": "edl",
+   "fromId": "edl-plant",
+   "toId": "edl-p-cust-silao",
+   "direction": "outbound",
+   "highway": "MEX-45D",
+   "km": 85,
+   "tripsPerWeek": 5,
+   "fillRate": 0.84,
+   "theftRisk": "low",
+   "nightShare": 0.15,
+   "costPerTripMxn": 3300
+  },
+  {
+   "id": "edl-lane-wh",
+   "companyId": "edl",
+   "fromId": "edl-plant",
+   "toId": "edl-wh",
+   "direction": "internal",
+   "km": 18,
+   "tripsPerWeek": 14,
+   "fillRate": 0.75,
+   "theftRisk": "low",
+   "nightShare": 0.0,
+   "costPerTripMxn": 1200
+  }
+ ],
+ "machines": [
+  {
+   "id": "edl-press-1",
+   "companyId": "edl",
+   "name": "Press 1 (200 t)",
+   "capacityTonnes": 200,
+   "shiftsPerWeek": 12,
+   "utilization": 0.62
+  },
+  {
+   "id": "edl-press-2",
+   "companyId": "edl",
+   "name": "Press 2 (200 t)",
+   "capacityTonnes": 200,
+   "shiftsPerWeek": 12,
+   "utilization": 0.58
+  },
+  {
+   "id": "edl-press-3",
+   "companyId": "edl",
+   "name": "Press 3 (300 t)",
+   "capacityTonnes": 300,
+   "shiftsPerWeek": 12,
+   "utilization": 0.71
+  },
+  {
+   "id": "edl-press-4",
+   "companyId": "edl",
+   "name": "Press 4 (400 t)",
+   "capacityTonnes": 400,
+   "shiftsPerWeek": 15,
+   "utilization": 0.88
+  },
+  {
+   "id": "edl-press-5",
+   "companyId": "edl",
+   "name": "Press 5 (500 t)",
+   "capacityTonnes": 500,
+   "shiftsPerWeek": 12,
+   "utilization": 0.64
+  },
+  {
+   "id": "edl-press-6",
+   "companyId": "edl",
+   "name": "Press 6 (600 t)",
+   "capacityTonnes": 600,
+   "shiftsPerWeek": 9,
+   "utilization": 0.51
+  }
+ ],
+ "certifications": [
+  {
+   "companyId": "edl",
+   "name": "IATF 16949",
+   "validUntil": "2027-03-14"
+  },
+  {
+   "companyId": "edl",
+   "name": "ISO 9001",
+   "validUntil": "2027-03-14"
+  }
+ ],
+ "kpis": [],
+ "energy": [],
+ "materials": [],
+ "shipments": [],
+ "emissionFactors": [],
+ "twins": [],
+ "requests": [],
+ "shares": [],
+ "uploads": [
+  {
+   "companyId": "edl",
+   "kind": "sales-orders",
+   "fileName": "pedidos_clientes_2026.xlsx",
+   "rows": 4820,
+   "source": "Excel",
+   "status": "uploaded",
+   "uploadedAt": "2026-09-21"
+  },
+  {
+   "companyId": "edl",
+   "kind": "purchase-orders",
+   "fileName": "compras_CONTPAQi_sep26.csv",
+   "rows": 2310,
+   "source": "CONTPAQi export",
+   "status": "uploaded",
+   "uploadedAt": "2026-09-21"
+  },
+  {
+   "companyId": "edl",
+   "kind": "inventory",
+   "fileName": "inventario_semanal.xlsx",
+   "rows": 1264,
+   "source": "Excel",
+   "status": "uploaded",
+   "uploadedAt": "2026-10-02"
+  },
+  {
+   "companyId": "edl",
+   "kind": "item-master",
+   "fileName": "catalogo_piezas.xlsx",
+   "rows": 386,
+   "source": "Excel",
+   "status": "uploaded",
+   "uploadedAt": "2026-09-18"
+  },
+  {
+   "companyId": "edl",
+   "kind": "quality",
+   "fileName": "rechazos_2026.xlsx",
+   "rows": 740,
+   "source": "Excel",
+   "status": "uploaded",
+   "uploadedAt": "2026-09-28"
+  },
+  {
+   "companyId": "edl",
+   "kind": "freight",
+   "fileName": "fletes_sep26.xlsx",
+   "rows": 612,
+   "source": "Excel",
+   "status": "uploaded",
+   "uploadedAt": "2026-10-01"
+  },
+  {
+   "companyId": "edl",
+   "kind": "energy",
+   "fileName": "recibos_CFE_2026.pdf",
+   "rows": 0,
+   "source": "CFE bills",
+   "status": "waiting"
+  },
+  {
+   "companyId": "edl",
+   "kind": "fuel",
+   "fileName": "diesel_flotilla_2026.xlsx",
+   "rows": 0,
+   "source": "Excel",
+   "status": "waiting"
+  }
+ ],
+ "settings": {
+  "lineStopCostEurPerMinute": 15000,
+  "contractDemandSwing": 0.15,
+  "lineHoursPerDay": 16
+ },
+ "parts": [
+  {
+   "id": "part-qss-4471-brk",
+   "number": "QSS-4471-BRK",
+   "name": "Seat track bracket",
+   "supplierId": "edl",
+   "customerId": "qss",
+   "unitCostMxn": 38.5,
+   "dailyUsage": 3600,
+   "onHand": 14400,
+   "daysOfCover": 4.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-4480-rcp",
+   "number": "QSS-4480-RCP",
+   "name": "Recliner mounting plate",
+   "supplierId": "edl",
+   "customerId": "qss",
+   "unitCostMxn": 52.0,
+   "dailyUsage": 1800,
+   "onHand": 2160,
+   "daysOfCover": 1.2,
+   "singleSource": true,
+   "criticality": "line-stopper"
+  },
+  {
+   "id": "part-qss-4492-xmb",
+   "number": "QSS-4492-XMB",
+   "name": "Cross member, rear seat frame",
+   "supplierId": "edl",
+   "customerId": "qss",
+   "unitCostMxn": 96.0,
+   "dailyUsage": 1800,
+   "onHand": 9000,
+   "daysOfCover": 5.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-6120-lmb",
+   "number": "QSS-6120-LMB",
+   "name": "Lumbar air line, 6 mm hose assembly",
+   "supplierId": "hmo",
+   "customerId": "qss",
+   "unitCostMxn": 21.4,
+   "dailyUsage": 1800,
+   "onHand": 5400,
+   "daysOfCover": 3.0,
+   "singleSource": true,
+   "criticality": "line-stopper"
+  },
+  {
+   "id": "part-qss-6133-grm",
+   "number": "QSS-6133-GRM",
+   "name": "Seat track rubber grommet",
+   "supplierId": "hmo",
+   "customerId": "qss",
+   "unitCostMxn": 3.2,
+   "dailyUsage": 7200,
+   "onHand": 57600,
+   "daysOfCover": 8.0,
+   "singleSource": false,
+   "criticality": "normal"
+  },
+  {
+   "id": "part-qss-6140-clh",
+   "number": "QSS-6140-CLH",
+   "name": "Hose clamp and sleeve kit",
+   "supplierId": "hmo",
+   "customerId": "qss",
+   "unitCostMxn": 9.8,
+   "dailyUsage": 1800,
+   "onHand": 9000,
+   "daysOfCover": 5.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-9011-fls",
+   "number": "QSS-9011-FLS",
+   "name": "M6 flange screw, zinc-nickel",
+   "supplierId": "tsr",
+   "customerId": "qss",
+   "unitCostMxn": 0.62,
+   "dailyUsage": 14400,
+   "onHand": 21600,
+   "daysOfCover": 1.5,
+   "singleSource": true,
+   "criticality": "line-stopper"
+  },
+  {
+   "id": "part-qss-9027-clp",
+   "number": "QSS-9027-CLP",
+   "name": "Trim retaining clip",
+   "supplierId": "tsr",
+   "customerId": "qss",
+   "unitCostMxn": 0.38,
+   "dailyUsage": 14400,
+   "onHand": 86400,
+   "daysOfCover": 6.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-9033-wsh",
+   "number": "QSS-9033-WSH",
+   "name": "Anti-rattle washer",
+   "supplierId": "tsr",
+   "customerId": "qss",
+   "unitCostMxn": 0.11,
+   "dailyUsage": 14400,
+   "onHand": 129600,
+   "daysOfCover": 9.0,
+   "singleSource": false,
+   "criticality": "normal"
+  },
+  {
+   "id": "part-qss-7205-trm",
+   "number": "QSS-7205-TRM",
+   "name": "Seat side trim cover",
+   "supplierId": "pip",
+   "customerId": "qss",
+   "unitCostMxn": 44.0,
+   "dailyUsage": 1800,
+   "onHand": 2700,
+   "daysOfCover": 1.5,
+   "singleSource": true,
+   "criticality": "line-stopper"
+  },
+  {
+   "id": "part-qss-7218-hdl",
+   "number": "QSS-7218-HDL",
+   "name": "Recline handle",
+   "supplierId": "pip",
+   "customerId": "qss",
+   "unitCostMxn": 18.6,
+   "dailyUsage": 1800,
+   "onHand": 5400,
+   "daysOfCover": 3.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-5310-pab",
+   "number": "QSS-5310-PAB",
+   "name": "PA6 glass-filled resin, seat base compound",
+   "supplierId": "rdp",
+   "customerId": "qss",
+   "unitCostMxn": 62.0,
+   "dailyUsage": 900,
+   "onHand": 1800,
+   "daysOfCover": 2.0,
+   "singleSource": true,
+   "criticality": "line-stopper"
+  },
+  {
+   "id": "part-qss-5322-ppc",
+   "number": "QSS-5322-PPC",
+   "name": "PP copolymer masterbatch, black",
+   "supplierId": "rdp",
+   "customerId": "qss",
+   "unitCostMxn": 31.0,
+   "dailyUsage": 1100,
+   "onHand": 7700,
+   "daysOfCover": 7.0,
+   "singleSource": false,
+   "criticality": "normal"
+  },
+  {
+   "id": "part-qss-3101-fmc",
+   "number": "QSS-3101-FMC",
+   "name": "Seat cushion foam pad",
+   "supplierId": "etb",
+   "customerId": "qss",
+   "unitCostMxn": 74.0,
+   "dailyUsage": 1800,
+   "onHand": 7200,
+   "daysOfCover": 4.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-3108-lth",
+   "number": "QSS-3108-LTH",
+   "name": "Leather trim set, front seat",
+   "supplierId": "etb",
+   "customerId": "qss",
+   "unitCostMxn": 410.0,
+   "dailyUsage": 1800,
+   "onHand": 10800,
+   "daysOfCover": 6.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-8401-hrn",
+   "number": "QSS-8401-HRN",
+   "name": "Seat heater wiring harness",
+   "supplierId": "cha",
+   "customerId": "qss",
+   "unitCostMxn": 135.0,
+   "dailyUsage": 1800,
+   "onHand": 9000,
+   "daysOfCover": 5.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-8409-sns",
+   "number": "QSS-8409-SNS",
+   "name": "Occupancy sensor cable",
+   "supplierId": "cha",
+   "customerId": "qss",
+   "unitCostMxn": 48.0,
+   "dailyUsage": 1800,
+   "onHand": 12600,
+   "daysOfCover": 7.0,
+   "singleSource": false,
+   "criticality": "normal"
+  },
+  {
+   "id": "part-qss-2210-pvt",
+   "number": "QSS-2210-PVT",
+   "name": "Recliner pivot pin, machined",
+   "supplierId": "mds",
+   "customerId": "qss",
+   "unitCostMxn": 14.5,
+   "dailyUsage": 3600,
+   "onHand": 28800,
+   "daysOfCover": 8.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-2215-spc",
+   "number": "QSS-2215-SPC",
+   "name": "Spacer bushing",
+   "supplierId": "mds",
+   "customerId": "qss",
+   "unitCostMxn": 4.1,
+   "dailyUsage": 3600,
+   "onHand": 36000,
+   "daysOfCover": 10.0,
+   "singleSource": false,
+   "criticality": "normal"
+  },
+  {
+   "id": "part-slp-2210-pvt",
+   "number": "SLP-2210-PVT",
+   "name": "Door trim pivot pin",
+   "supplierId": "mds",
+   "customerId": "slp-interiors",
+   "unitCostMxn": 11.9,
+   "dailyUsage": 2200,
+   "onHand": 19800,
+   "daysOfCover": 9.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-2301-frg",
+   "number": "QSS-2301-FRG",
+   "name": "Seat adjuster forged lever",
+   "supplierId": "fdt",
+   "customerId": "qss",
+   "unitCostMxn": 66.0,
+   "dailyUsage": 1800,
+   "onHand": 16200,
+   "daysOfCover": 9.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-2306-hng",
+   "number": "QSS-2306-HNG",
+   "name": "Hinge forging blank",
+   "supplierId": "fdt",
+   "customerId": "qss",
+   "unitCostMxn": 29.0,
+   "dailyUsage": 1800,
+   "onHand": 19800,
+   "daysOfCover": 11.0,
+   "singleSource": false,
+   "criticality": "normal"
+  },
+  {
+   "id": "part-qss-2401-spr",
+   "number": "QSS-2401-SPR",
+   "name": "Seat back compression spring",
+   "supplierId": "rpo",
+   "customerId": "qss",
+   "unitCostMxn": 8.6,
+   "dailyUsage": 3600,
+   "onHand": 32400,
+   "daysOfCover": 9.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-2407-zsp",
+   "number": "QSS-2407-ZSP",
+   "name": "S-spring zigzag, cushion",
+   "supplierId": "rpo",
+   "customerId": "qss",
+   "unitCostMxn": 12.2,
+   "dailyUsage": 3600,
+   "onHand": 43200,
+   "daysOfCover": 12.0,
+   "singleSource": false,
+   "criticality": "normal"
+  },
+  {
+   "id": "part-slp-2401-spr",
+   "number": "SLP-2401-SPR",
+   "name": "Door armrest return spring",
+   "supplierId": "rpo",
+   "customerId": "slp-interiors",
+   "unitCostMxn": 5.1,
+   "dailyUsage": 2600,
+   "onHand": 26000,
+   "daysOfCover": 10.0,
+   "singleSource": false,
+   "criticality": "normal"
+  },
+  {
+   "id": "part-qss-1101-tub",
+   "number": "QSS-1101-TUB",
+   "name": "Seat frame tube, 22 mm",
+   "supplierId": "tps",
+   "customerId": "qss",
+   "unitCostMxn": 28.0,
+   "dailyUsage": 1800,
+   "onHand": 14400,
+   "daysOfCover": 8.0,
+   "singleSource": false,
+   "criticality": "high"
+  },
+  {
+   "id": "part-qss-1108-prf",
+   "number": "QSS-1108-PRF",
+   "name": "Rail profile, roll formed",
+   "supplierId": "tps",
+   "customerId": "qss",
+   "unitCostMxn": 41.0,
+   "dailyUsage": 1800,
+   "onHand": 18000,
+   "daysOfCover": 10.0,
+   "singleSource": false,
+   "criticality": "normal"
+  },
+  {
+   "id": "part-slp-1101-tub",
+   "number": "SLP-1101-TUB",
+   "name": "Instrument panel support tube",
+   "supplierId": "tps",
+   "customerId": "slp-interiors",
+   "unitCostMxn": 56.0,
+   "dailyUsage": 1300,
+   "onHand": 7800,
+   "daysOfCover": 6.0,
+   "singleSource": true,
+   "criticality": "high"
+  },
+  {
+   "id": "part-slp-5101-pwd",
+   "number": "SLP-5101-PWD",
+   "name": "Powder coat, textured black (kg)",
+   "supplierId": "pis",
+   "customerId": "slp-interiors",
+   "unitCostMxn": 96.0,
+   "dailyUsage": 480,
+   "onHand": 5760,
+   "daysOfCover": 12.0,
+   "singleSource": false,
+   "criticality": "normal"
+  },
+  {
+   "id": "part-slp-5110-cpt",
+   "number": "SLP-5110-CPT",
+   "name": "Coated door support bracket",
+   "supplierId": "pis",
+   "customerId": "slp-interiors",
+   "unitCostMxn": 7.4,
+   "dailyUsage": 2600,
+   "onHand": 10400,
+   "daysOfCover": 4.0,
+   "singleSource": false,
+   "criticality": "high"
+  }
+ ],
+ "signals": [
+  {
+   "id": "sig-rain-veracruz",
+   "kind": "weather",
+   "short": "Rainy season",
+   "title": "Heavy rain and landslide risk, central Veracruz",
+   "description": "Late rainy season: saturated slopes on the Orizaba–Puebla stretch of MEX-150D. Trucks queue at partial closures and transit from Orizaba stretches from 2 to about 5 days.",
+   "state": "Veracruz",
+   "lat": 18.85,
+   "lon": -97.1,
+   "radiusKm": 90,
+   "highways": [
+    "MEX-150D"
+   ],
+   "startsAt": "2026-09-28",
+   "endsAt": "2026-10-20",
+   "severity": "high",
+   "transitMultiplier": 2.6,
+   "source": "SMN/CONAGUA seasonal outlook (seeded for demo)",
+   "provenance": "estimated"
+  },
+  {
+   "id": "sig-hurricane-gulf",
+   "kind": "weather",
+   "short": "Hurricane watch",
+   "title": "Hurricane watch, Gulf of Mexico coast",
+   "description": "A tropical system is forecast to approach the Veracruz coast; heavy rain inland on 8–12 Oct. A watch, not a warning.",
+   "state": "Veracruz",
+   "lat": 19.2,
+   "lon": -96.13,
+   "radiusKm": 120,
+   "highways": [],
+   "startsAt": "2026-10-08",
+   "endsAt": "2026-10-12",
+   "severity": "medium",
+   "transitMultiplier": 1.3,
+   "source": "SMN tropical cyclone bulletin (seeded for demo)",
+   "provenance": "estimated"
+  },
+  {
+   "id": "sig-closure-57d",
+   "kind": "road",
+   "short": "Partial closure on MEX-57D",
+   "title": "Road closure, MEX-57D near Palmillas",
+   "description": "Lane closure for bridge repair; trucks are diverted for a few hours at a time.",
+   "state": "Querétaro",
+   "lat": 20.37,
+   "lon": -99.95,
+   "radiusKm": 25,
+   "highways": [
+    "MEX-57D"
+   ],
+   "startsAt": "2026-10-03",
+   "endsAt": "2026-10-08",
+   "severity": "medium",
+   "transitMultiplier": 1.3,
+   "source": "Capufe / SCT road report (seeded for demo)",
+   "provenance": "estimated"
+  },
+  {
+   "id": "sig-blockade-puebla",
+   "kind": "blockade",
+   "short": "Highway blockade near Puebla and Tlaxcala",
+   "title": "Highway blockade, Puebla–Tlaxcala corridor",
+   "description": "Community blockade on MEX-119 and MEX-190 near Amozoc. Cargo is held or rerouted through side roads.",
+   "state": "Puebla",
+   "lat": 19.05,
+   "lon": -98.05,
+   "radiusKm": 60,
+   "highways": [
+    "MEX-119",
+    "MEX-190"
+   ],
+   "startsAt": "2026-10-04",
+   "endsAt": "2026-10-09",
+   "severity": "medium",
+   "transitMultiplier": 1.7,
+   "source": "Local news and carrier reports (seeded for demo)",
+   "provenance": "estimated"
+  },
+  {
+   "id": "sig-theft-45d57d",
+   "kind": "theft",
+   "short": "Night cargo theft on MEX-45D / MEX-57D",
+   "title": "Cargo theft hotspot, MEX-45D / MEX-57D at night",
+   "description": "Reported hijackings on the Celaya–Querétaro and Querétaro–San Luis Potosí stretches between 20:00 and 05:00. Carriers add escorts or hold trucks until daylight.",
+   "state": "Guanajuato",
+   "lat": 20.5,
+   "lon": -100.6,
+   "radiusKm": 70,
+   "highways": [
+    "MEX-45D",
+    "MEX-57D"
+   ],
+   "startsAt": "2026-09-20",
+   "endsAt": "2026-11-15",
+   "severity": "medium",
+   "transitMultiplier": 1.06,
+   "source": "Carrier incident reports (seeded for demo)",
+   "provenance": "estimated"
+  },
+  {
+   "id": "sig-port-manzanillo",
+   "kind": "port",
+   "short": "Port congestion at Manzanillo",
+   "title": "Container congestion, Port of Manzanillo",
+   "description": "Yard saturation and customs queues delay container release by 3–5 days; imported resin reaches the supplier late and outbound loads slip.",
+   "state": "Colima",
+   "lat": 19.05,
+   "lon": -104.32,
+   "radiusKm": 80,
+   "highways": [
+    "MEX-200"
+   ],
+   "startsAt": "2026-09-25",
+   "endsAt": "2026-10-18",
+   "severity": "medium",
+   "transitMultiplier": 1.5,
+   "source": "API Manzanillo terminal notice (seeded for demo)",
+   "provenance": "estimated"
+  },
+  {
+   "id": "sig-press-edl",
+   "kind": "supplier",
+   "short": "Press 4 unplanned stop at Estampados del Laja",
+   "title": "Press 4 breakdown, Estampados del Laja",
+   "description": "Die change overran on Press 4 (400 t). Output is being recovered with overtime; outbound shipments leave later in the day, and more of them at night.",
+   "state": "Guanajuato",
+   "lat": 20.52,
+   "lon": -100.81,
+   "radiusKm": 5,
+   "highways": [],
+   "startsAt": "2026-10-04",
+   "endsAt": "2026-10-12",
+   "severity": "medium",
+   "transitMultiplier": 1.3,
+   "source": "Supplier-reported through FlowTwin (seeded for demo)",
+   "provenance": "estimated"
+  },
+  {
+   "id": "sig-rain-toluca",
+   "kind": "weather",
+   "short": "Heavy rain in the Toluca valley",
+   "title": "Heavy afternoon rain, Toluca valley",
+   "description": "Daily storms flood low-lying roads around Toluca and slow trucks on MEX-15D.",
+   "state": "México",
+   "lat": 19.29,
+   "lon": -99.65,
+   "radiusKm": 50,
+   "highways": [],
+   "startsAt": "2026-09-30",
+   "endsAt": "2026-10-15",
+   "severity": "low",
+   "transitMultiplier": 1.1,
+   "source": "SMN daily forecast (seeded for demo)",
+   "provenance": "estimated"
+  }
+ ],
+ "risks": [
+  {
+   "customerId": "qss",
+   "supplierId": "edl",
+   "level": "amber",
+   "score": 61,
+   "normalTransitDays": 1,
+   "expectedTransitDays": 1.4,
+   "worstCaseTransitDays": 1.9,
+   "minCoverDays": 1.2,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 76000,
+   "drivers": [
+    {
+     "label": "Recliner mounting plate is a single-source line stopper part",
+     "kind": "cover",
+     "contribution": 16
+    },
+    {
+     "label": "Press 4 unplanned stop at Estampados del Laja delays outbound loads by about 0.3 days",
+     "kind": "supplier",
+     "signalId": "sig-press-edl",
+     "contribution": 14
+    },
+    {
+     "label": "Only 1.2 days of cover at QRO Seating Systems",
+     "kind": "cover",
+     "contribution": 8
+    },
+    {
+     "label": "Lead-time variability of 38%",
+     "kind": "history",
+     "contribution": 8
+    },
+    {
+     "label": "Cannot absorb +15% demand: service level 95% at Press 4 (400 t)",
+     "kind": "flex",
+     "contribution": 6
+    },
+    {
+     "label": "On-time-in-full fell 3.9 points over 12 weeks",
+     "kind": "history",
+     "contribution": 6
+    },
+    {
+     "label": "Night cargo theft on MEX-45D / MEX-57D adds about 0.1 days (escorts, daytime-only departures)",
+     "kind": "theft",
+     "signalId": "sig-theft-45d57d",
+     "contribution": 3
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": false,
+    "serviceLevel": 0.954,
+    "daysToRecover": 19,
+    "headroom": 0.12,
+    "bottleneck": "Press 4 (400 t)",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.964,
+    0.96,
+    0.962,
+    0.967,
+    0.952,
+    0.948,
+    0.945,
+    0.937,
+    0.932,
+    0.934,
+    0.919,
+    0.912
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 1.1,
+     "transitP50": 1.4,
+     "transitP90": 1.9,
+     "coverDays": 0.8
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 1.0,
+     "transitP50": 1.4,
+     "transitP90": 1.9,
+     "coverDays": 0.8
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 1.0,
+     "transitP50": 1.4,
+     "transitP90": 1.9,
+     "coverDays": 0.8
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 1.0,
+     "transitP50": 1.4,
+     "transitP90": 1.8,
+     "coverDays": 0.8
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.0,
+     "transitP50": 1.4,
+     "transitP90": 1.9,
+     "coverDays": 0.8
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.0,
+     "transitP50": 1.4,
+     "transitP90": 1.9,
+     "coverDays": 0.8
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.0,
+     "transitP50": 1.4,
+     "transitP90": 1.8,
+     "coverDays": 0.8
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.0,
+     "transitP50": 1.4,
+     "transitP90": 1.9,
+     "coverDays": 0.8
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 0.8,
+     "transitP50": 1.0,
+     "transitP90": 1.4,
+     "coverDays": 1.1
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 0.8,
+     "transitP50": 1.1,
+     "transitP90": 1.4,
+     "coverDays": 1.1
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 0.8,
+     "transitP50": 1.1,
+     "transitP90": 1.4,
+     "coverDays": 1.1
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 0.8,
+     "transitP50": 1.1,
+     "transitP90": 1.4,
+     "coverDays": 1.1
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 0.8,
+     "transitP50": 1.1,
+     "transitP90": 1.5,
+     "coverDays": 1.1
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 0.8,
+     "transitP50": 1.0,
+     "transitP90": 1.4,
+     "coverDays": 1.1
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "hmo",
+   "level": "red",
+   "score": 82,
+   "normalTransitDays": 2,
+   "expectedTransitDays": 5.3,
+   "worstCaseTransitDays": 8.3,
+   "minCoverDays": 3.0,
+   "daysToLineStop": 2,
+   "lineStopExposureEur": 6848000,
+   "drivers": [
+    {
+     "label": "Rainy season adds 3.2 days to transit from Orizaba",
+     "kind": "weather",
+     "signalId": "sig-rain-veracruz",
+     "contribution": 35
+    },
+    {
+     "label": "Lumbar air line, 6 mm hose assembly is a single-source line stopper part",
+     "kind": "cover",
+     "contribution": 16
+    },
+    {
+     "label": "Hurricane watch adds 0.6 days to transit from Orizaba",
+     "kind": "weather",
+     "signalId": "sig-hurricane-gulf",
+     "contribution": 10
+    },
+    {
+     "label": "Cannot absorb +15% demand: service level 94% at Extrusion line 2",
+     "kind": "flex",
+     "contribution": 9
+    },
+    {
+     "label": "Lead-time variability of 25%",
+     "kind": "history",
+     "contribution": 5
+    },
+    {
+     "label": "Only 3 days of cover at QRO Seating Systems",
+     "kind": "cover",
+     "contribution": 4
+    },
+    {
+     "label": "On-time-in-full fell 1.7 points over 12 weeks",
+     "kind": "history",
+     "contribution": 3
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": false,
+    "serviceLevel": 0.939,
+    "daysToRecover": 46,
+    "headroom": 0.09,
+    "bottleneck": "Extrusion line 2",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.97,
+    0.978,
+    0.967,
+    0.974,
+    0.972,
+    0.966,
+    0.967,
+    0.972,
+    0.972,
+    0.962,
+    0.95,
+    0.935
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 4.4,
+     "transitP50": 5.3,
+     "transitP90": 6.2,
+     "coverDays": 2.0
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 4.3,
+     "transitP50": 5.2,
+     "transitP90": 6.3,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 4.3,
+     "transitP50": 5.2,
+     "transitP90": 6.3,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 5.5,
+     "transitP50": 6.7,
+     "transitP90": 8.3,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 5.6,
+     "transitP50": 6.7,
+     "transitP90": 8.2,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 5.6,
+     "transitP50": 6.7,
+     "transitP90": 8.2,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 5.7,
+     "transitP50": 6.8,
+     "transitP90": 8.2,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 5.6,
+     "transitP50": 6.7,
+     "transitP90": 8.1,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 4.3,
+     "transitP50": 5.2,
+     "transitP90": 6.3,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 4.3,
+     "transitP50": 5.2,
+     "transitP90": 6.4,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 4.3,
+     "transitP50": 5.2,
+     "transitP90": 6.3,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 4.2,
+     "transitP50": 5.2,
+     "transitP90": 6.4,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 4.4,
+     "transitP50": 5.3,
+     "transitP90": 6.4,
+     "coverDays": 0.0
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 4.2,
+     "transitP50": 5.1,
+     "transitP90": 6.3,
+     "coverDays": 0.0
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "tsr",
+   "level": "amber",
+   "score": 55,
+   "normalTransitDays": 2,
+   "expectedTransitDays": 2.1,
+   "worstCaseTransitDays": 3.5,
+   "minCoverDays": 1.5,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 283000,
+   "drivers": [
+    {
+     "label": "Partial closure on MEX-57D adds 0.6 days to transit from Monterrey",
+     "kind": "road",
+     "signalId": "sig-closure-57d",
+     "contribution": 19
+    },
+    {
+     "label": "M6 flange screw, zinc-nickel is a single-source line stopper part",
+     "kind": "cover",
+     "contribution": 16
+    },
+    {
+     "label": "Only 1.5 days of cover at QRO Seating Systems",
+     "kind": "cover",
+     "contribution": 7
+    },
+    {
+     "label": "Lead-time variability of 30%",
+     "kind": "history",
+     "contribution": 6
+    },
+    {
+     "label": "Night cargo theft on MEX-45D / MEX-57D adds about 0.1 days (escorts, daytime-only departures)",
+     "kind": "theft",
+     "signalId": "sig-theft-45d57d",
+     "contribution": 4
+    },
+    {
+     "label": "On-time-in-full fell 1.6 points over 12 weeks",
+     "kind": "history",
+     "contribution": 3
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.22,
+    "bottleneck": "Cold heading machines",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.981,
+    0.98,
+    0.973,
+    0.966,
+    0.969,
+    0.969,
+    0.968,
+    0.966,
+    0.963,
+    0.964,
+    0.952,
+    0.957
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 2.2,
+     "transitP50": 2.7,
+     "transitP90": 3.5,
+     "coverDays": 0.7
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 2.2,
+     "transitP50": 2.8,
+     "transitP90": 3.5,
+     "coverDays": 0.7
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 2.2,
+     "transitP50": 2.8,
+     "transitP90": 3.5,
+     "coverDays": 0.7
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 2.2,
+     "transitP50": 2.7,
+     "transitP90": 3.5,
+     "coverDays": 0.7
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.7,
+     "transitP50": 2.1,
+     "transitP90": 2.6,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.7,
+     "transitP50": 2.1,
+     "transitP90": 2.6,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.7,
+     "transitP50": 2.1,
+     "transitP90": 2.6,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.7,
+     "transitP50": 2.1,
+     "transitP90": 2.7,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 1.7,
+     "transitP50": 2.1,
+     "transitP90": 2.7,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 1.7,
+     "transitP50": 2.1,
+     "transitP90": 2.7,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 1.7,
+     "transitP50": 2.1,
+     "transitP90": 2.7,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 1.7,
+     "transitP50": 2.1,
+     "transitP90": 2.6,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 1.7,
+     "transitP50": 2.1,
+     "transitP90": 2.7,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 1.7,
+     "transitP50": 2.1,
+     "transitP90": 2.7,
+     "coverDays": 1.4
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "pip",
+   "level": "amber",
+   "score": 57,
+   "normalTransitDays": 1,
+   "expectedTransitDays": 1.1,
+   "worstCaseTransitDays": 2.8,
+   "minCoverDays": 1.5,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 862000,
+   "drivers": [
+    {
+     "label": "Highway blockade near Puebla and Tlaxcala adds 0.7 days to transit from Puebla",
+     "kind": "blockade",
+     "signalId": "sig-blockade-puebla",
+     "contribution": 17
+    },
+    {
+     "label": "Seat side trim cover is a single-source line stopper part",
+     "kind": "cover",
+     "contribution": 16
+    },
+    {
+     "label": "Partial closure on MEX-57D adds 0.3 days to transit from Puebla",
+     "kind": "road",
+     "signalId": "sig-closure-57d",
+     "contribution": 8
+    },
+    {
+     "label": "Only 1.5 days of cover at QRO Seating Systems",
+     "kind": "cover",
+     "contribution": 7
+    },
+    {
+     "label": "Lead-time variability of 22%",
+     "kind": "history",
+     "contribution": 4
+    },
+    {
+     "label": "On-time-in-full fell 1.8 points over 12 weeks",
+     "kind": "history",
+     "contribution": 3
+    },
+    {
+     "label": "Night cargo theft on MEX-45D / MEX-57D adds about 0.1 days (escorts, daytime-only departures)",
+     "kind": "theft",
+     "signalId": "sig-theft-45d57d",
+     "contribution": 2
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.18,
+    "bottleneck": "Injection press 7 (450 t)",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.979,
+    0.968,
+    0.984,
+    0.975,
+    0.975,
+    0.966,
+    0.969,
+    0.964,
+    0.965,
+    0.956,
+    0.955,
+    0.957
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 1.9,
+     "transitP50": 2.3,
+     "transitP90": 2.8,
+     "coverDays": 0.5
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 1.9,
+     "transitP50": 2.3,
+     "transitP90": 2.8,
+     "coverDays": 0.2
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 2.0,
+     "transitP50": 2.4,
+     "transitP90": 2.7,
+     "coverDays": 0.2
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 2.0,
+     "transitP50": 2.3,
+     "transitP90": 2.8,
+     "coverDays": 0.2
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.5,
+     "transitP50": 1.8,
+     "transitP90": 2.1,
+     "coverDays": 0.7
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.3,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.3,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.3,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.3,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 1.4
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.3,
+     "coverDays": 1.4
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "rdp",
+   "level": "amber",
+   "score": 50,
+   "normalTransitDays": 2,
+   "expectedTransitDays": 3.0,
+   "worstCaseTransitDays": 3.8,
+   "minCoverDays": 2.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 147000,
+   "drivers": [
+    {
+     "label": "Port congestion at Manzanillo adds 1.0 days to transit from Manzanillo",
+     "kind": "port",
+     "signalId": "sig-port-manzanillo",
+     "contribution": 21
+    },
+    {
+     "label": "PA6 glass-filled resin, seat base compound is a single-source line stopper part",
+     "kind": "cover",
+     "contribution": 16
+    },
+    {
+     "label": "Only 2 days of cover at QRO Seating Systems",
+     "kind": "cover",
+     "contribution": 6
+    },
+    {
+     "label": "Lead-time variability of 28%",
+     "kind": "history",
+     "contribution": 5
+    },
+    {
+     "label": "On-time-in-full fell 1.1 points over 12 weeks",
+     "kind": "history",
+     "contribution": 2
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.26,
+    "bottleneck": "Imported resin supply (port)",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.977,
+    0.969,
+    0.968,
+    0.969,
+    0.97,
+    0.968,
+    0.97,
+    0.965,
+    0.961,
+    0.96,
+    0.963,
+    0.956
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.8,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.8,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.8,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 2.4,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 2.5,
+     "transitP50": 3.0,
+     "transitP90": 3.7,
+     "coverDays": 1.0
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "etb",
+   "level": "green",
+   "score": 10,
+   "normalTransitDays": 1,
+   "expectedTransitDays": 1.1,
+   "worstCaseTransitDays": 1.2,
+   "minCoverDays": 4.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 0,
+   "drivers": [
+    {
+     "label": "Seat cushion foam pad is a high part",
+     "kind": "cover",
+     "contribution": 5
+    },
+    {
+     "label": "Only 4 days of cover at QRO Seating Systems",
+     "kind": "cover",
+     "contribution": 2
+    },
+    {
+     "label": "Lead-time variability of 12%",
+     "kind": "history",
+     "contribution": 2
+    },
+    {
+     "label": "Night cargo theft on MEX-45D / MEX-57D adds about 0.1 days (escorts, daytime-only departures)",
+     "kind": "theft",
+     "signalId": "sig-theft-45d57d",
+     "contribution": 1
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.3,
+    "bottleneck": "Foam pouring line 1",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.974,
+    0.99,
+    0.987,
+    0.99,
+    0.986,
+    0.982,
+    0.986,
+    0.984,
+    0.986,
+    0.981,
+    0.985,
+    0.985
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "cha",
+   "level": "green",
+   "score": 18,
+   "normalTransitDays": 1,
+   "expectedTransitDays": 1.1,
+   "worstCaseTransitDays": 1.2,
+   "minCoverDays": 5.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 0,
+   "drivers": [
+    {
+     "label": "No data from the supplier yet (invited); score uses public signals only",
+     "kind": "history",
+     "contribution": 8
+    },
+    {
+     "label": "Seat heater wiring harness is a high part",
+     "kind": "cover",
+     "contribution": 5
+    },
+    {
+     "label": "Lead-time variability of 15%",
+     "kind": "history",
+     "contribution": 3
+    },
+    {
+     "label": "Night cargo theft on MEX-45D / MEX-57D adds about 0.1 days (escorts, daytime-only departures)",
+     "kind": "theft",
+     "signalId": "sig-theft-45d57d",
+     "contribution": 1
+    },
+    {
+     "label": "On-time-in-full fell 0.6 points over 12 weeks",
+     "kind": "history",
+     "contribution": 1
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.28,
+    "bottleneck": "Harness assembly cells",
+    "provenance": "estimated"
+   },
+   "otifTrend": [
+    0.95,
+    0.945,
+    0.952,
+    0.952,
+    0.949,
+    0.947,
+    0.955,
+    0.952,
+    0.943,
+    0.94,
+    0.945,
+    0.949
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 4.9
+    }
+   ],
+   "dataStatus": "invited",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "mds",
+   "level": "green",
+   "score": 7,
+   "normalTransitDays": 1,
+   "expectedTransitDays": 1.1,
+   "worstCaseTransitDays": 1.2,
+   "minCoverDays": 8.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 0,
+   "drivers": [
+    {
+     "label": "Recliner pivot pin, machined is a high part",
+     "kind": "cover",
+     "contribution": 5
+    },
+    {
+     "label": "Lead-time variability of 10%",
+     "kind": "history",
+     "contribution": 2
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.34,
+    "bottleneck": "CNC cell B",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.988,
+    0.982,
+    0.982,
+    0.989,
+    0.987,
+    0.995,
+    0.991,
+    0.991,
+    0.985,
+    0.993,
+    0.986,
+    0.983
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 7.9
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "slp-interiors",
+   "supplierId": "mds",
+   "level": "green",
+   "score": 7,
+   "normalTransitDays": 1,
+   "expectedTransitDays": 1.1,
+   "worstCaseTransitDays": 1.2,
+   "minCoverDays": 9.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 0,
+   "drivers": [
+    {
+     "label": "Door trim pivot pin is a high part",
+     "kind": "cover",
+     "contribution": 5
+    },
+    {
+     "label": "Lead-time variability of 10%",
+     "kind": "history",
+     "contribution": 2
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.34,
+    "bottleneck": "CNC cell B",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.988,
+    0.982,
+    0.982,
+    0.989,
+    0.987,
+    0.995,
+    0.991,
+    0.991,
+    0.985,
+    0.993,
+    0.986,
+    0.983
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "fdt",
+   "level": "green",
+   "score": 18,
+   "normalTransitDays": 1,
+   "expectedTransitDays": 1.2,
+   "worstCaseTransitDays": 1.7,
+   "minCoverDays": 9.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 0,
+   "drivers": [
+    {
+     "label": "No data from the supplier yet (invited); score uses public signals only",
+     "kind": "history",
+     "contribution": 8
+    },
+    {
+     "label": "Seat adjuster forged lever is a high part",
+     "kind": "cover",
+     "contribution": 5
+    },
+    {
+     "label": "Lead-time variability of 14%",
+     "kind": "history",
+     "contribution": 3
+    },
+    {
+     "label": "Partial closure on MEX-57D adds 0.3 days to transit from Toluca",
+     "kind": "road",
+     "signalId": "sig-closure-57d",
+     "contribution": 1
+    },
+    {
+     "label": "Heavy rain in the Toluca valley adds 0.1 days to transit from Toluca",
+     "kind": "weather",
+     "signalId": "sig-rain-toluca",
+     "contribution": 1
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.25,
+    "bottleneck": "Forging press 3",
+    "provenance": "estimated"
+   },
+   "otifTrend": [
+    0.962,
+    0.955,
+    0.956,
+    0.953,
+    0.949,
+    0.953,
+    0.955,
+    0.951,
+    0.955,
+    0.957,
+    0.953,
+    0.956
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 1.4,
+     "transitP50": 1.5,
+     "transitP90": 1.7,
+     "coverDays": 8.5
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 1.4,
+     "transitP50": 1.5,
+     "transitP90": 1.7,
+     "coverDays": 8.5
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 1.4,
+     "transitP50": 1.5,
+     "transitP90": 1.7,
+     "coverDays": 8.5
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 1.4,
+     "transitP50": 1.5,
+     "transitP90": 1.7,
+     "coverDays": 8.5
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.1,
+     "transitP50": 1.2,
+     "transitP90": 1.3,
+     "coverDays": 8.8
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.0,
+     "transitP50": 1.2,
+     "transitP90": 1.3,
+     "coverDays": 8.8
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.0,
+     "transitP50": 1.2,
+     "transitP90": 1.3,
+     "coverDays": 8.8
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.0,
+     "transitP50": 1.2,
+     "transitP90": 1.3,
+     "coverDays": 8.8
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 1.0,
+     "transitP50": 1.2,
+     "transitP90": 1.3,
+     "coverDays": 8.8
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 1.0,
+     "transitP50": 1.2,
+     "transitP90": 1.3,
+     "coverDays": 8.8
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 1.0,
+     "transitP50": 1.2,
+     "transitP90": 1.3,
+     "coverDays": 8.8
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 0.9,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    }
+   ],
+   "dataStatus": "invited",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "rpo",
+   "level": "green",
+   "score": 8,
+   "normalTransitDays": 1,
+   "expectedTransitDays": 1.1,
+   "worstCaseTransitDays": 1.5,
+   "minCoverDays": 9.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 0,
+   "drivers": [
+    {
+     "label": "Seat back compression spring is a high part",
+     "kind": "cover",
+     "contribution": 5
+    },
+    {
+     "label": "Lead-time variability of 11%",
+     "kind": "history",
+     "contribution": 2
+    },
+    {
+     "label": "Partial closure on MEX-57D adds 0.3 days to transit from San Luis Potosí",
+     "kind": "road",
+     "signalId": "sig-closure-57d",
+     "contribution": 1
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.32,
+    "bottleneck": "Coiling line 4",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.991,
+    0.993,
+    0.992,
+    0.988,
+    0.99,
+    0.992,
+    0.984,
+    0.986,
+    0.991,
+    0.991,
+    0.987,
+    0.989
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 1.3,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 8.6
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 1.3,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 8.6
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 1.3,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 8.6
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 1.3,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 8.6
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 8.9
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "slp-interiors",
+   "supplierId": "rpo",
+   "level": "green",
+   "score": 4,
+   "normalTransitDays": 1,
+   "expectedTransitDays": 1.1,
+   "worstCaseTransitDays": 1.5,
+   "minCoverDays": 10.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 0,
+   "drivers": [
+    {
+     "label": "Lead-time variability of 11%",
+     "kind": "history",
+     "contribution": 2
+    },
+    {
+     "label": "Partial closure on MEX-57D adds 0.3 days to transit from San Luis Potosí",
+     "kind": "road",
+     "signalId": "sig-closure-57d",
+     "contribution": 1
+    },
+    {
+     "label": "Door armrest return spring is a normal part",
+     "kind": "cover",
+     "contribution": 1
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.32,
+    "bottleneck": "Coiling line 4",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.991,
+    0.993,
+    0.992,
+    0.988,
+    0.99,
+    0.992,
+    0.984,
+    0.986,
+    0.991,
+    0.991,
+    0.987,
+    0.989
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 1.3,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 9.6
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 1.3,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 9.6
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 1.3,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 9.6
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 1.3,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 9.6
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 9.9
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 9.9
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 9.9
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 9.9
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 9.9
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 9.9
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 9.9
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 9.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.1,
+     "coverDays": 9.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 9.9
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "qss",
+   "supplierId": "tps",
+   "level": "green",
+   "score": 18,
+   "normalTransitDays": 2,
+   "expectedTransitDays": 2.1,
+   "worstCaseTransitDays": 3.2,
+   "minCoverDays": 8.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 0,
+   "drivers": [
+    {
+     "label": "Supplier not on FlowTwin; score uses public signals only",
+     "kind": "history",
+     "contribution": 6
+    },
+    {
+     "label": "Seat frame tube, 22 mm is a high part",
+     "kind": "cover",
+     "contribution": 5
+    },
+    {
+     "label": "Lead-time variability of 20%",
+     "kind": "history",
+     "contribution": 4
+    },
+    {
+     "label": "Partial closure on MEX-57D adds 0.6 days to transit from Saltillo",
+     "kind": "road",
+     "signalId": "sig-closure-57d",
+     "contribution": 3
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.24,
+    "bottleneck": "Roll-forming line (estimated)",
+    "provenance": "estimated"
+   },
+   "otifTrend": [
+    0.959,
+    0.958,
+    0.958,
+    0.943,
+    0.95,
+    0.954,
+    0.952,
+    0.95,
+    0.963,
+    0.953,
+    0.958,
+    0.952
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 2.3,
+     "transitP50": 2.7,
+     "transitP90": 3.2,
+     "coverDays": 7.2
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 2.4,
+     "transitP50": 2.7,
+     "transitP90": 3.2,
+     "coverDays": 7.2
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 2.3,
+     "transitP50": 2.8,
+     "transitP90": 3.2,
+     "coverDays": 7.2
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 2.4,
+     "transitP50": 2.7,
+     "transitP90": 3.2,
+     "coverDays": 7.2
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.4,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.4,
+     "coverDays": 7.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 7.9
+    }
+   ],
+   "dataStatus": "public-only",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "slp-interiors",
+   "supplierId": "tps",
+   "level": "green",
+   "score": 26,
+   "normalTransitDays": 2,
+   "expectedTransitDays": 2.1,
+   "worstCaseTransitDays": 3.3,
+   "minCoverDays": 6.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 0,
+   "drivers": [
+    {
+     "label": "Instrument panel support tube is a single-source high part",
+     "kind": "cover",
+     "contribution": 11
+    },
+    {
+     "label": "Supplier not on FlowTwin; score uses public signals only",
+     "kind": "history",
+     "contribution": 6
+    },
+    {
+     "label": "Partial closure on MEX-57D adds 0.6 days to transit from Saltillo",
+     "kind": "road",
+     "signalId": "sig-closure-57d",
+     "contribution": 4
+    },
+    {
+     "label": "Lead-time variability of 20%",
+     "kind": "history",
+     "contribution": 4
+    },
+    {
+     "label": "Night cargo theft on MEX-45D / MEX-57D adds about 0.1 days (escorts, daytime-only departures)",
+     "kind": "theft",
+     "signalId": "sig-theft-45d57d",
+     "contribution": 1
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.24,
+    "bottleneck": "Roll-forming line (estimated)",
+    "provenance": "estimated"
+   },
+   "otifTrend": [
+    0.959,
+    0.958,
+    0.958,
+    0.943,
+    0.95,
+    0.954,
+    0.952,
+    0.95,
+    0.963,
+    0.953,
+    0.958,
+    0.952
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 2.4,
+     "transitP50": 2.8,
+     "transitP90": 3.2,
+     "coverDays": 5.2
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 2.4,
+     "transitP50": 2.8,
+     "transitP90": 3.2,
+     "coverDays": 5.2
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 2.3,
+     "transitP50": 2.7,
+     "transitP90": 3.2,
+     "coverDays": 5.2
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 2.4,
+     "transitP50": 2.8,
+     "transitP90": 3.3,
+     "coverDays": 5.2
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 5.9
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 5.9
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 5.9
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.8,
+     "transitP50": 2.2,
+     "transitP90": 2.5,
+     "coverDays": 5.9
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 5.9
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 1.9,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 5.9
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 5.9
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 5.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 5.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 1.8,
+     "transitP50": 2.1,
+     "transitP90": 2.5,
+     "coverDays": 5.9
+    }
+   ],
+   "dataStatus": "public-only",
+   "updatedAt": "2026-10-05"
+  },
+  {
+   "customerId": "slp-interiors",
+   "supplierId": "pis",
+   "level": "green",
+   "score": 13,
+   "normalTransitDays": 1,
+   "expectedTransitDays": 1.1,
+   "worstCaseTransitDays": 1.5,
+   "minCoverDays": 4.0,
+   "daysToLineStop": null,
+   "lineStopExposureEur": 0,
+   "drivers": [
+    {
+     "label": "Coated door support bracket is a high part",
+     "kind": "cover",
+     "contribution": 5
+    },
+    {
+     "label": "Lead-time variability of 13%",
+     "kind": "history",
+     "contribution": 3
+    },
+    {
+     "label": "Partial closure on MEX-57D adds 0.3 days to transit from San Luis Potosí",
+     "kind": "road",
+     "signalId": "sig-closure-57d",
+     "contribution": 2
+    },
+    {
+     "label": "Only 4 days of cover at SLP Interiors México",
+     "kind": "cover",
+     "contribution": 2
+    },
+    {
+     "label": "Night cargo theft on MEX-45D / MEX-57D adds about 0.1 days (escorts, daytime-only departures)",
+     "kind": "theft",
+     "signalId": "sig-theft-45d57d",
+     "contribution": 1
+    }
+   ],
+   "flex": {
+    "demandIncrease": 0.15,
+    "canAbsorb": true,
+    "serviceLevel": 1.0,
+    "daysToRecover": 0,
+    "headroom": 0.29,
+    "bottleneck": "Powder-coat line",
+    "provenance": "measured"
+   },
+   "otifTrend": [
+    0.98,
+    0.983,
+    0.981,
+    0.978,
+    0.982,
+    0.983,
+    0.985,
+    0.981,
+    0.988,
+    0.985,
+    0.981,
+    0.977
+   ],
+   "projection": [
+    {
+     "date": "2026-10-05",
+     "transitP10": 1.2,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 3.6
+    },
+    {
+     "date": "2026-10-06",
+     "transitP10": 1.2,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 3.6
+    },
+    {
+     "date": "2026-10-07",
+     "transitP10": 1.2,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 3.6
+    },
+    {
+     "date": "2026-10-08",
+     "transitP10": 1.2,
+     "transitP50": 1.4,
+     "transitP90": 1.5,
+     "coverDays": 3.6
+    },
+    {
+     "date": "2026-10-09",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-10",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-11",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-12",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-13",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-14",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-15",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-16",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-17",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    },
+    {
+     "date": "2026-10-18",
+     "transitP10": 1.0,
+     "transitP50": 1.1,
+     "transitP90": 1.2,
+     "coverDays": 3.9
+    }
+   ],
+   "dataStatus": "connected",
+   "updatedAt": "2026-10-05"
+  }
+ ],
+ "alerts": [
+  {
+   "id": "alert-hmo-qss",
+   "customerId": "qss",
+   "supplierId": "hmo",
+   "partIds": [
+    "part-qss-6120-lmb"
+   ],
+   "level": "red",
+   "title": "Transit from Orizaba goes from 2 to 5 days",
+   "message": "QRO Seating Systems holds 3 days of cover of lumbar air line, 6 mm hose assembly (QSS-6120-LMB). With transit at 5 days (up to 8.3 in the worst case) and nothing done, cover runs out in about 2 days, around 7 Oct 2026. Expected line-stop exposure: €6.8M.",
+   "createdAt": "2026-10-05",
+   "lineStopExposureEur": 6848000,
+   "status": "new",
+   "actions": [
+    {
+     "id": "act-hmo-1",
+     "label": "Pull the next order forward",
+     "description": "Ask Hules y Mangueras de Orizaba to ship the next two orders before the rain peaks, adding about 1.5 days of cover."
+    },
+    {
+     "id": "act-hmo-2",
+     "label": "Add 2 days of safety stock",
+     "description": "Raise the lumbar air line safety stock to 5 days until the rainy season ends (about MX$38k of inventory)."
+    },
+    {
+     "id": "act-hmo-3",
+     "label": "Use the alternative route via Tehuacán",
+     "description": "Route trucks through Tehuacán and Cuacnopalan (MEX-150 free road) to avoid the landslide-prone Orizaba–Puebla toll stretch."
+    }
+   ],
+   "signalId": "sig-rain-veracruz",
+   "expectedShortfallDate": "2026-10-07"
+  },
+  {
+   "id": "alert-pip-qss",
+   "customerId": "qss",
+   "supplierId": "pip",
+   "partIds": [
+    "part-qss-7205-trm"
+   ],
+   "level": "amber",
+   "title": "Highway blockade, Puebla–Tlaxcala corridor",
+   "message": "QRO Seating Systems holds 1.5 days of cover of seat side trim cover (QSS-7205-TRM). Transit is 1.1 days against 1 planned (up to 2.8 in the worst case). Without action, projected cover falls to 0.2 days around 6 Oct 2026; no stop is expected in the next 14 days, but a bad week could stop the line. Expected line-stop exposure: €862k.",
+   "createdAt": "2026-10-03",
+   "lineStopExposureEur": 862000,
+   "status": "acknowledged",
+   "actions": [
+    {
+     "id": "act-pip-1",
+     "label": "Pull the next order forward",
+     "description": "Ask Plásticos Inyectados de Puebla to ship one day early, before the blockade peaks."
+    },
+    {
+     "id": "act-pip-2",
+     "label": "Use the alternative route via MEX-150D",
+     "description": "Reroute through MEX-150D toll road, bypassing the Amozoc–Tlaxcala corridor."
+    },
+    {
+     "id": "act-pip-3",
+     "label": "Add 2 days of safety stock",
+     "description": "Build 2 days of cover on the seat side trim cover; it is single-source and a line-stopper."
+    }
+   ],
+   "signalId": "sig-blockade-puebla",
+   "chosenActionId": "act-pip-1"
+  },
+  {
+   "id": "alert-tsr-qss",
+   "customerId": "qss",
+   "supplierId": "tsr",
+   "partIds": [
+    "part-qss-9011-fls"
+   ],
+   "level": "amber",
+   "title": "Road closure, MEX-57D near Palmillas",
+   "message": "QRO Seating Systems holds 1.5 days of cover of m6 flange screw, zinc-nickel (QSS-9011-FLS). Transit is 2.1 days against 2 planned (up to 3.5 in the worst case). Without action, projected cover falls to 0.7 days around 5 Oct 2026; no stop is expected in the next 14 days, but a bad week could stop the line. Expected line-stop exposure: €283k.",
+   "createdAt": "2026-10-04",
+   "lineStopExposureEur": 283000,
+   "status": "new",
+   "actions": [
+    {
+     "id": "act-tsr-1",
+     "label": "Pull the next order forward",
+     "description": "Ask Tornillos y Sujetadores to ship Thursday's flange screw order on Tuesday."
+    },
+    {
+     "id": "act-tsr-2",
+     "label": "Add 3 days of safety stock",
+     "description": "Buy a one-off buffer of M6 flange screws; at MX$0.62 each this is under MX$30k for 3 days."
+    },
+    {
+     "id": "act-tsr-3",
+     "label": "Qualify the second source",
+     "description": "Flange screws are single-source. Qualify a second heading shop in the Bajío."
+    }
+   ],
+   "signalId": "sig-closure-57d"
+  },
+  {
+   "id": "alert-rdp-qss",
+   "customerId": "qss",
+   "supplierId": "rdp",
+   "partIds": [
+    "part-qss-5310-pab"
+   ],
+   "level": "amber",
+   "title": "Transit from Manzanillo goes from 2 to 3 days",
+   "message": "QRO Seating Systems holds 2 days of cover of pa6 glass-filled resin, seat base compound (QSS-5310-PAB). Transit is 3 days against 2 planned (up to 3.8 in the worst case). Without action, projected cover falls to 1 days around 5 Oct 2026; no stop is expected in the next 14 days, but a bad week could stop the line. Expected line-stop exposure: €147k.",
+   "createdAt": "2026-10-02",
+   "lineStopExposureEur": 147000,
+   "status": "new",
+   "actions": [
+    {
+     "id": "act-rdp-1",
+     "label": "Ask for resin on hand",
+     "description": "Ask Resinas del Pacífico to confirm how many days of PA6 compound it has outside the port."
+    },
+    {
+     "id": "act-rdp-2",
+     "label": "Add 3 days of safety stock",
+     "description": "Raise PA6 compound stock at QSS to 6 days while the port clears."
+    },
+    {
+     "id": "act-rdp-3",
+     "label": "Qualify the second source",
+     "description": "Qualify a domestic PA6 compound source so a port delay does not reach the line."
+    }
+   ],
+   "signalId": "sig-port-manzanillo"
+  },
+  {
+   "id": "alert-edl-qss",
+   "customerId": "qss",
+   "supplierId": "edl",
+   "partIds": [
+    "part-qss-4480-rcp"
+   ],
+   "level": "amber",
+   "title": "Press 4 breakdown, Estampados del Laja",
+   "message": "QRO Seating Systems holds 1.2 days of cover of recliner mounting plate (QSS-4480-RCP). Transit is 1.4 days against 1 planned (up to 1.9 in the worst case). Without action, projected cover falls to 0.8 days around 5 Oct 2026; no stop is expected in the next 14 days, but a bad week could stop the line. Expected line-stop exposure: €76k.",
+   "createdAt": "2026-10-04",
+   "lineStopExposureEur": 76000,
+   "status": "supplier-responded",
+   "actions": [
+    {
+     "id": "act-edl-1",
+     "label": "Ask for a confirmed ship plan",
+     "description": "Ask Estampados del Laja for a daily ship plan until Press 4 is stable."
+    },
+    {
+     "id": "act-edl-2",
+     "label": "Move departures to daytime",
+     "description": "Agree that loads for QSS leave between 06:00 and 18:00 to avoid the MEX-45D night theft risk."
+    },
+    {
+     "id": "act-edl-3",
+     "label": "Add 2 days of safety stock",
+     "description": "Hold 2 extra days of the recliner mounting plate while Press 4 recovers."
+    }
+   ],
+   "signalId": "sig-press-edl",
+   "supplierResponse": {
+    "by": "Roberto Laja",
+    "at": "2026-10-05",
+    "message": "Press 4 is back in production since Monday night. We confirm capacity for the next two QSS orders and will add a Saturday shift if the +15% arrives. Departures for QSS will leave before 18:00.",
+    "confirmedCapacity": true
+   }
+  }
+ ],
+ "invites": [
+  {
+   "id": "inv-cha",
+   "customerId": "qss",
+   "supplierId": "cha",
+   "supplierName": "Cableados Hidrocálidos",
+   "contactEmail": "rcalderon@cha.example",
+   "sentAt": "2026-09-29",
+   "status": "sent",
+   "plan": "sponsored"
+  },
+  {
+   "id": "inv-fdt",
+   "customerId": "qss",
+   "supplierId": "fdt",
+   "supplierName": "Forjas de Toluca",
+   "contactEmail": "apena@fdt.example",
+   "sentAt": "2026-10-01",
+   "status": "sent",
+   "plan": "sponsored"
+  }
+ ]
+}

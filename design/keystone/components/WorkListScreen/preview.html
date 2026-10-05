@@ -1,0 +1,38 @@
+<!-- @dsCard group="Patterns" height=860 width=1440 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>WorkListScreen — preview</title>
+<style>
+  body { background: var(--canvas); }
+  .frame { display: flex; margin: 24px; border-radius: var(--radius-xl); overflow: hidden; background: var(--surface); box-shadow: var(--shadow-frame); height: 812px; }
+  .main { flex: 1; padding: var(--space-6) var(--space-10); min-width: 0; overflow: hidden; }
+  .head { display: flex; justify-content: space-between; align-items: center; }
+  .head .right { display: flex; gap: var(--space-3); align-items: center; }
+  .ttl { margin: var(--space-8) 0 var(--space-6); }
+  .bar { display: flex; gap: var(--space-3); align-items: center; margin-bottom: var(--space-6); }
+  .bar .ks-search { margin-left: auto; }
+</style></head>
+<body>
+<div id="root"></div>
+<script>
+var K=window.Keystone,h=React.createElement;
+var rail=[{id:'home',label:'Home',icon:'home'},{id:'prep',label:'Persiapan',icon:'file'},{id:'land',label:'Pengadaan Tanah',icon:'map'},{id:'tender',label:'Pelelangan',icon:'scale'},{id:'pre',label:'Prakonstruksi',icon:'gear'},{id:'build',label:'Desain & Konstruksi',icon:'cube'},{id:'auth',label:'Otoritas',icon:'bank'},{id:'users',label:'User Admin',icon:'users'}];
+var steps=[{id:'fs',label:'Penyusunan Feasibility Study'},{id:'kppr',label:'Proses Izin KPPR'},{id:'bd',label:'Penyusunan Basic Design dan ROW Plan'},{id:'dppt',label:'Penyusunan DPPT'},{id:'amdal',label:'Penyusunan AMDAL'},{id:'env',label:'Proses Izin Lingkungan'},{id:'rc',label:'Penyampaian Readiness Criteria'}];
+var data=[['Tol Jagorawi','Jakarta-Bogor-Ciawi','Jabodetabek',true],['Tol Japek','Jakarta-Cikampek','Jabodetabek'],['Tol Cipali','Cikopo-Palimanan','Jawa Barat'],['Tol Bocimi','Bogor-Ciawi-Sukabumi','Jawa Barat'],['Tol BORR','Lingkar Luar Bogor','Jawa Barat']];
+var rows=data.map(function(d,i){return{id:i,no:String(i+1).padStart(2,'0'),name:d[0],seg:d[1],tariff:'Rp 12.000',term:'15 Tahun',eirr:'12%',region:d[2],fresh:d[3]};});
+var cols=[{key:'no',label:'No'},{key:'name',label:'Nama Jalan Tol'},{key:'seg',label:'Nama Ruas Jalan Tol'},{key:'tariff',label:'Tarif Awal/KM',numeric:true},{key:'eirr',label:'EIRR',numeric:true},{key:'region',label:'Wilayah'},
+{key:'st',label:'Update',render:function(r){return r.fresh?h(K.StatusPill,{tone:'fresh'},'Updated'):h(K.StatusPill,{tone:'action'},'Update');}},
+{key:'act',label:'Aksi',render:function(){return h('div',{className:'ks-actions'},h(K.IconButton,{icon:'eye',label:'View'}),h(K.IconButton,{icon:'pencil',label:'Edit'}),h(K.IconButton,{icon:'trash',label:'Delete',tone:'danger'}));}}];
+ReactDOM.createRoot(document.getElementById('root')).render(
+h('div',{className:'frame'},
+ h(K.NavRail,{items:rail,current:'prep',footer:{label:'Log Out'}}),
+ h(K.SubNav,{brand:['Dashboard','Keystone'],items:steps,current:'fs'}),
+ h('main',{className:'main'},
+  h('div',{className:'head'},h(K.Breadcrumb,{icon:'file',items:[{label:'Persiapan'},{label:'Penyusunan Feasibility Study'}]}),
+    h('div',{className:'right'},h(K.IconButton,{icon:'gear',label:'Settings'}),h(K.IconButton,{icon:'bell',label:'Notifications',dot:true}),h(K.UserChip,{name:'Rick Jogger',email:'rick@keystone.id'}))),
+  h('h1',{className:'title ttl'},'Penyusunan Feasibility Study'),
+  h('div',{className:'bar'},h(K.Button,{icon:'plus'},'Buat Data Feasibility'),h(K.FilterChip,{onRemove:function(){}},'All data'),h(K.FilterChip,{icon:'filter'},'More filters'),h(K.SearchField,{width:320})),
+  h(K.DataTable,{columns:cols,rows:rows,footer:h(K.Pagination,{page:1,total:10})}))));
+</script>
+</body>
+</html>
