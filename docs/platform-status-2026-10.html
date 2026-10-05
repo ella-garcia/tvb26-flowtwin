@@ -1,0 +1,262 @@
+<title>FlowTwin Platform Status</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~760px) with a sticky section index on wide screens; FlowTwin's own Keystone tokens. */
+:root {
+  --bg: #f6f7fb; --surface: #ffffff; --sunken: #eef0f8; --ink: #101828; --muted: #475467; --subtle: #667085;
+  --line: #e3e6ef; --line-strong: #c9cedb; --primary: #10217d; --accent: #f9c80e; --accent-soft: #fdf0bf;
+  --ok: #027a48; --ok-soft: #ecfdf3; --warn: #b54708; --warn-soft: #fffaeb; --bad: #b42318; --bad-soft: #fef3f2;
+  --display: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1124; --surface: #171a33; --sunken: #1d2140; --ink: #f2f4f7; --muted: #a4a9c2; --subtle: #8f95b2;
+  --line: #262a4a; --line-strong: #3b4170; --primary: #8b97f0; --accent: #f9c80e; --accent-soft: #3a3214;
+  --ok: #6ce9a6; --ok-soft: #0f2a22; --warn: #fec84b; --warn-soft: #2e2410; --bad: #fda29b; --bad-soft: #2e1517; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1124; --surface: #171a33; --sunken: #1d2140; --ink: #f2f4f7; --muted: #a4a9c2; --subtle: #8f95b2;
+  --line: #262a4a; --line-strong: #3b4170; --primary: #8b97f0; --accent: #f9c80e; --accent-soft: #3a3214;
+  --ok: #6ce9a6; --ok-soft: #0f2a22; --warn: #fec84b; --warn-soft: #2e2410; --bad: #fda29b; --bad-soft: #2e1517; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 15px/1.6 var(--body); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 48px; grid-template-columns: 200px minmax(0, 1fr); }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 24px 56px; } .index { position: static !important; } }
+.index { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; display: grid; gap: 4px; font-size: 13px; }
+.index b { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); font-weight: 600; margin-bottom: 4px; }
+.index a { color: var(--muted); text-decoration: none; padding: 4px 8px; border-radius: 6px; }
+.index a:hover, .index a:focus-visible { background: var(--sunken); color: var(--ink); outline: none; }
+main { min-width: 0; display: grid; gap: 56px; }
+header { display: grid; gap: 14px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.mark { width: 40px; height: 40px; border-radius: 8px; background: var(--accent); color: #101828; display: grid; place-items: center; font: 800 20px/1 var(--display); }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); font-weight: 600; }
+h1 { font: 700 clamp(28px, 4vw, 38px)/1.15 var(--display); letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+h2 { font: 700 24px/1.25 var(--display); letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+h3 { font: 600 16px/1.4 var(--display); margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.lede { font-size: 17px; color: var(--muted); }
+section { display: grid; gap: 20px; scroll-margin-top: 24px; }
+.sub { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--subtle); }
+.meta code, code { font: 500 12.5px/1.4 var(--mono); background: var(--sunken); padding: 1px 6px; border-radius: 4px; color: var(--ink); }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--subtle); font-weight: 600; background: var(--sunken); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td b { font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/1 var(--body); padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.ok { color: var(--ok); background: var(--ok-soft); } .warn { color: var(--warn); background: var(--warn-soft); } .bad { color: var(--bad); background: var(--bad-soft); }
+.new { color: var(--primary); background: var(--sunken); }
+ol.steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; gap: 10px; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; align-items: start; }
+ol.steps li::before { content: counter(s, decimal-leading-zero); font: 600 12px/26px var(--mono); color: var(--subtle); border: 1px solid var(--line-strong); border-radius: 6px; text-align: center; height: 26px; }
+.grid2 { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 640px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; }
+.box ul, .plain { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--muted); font-size: 14px; }
+.box ul b, .plain b { color: var(--ink); font-weight: 600; }
+.decision { display: grid; gap: 6px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.decision p { font-size: 14px; color: var(--muted); }
+.decision .why { font-size: 13px; color: var(--subtle); }
+.decisions { display: grid; gap: 10px; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 14px 16px; border-radius: 0 8px 8px 0; font-size: 14px; }
+.stats { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 2px; }
+.stat b { font: 700 24px/1.2 var(--display); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12.5px; color: var(--subtle); }
+.num { font-variant-numeric: tabular-nums; }
+a { color: var(--primary); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="index" aria-label="Sections">
+    <b>On this page</b>
+    <a href="#platform">Platform today</a>
+    <a href="#journeys">User journeys</a>
+    <a href="#features">Features</a>
+    <a href="#feedback">Professor feedback</a>
+    <a href="#decisions">Decisions</a>
+    <a href="#refactor">Refactoring</a>
+    <a href="#open">Open items</a>
+  </nav>
+
+  <main>
+    <header>
+      <div class="brand"><span class="mark" aria-hidden="true">F</span><span class="eyebrow">FlowTwin v0 · TVB26</span></div>
+      <h1>FlowTwin platform status</h1>
+      <p class="lede">Early warning for automotive supply chains in Mexico. A Tier 1 plant (the key customer) sees a risk light for each of its Tier 2 suppliers, the stock it holds of every part, and how many days remain before a vehicle line would stop.</p>
+      <div class="meta"><span>As of 6 Oct 2026</span><span>Branch <code>professor-feedback</code></span><span>Head <code>a5c6117</code></span><span>Demo data date 5 Oct 2026</span></div>
+    </header>
+
+    <section id="platform" aria-labelledby="h-platform">
+      <h2 id="h-platform">1. Platform today</h2>
+      <p>FlowTwin is a React app on Supabase (Postgres with row-level sharing rules) plus a Python worker that computes risk, parses uploads, pulls weather signals and sends alert emails. It runs on seed data or live against Supabase. A yellow testing bar switches role and company for demos.</p>
+
+      <div class="stats">
+        <div class="stat"><b class="num">10</b><span>pages across 4 roles</span></div>
+        <div class="stat"><b class="num">12</b><span>demo suppliers, 30 parts</span></div>
+        <div class="stat"><b class="num">4</b><span>vehicle models (3 at QRO Seating)</span></div>
+        <div class="stat"><b class="num">82</b><span>worker tests passing</span></div>
+      </div>
+
+      <div class="sub">
+        <h3>Modules by role</h3>
+        <div class="scroll"><table>
+          <thead><tr><th>Role</th><th>Module</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td rowspan="6"><b>Key customer</b><br><span style="color:var(--subtle)">Tier 1, e.g. QRO Seating Systems</span></td><td>Risk board</td><td>Risk light per supplier, days to line stop, parts below safe cover, OTIF and delivery grade, map of suppliers and active signals. Filter by vehicle model.</td></tr>
+            <tr><td>Parts &amp; stock <span class="pill new">New</span></td><td>Every part number with stock here, on the road and at the supplier, the date stock runs out and the next delivery. Filters by status, supplier, criticality and model.</td></tr>
+            <tr><td>Supplier detail</td><td>Why the light has its colour, 14-day transit and cover projection, +15% demand test, parts, delivery history, related alerts.</td></tr>
+            <tr><td>Alerts</td><td>What happens if nothing is done, parts and models affected, expected shortfall, actions to choose, supplier replies, email log.</td></tr>
+            <tr><td>Invite</td><td>Invite suppliers for free (sponsored by the Tier 1) and see what is shared with them.</td></tr>
+            <tr><td>Data</td><td>Upload suppliers, parts, stock (with in-transit and ETA), demand releases and goods receipts; Spanish ERP headers recognised.</td></tr>
+            <tr><td rowspan="2"><b>Supplier owner / ops</b><br><span style="color:var(--subtle)">Tier 2, e.g. Estampados del Laja</span></td><td>My risk</td><td>Exactly what the customer sees about them, alerts that need an answer, how to improve the score.</td></tr>
+            <tr><td>My data</td><td>Light onboarding: capacity, lead times, stock held per customer, files.</td></tr>
+            <tr><td rowspan="2"><b>Admin</b></td><td>Signals</td><td>Weather, road, theft, port, blockade and supplier signals; switch each on or off.</td></tr>
+            <tr><td>Companies</td><td>Companies on the platform and their status.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <section id="journeys" aria-labelledby="h-journeys">
+      <h2 id="h-journeys">User journeys</h2>
+      <div class="grid2">
+        <div class="box">
+          <h3>Key customer: spot and act on a risk</h3>
+          <ol class="steps">
+            <li><span>Open the risk board: 2 suppliers at Act now, soonest line stop in 2 days.</span></li>
+            <li><span>Pick <b>K3 compact SUV</b>: its line stops in 2 days. Pick <b>M5 midsize sedan</b>: no stop expected.</span></li>
+            <li><span>Open Parts &amp; stock: 6 parts run out before their next delivery, 5 of them line stoppers.</span></li>
+            <li><span>Open Hules y Mangueras de Orizaba: rain pushes transit from 2 to 5 days; 3 days of cover on a line-stopper part; fails the +15% test.</span></li>
+            <li><span>In Alerts, choose “Pull the next order forward” and acknowledge.</span></li>
+          </ol>
+        </div>
+        <div class="box">
+          <h3>Supplier: see what the customer sees</h3>
+          <ol class="steps">
+            <li><span>Receive a free, sponsored invite from the Tier 1.</span></li>
+            <li><span>Open My risk: the same light and reasons the customer sees; costs and margins never shared.</span></li>
+            <li><span>Answer an alert and confirm capacity.</span></li>
+            <li><span>Fill My data (capacity, lead times, stock) so the score uses measured data.</span></li>
+          </ol>
+        </div>
+        <div class="box">
+          <h3>Key customer: connect real data</h3>
+          <ol class="steps">
+            <li><span>Download a template on the Data page.</span></li>
+            <li><span>Upload an Excel or CSV export (CONTPAQi-style Spanish headers work).</span></li>
+            <li><span>Fix flagged rows; the worker recomputes risk automatically.</span></li>
+          </ol>
+        </div>
+        <div class="box">
+          <h3>Admin: run the signals</h3>
+          <ol class="steps">
+            <li><span>Live rain forecasts arrive hourly (Open-Meteo; SMN optional).</span></li>
+            <li><span>Switch a signal off when it is wrong; risk is recomputed without it.</span></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" aria-labelledby="h-features">
+      <h2 id="h-features">Features</h2>
+      <div class="grid2">
+        <div class="box"><h3>Risk engine</h3><ul>
+          <li><b>14-day projection:</b> Monte Carlo of transit time with active signals applied.</li>
+          <li><b>Line stop:</b> first day a line-stopper or high part runs out, per part and per model.</li>
+          <li><b>+15% flex test:</b> can the supplier absorb the contract demand swing.</li>
+          <li><b>Score 0–100</b> from drivers; red at 65 or a stop within 3 days.</li>
+        </ul></div>
+        <div class="box"><h3>Stock and models</h3><ul>
+          <li><b>Pipeline per part:</b> here, on the road, at the supplier.</li>
+          <li><b>Next delivery:</b> confirmed date or estimate, labelled “Estimated”.</li>
+          <li><b>Vehicle models:</b> each part mapped to the models it goes into.</li>
+        </ul></div>
+        <div class="box"><h3>Supplier performance</h3><ul>
+          <li><b>OTIF</b> over 12 weeks with trend.</li>
+          <li><b>Delivery grade A/B/C</b> against the 98% contract target.</li>
+          <li><b>Data status:</b> connected, invited, public data only.</li>
+        </ul></div>
+        <div class="box"><h3>Platform</h3><ul>
+          <li><b>Sharing rules</b> enforced in the database for every table.</li>
+          <li><b>Worker:</b> FastAPI on Vercel (Docker for Cloud Run), hourly cron.</li>
+          <li><b>Alert emails</b> through Resend (dry run without a key).</li>
+          <li><b>Calculation panel</b> on every important figure.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <section id="feedback" aria-labelledby="h-feedback">
+      <h2 id="h-feedback">Professor feedback: where each point stands</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>Point</th><th>What we did</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Remove the € exposure</td><td>Removed from screens, alert text and emails. Board ranks by days to line stop, then part criticality.</td><td><span class="pill ok">Done (A)</span></td></tr>
+          <tr><td>Stock is key; a supplier has many parts</td><td>Parts &amp; stock page, pipeline fields per part, links from the board and supplier page.</td><td><span class="pill ok">Done (B)</span></td></tr>
+          <tr><td>OEM or Tier 1? Logo and vehicle model</td><td>Tier 1 name, plant and logo tile in the header; vehicle model selector; models on parts and alerts.</td><td><span class="pill ok">Done (A, C)</span></td></tr>
+          <tr><td>Ports and customs transit</td><td>Route legs with port, border and customs times; customs signals; leg-by-leg transit bar.</td><td><span class="pill warn">Next (D)</span></td></tr>
+          <tr><td>Supplier delivery history</td><td>OTIF column and A/B/C delivery grade on the board and supplier page, separate from the risk light.</td><td><span class="pill ok">Done (A)</span></td></tr>
+        </tbody>
+      </table></div>
+      <p style="color:var(--muted);font-size:14px">Public evidence for each point (Nexperia and Honda Celaya, Nuevo Laredo and Manzanillo customs, Tier 1 seat plants serving several models, OTIF scorecards) is filed in <code>docs/evidence-brief-professor-feedback.md</code>.</p>
+    </section>
+
+    <section id="decisions" aria-labelledby="h-decisions">
+      <h2 id="h-decisions">2. Decisions taken</h2>
+      <div class="decisions">
+        <div class="decision"><h3>Money is never shown; the €15k per minute stays internal</h3><p>The setting still exists and the engine uses it to pick the most exposed part, but no screen, alert or email shows euros.</p><p class="why">Why: published line-stop costs vary 10–20×, the figure belongs to the OEM and a Tier 1 cannot validate it; the industry speaks in days of stock.</p></div>
+        <div class="decision"><h3>Rank by time to line stop, then part criticality, then score</h3><p>Never by spend or value. A two-peso clip can stop a line.</p></div>
+        <div class="decision"><h3>Delivery record is a separate axis from the risk light</h3><p>Grade A at or above the contract OTIF target (98%), B up to 3 points below, C further below. The risk light looks forward; the grade looks back.</p><p class="why">Why: it tells “red because of the weather” apart from “a supplier that is often late”.</p></div>
+        <div class="decision"><h3>“Below safe cover” means stock runs out before the next delivery</h3><p>One rule shared by the board, the parts page and the supplier page. Deliveries land on whole days; an estimated date is labelled “Estimated”.</p></div>
+        <div class="decision"><h3>Unknown is shown as unknown, never as zero</h3><p>In-transit units and supplier stock come only from connected suppliers. Others show “Unknown” or “Not shared”.</p></div>
+        <div class="decision"><h3>Vehicle models use fictional OEM names</h3><p>OEM A, B and C with models K3, M5, T1 and C2. No real brands appear in the product. The line stop for a model comes from the engine’s stop day for each of that model’s parts.</p></div>
+        <div class="decision"><h3>Each step is its own commit on a feature branch</h3><p>A, B and C, the refactor plan and each refactor package are separate commits on <code>professor-feedback</code>, not on <code>main</code>.</p></div>
+        <div class="decision"><h3>Refactor before ports and customs</h3><p>The risk engine existed twice (seed generator and worker). D changes the engine, so it was unified first.</p></div>
+      </div>
+    </section>
+
+    <section id="refactor" aria-labelledby="h-refactor">
+      <h2 id="h-refactor">3. Refactoring done</h2>
+      <p>Three review agents read the frontend, the Python worker and seed generator, and the data contracts. The lead checked the serious findings, wrote a plan (<code>docs/refactor-plan-2026-10.md</code>) and three agents carried it out in separate worktrees. All three were merged and checked together.</p>
+      <div class="stats">
+        <div class="stat"><b class="num">568 → 365</b><span>lines in the seed generator</span></div>
+        <div class="stat"><b class="num">310 → 119</b><span>lines in the supplier view</span></div>
+        <div class="stat"><b class="num">69 → 82</b><span>worker tests</span></div>
+        <div class="stat"><b class="num">+15</b><span>database sharing-rule checks</span></div>
+      </div>
+      <div class="scroll"><table>
+        <thead><tr><th>Package</th><th>Changes</th><th>Commit</th></tr></thead>
+        <tbody>
+          <tr><td><b>WP1</b> Security and intake</td><td>Closed a cross-tenant hole: a signed-in user could queue an upload job that wrote into another customer’s data. Fixed in the database rule and in the worker. “Reset demo data” now restores the whole demo and keeps the email log so alerts are not re-sent. Supplier contacts keep name and role on upload. Jobs can no longer stay “running” after a failure; database errors return a clear 502.</td><td><code>d089a08</code></td></tr>
+          <tr><td><b>WP2</b> One risk engine</td><td>The seed generator now calls the worker’s engine; the seed data stayed byte-identical. Fixed live labels that showed the long signal title. Removed dead code and added one naming helper.</td><td><code>023f15d</code></td></tr>
+          <tr><td><b>WP3</b> Frontend</td><td>One set of status pills, so the same status reads the same everywhere. Shared formatters. One data-loading hook for 9 pages. Supplier view split into components. Removed the leftover carbon, scorecard and twin code. Fixed: the map showed signals switched off, “+15%” was hard-coded, the score card had no calculation panel, the headline could name the wrong part.</td><td><code>240227b</code></td></tr>
+          <tr><td><b>Lead</b> after review</td><td>Parts added by an upload are ignored by the risk engine until stock or a delivery is recorded, so they cannot raise a false line stop. Restored the model selector label style.</td><td><code>a5c6117</code></td></tr>
+          <tr><td><b>Lead</b> during A–C</td><td>The database test runner picked the first Supabase container on the machine, which belonged to another project. It now targets FlowTwin only; the other database was checked and is unchanged.</td><td><code>24d9654</code></td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout" id="review"><b>Independent review:</b> a fresh agent reviewed the merged result and found no security holes and no data or logic regressions; the seed output is reproducible and identical to before. It returned “ship with fixes”. Fixed since: the model selector lost its label style, and a part uploaded without stock could raise a false “line stops today”. Every page was then checked in the browser for all four roles with no errors.</div>
+    </section>
+
+    <section id="open" aria-labelledby="h-open">
+      <h2 id="h-open">Open items</h2>
+      <ul class="plain">
+        <li><b>D, ports and customs:</b> route legs, customs signals, and the engine reading in-transit stock and next delivery.</li>
+        <li><b>Decision:</b> the supplier page shows unit cost while the copy says prices are never shared.</li>
+        <li><b>Decision:</b> customers can see a supplier’s utilisation and bottleneck even when it shares public data only.</li>
+        <li><b>Before real data:</b> switch testing mode off (today any visitor can take any role).</li>
+        <li><b>Cloud database:</b> needs the three new migrations (part pipeline, vehicle models, job tenancy and full reset) and a reseed (<code>supabase db push</code>).</li>
+        <li><b>Demo reset:</b> any signed-in user can reset while testing mode is on, and upload records are not cleared by a reset.</li>
+        <li><b>Later:</b> generate database types from one source; a few components still read data directly instead of taking props.</li>
+      </ul>
+    </section>
+  </main>
+</div>
