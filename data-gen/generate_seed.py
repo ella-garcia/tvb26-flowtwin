@@ -11,6 +11,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from engine.flex import run_flex  # the worker engine (stdlib only) is the one risk model
 from engine.geo import clamp, hash_seed, hav, pct
 from engine.otif import otif_series
+from engine.risk import compute_pair
+from naming import to_camel, to_snake
 
 ASOF = date(2026, 10, 5)
 HORIZON = 14
@@ -233,115 +235,21 @@ def mult_on(sp, d):
     return m
 
 
-# ----------------------------------------------------------------- risk engine
+# ----------------------------------------------------------------- risk (worker/engine via adapters)
+ENG_SETTINGS = to_snake(SETTINGS)
+ENG_SIGNALS = [to_snake(s) for s in SIGNALS]  # radius_km, starts_at, ...; `short` stays for the driver labels
+
+
+def eng_part(p):
+    num, name, _ucost, _usage, c0, single, crit = p
+    return dict(id=f"part-{num.lower()}", number=num, name=name, days_of_cover=c0, criticality=crit, single_source=single)
+
+
 def assess(cid, sp, cinfo):
-    cust = CUST[cid]
-    rng = random.Random(hash_seed(cid, sp["id"], "mc"))
-    parts = cinfo["parts"]
-    km = hav(sp["lat"], sp["lon"], cust["lat"], cust["lon"]) * 1.3  # road km ~ 1.3 x straight line
-    normal = max(1, math.ceil(km / 400))                              # ~1 day per 400 km incl. loading, min 1
-    sigma = 0.6 * sp["cv"]
-    days = [ASOF + timedelta(days=i) for i in range(HORIZON)]
-    M = [mult_on(sp, d) for d in days]
-
-    # --- per-day transit percentiles (independent draws, RUNS per day)
-    proj_t = []
-    for m in M:
-        xs = sorted(normal * m * math.exp(sigma * rng.gauss(0, 1)) for _ in range(RUNS))
-        proj_t.append((pct(xs, .1), pct(xs, .5), pct(xs, .9)))
-    gap_med = [normal * (m - 1) for m in M]                           # median extra days vs plan
-
-    # --- per-part cover and stop exposure (one noise draw per run, applied over all 14 days)
-    zs = [rng.gauss(0, 1) for _ in range(RUNS)]
-    cost = SETTINGS["lineStopCostEurPerMinute"]; lhd = SETTINGS["lineHoursPerDay"]
-    info = []
-    for (num, name, ucost, usage, c0, single, crit) in parts:
-        cover_d = [max(0.0, c0 - min(g, i + 1)) for i, g in enumerate(gap_med)]
-        tot, stops = 0.0, 0
-        for z in zs:
-            short = 0.0
-            for i, m in enumerate(M):
-                gap = max(0.0, normal * m * math.exp(sigma * z) - normal)
-                short = max(short, min(gap, i + 1) - c0)
-            if short > 0:
-                stops += 1
-            tot += min(SHIFT_MIN, max(0.0, short) * lhd * 60)
-        expo = CRIT_W[crit] * (tot / RUNS) * cost
-        stop_day = next((i for i, c in enumerate(cover_d) if c <= 0.05), None) if crit in ("line-stopper", "high") else None
-        info.append(dict(part=(num, name, ucost, usage, c0, single, crit), cover_d=cover_d, expo=expo, stop_day=stop_day, pstop=stops / RUNS))
-    exposed = max(info, key=lambda x: (round(x["expo"], -3), -x["part"][4]))
-    exposure = round(sum([exposed["expo"]]) / 1000) * 1000
-    stop_days = [x["stop_day"] for x in info if x["stop_day"] is not None]
-    dtls = min(stop_days) if stop_days else None
-    part_stops = {f"part-{x['part'][0].lower()}": x["stop_day"] for x in info if x["stop_day"] is not None}
-    min_cover = min(p[4] for p in parts)
-
-    projection = [dict(date=iso(d), transitP10=round(t[0], 1), transitP50=round(t[1], 1), transitP90=round(t[2], 1),
-                       coverDays=round(exposed["cover_d"][i], 1)) for i, (d, t) in enumerate(zip(days, proj_t))]
-    p50s = sorted(t[1] for t in proj_t)
-    expected = round(p50s[len(p50s) // 2], 1)
-    worst = round(max(t[2] for t in proj_t), 1)
-
-    flex = run_flex(eng_supplier(sp), SETTINGS["contractDemandSwing"])
-    otif = otif_series(sp["id"], sp["otif"])
-    decline = sum(otif[:4]) / 4 - sum(otif[-4:]) / 4
-
-    # --- score drivers (points)
-    drivers = []  # (label, kind, signalId, points)
-    ex_part = exposed["part"]; c0 = ex_part[4]
-    gap90 = max(0.0, max(t[2] for t in proj_t) - normal)
-    delay_pts = 45 * clamp(gap90 / max(c0, 0.5) / 2.0)
-    sigs = [s for s in SIGNALS if affects(sp, s) and any(active_on(s, d) for d in days)]
-    if sigs and delay_pts > 0.5:
-        w = {s["id"]: math.log(s["transitMultiplier"]) for s in sigs}
-        tw = sum(w.values())
-        for s in sigs:
-            extra = normal * (s["transitMultiplier"] - 1)
-            if s["kind"] == "supplier":
-                lab = f"{s['short']} delays outbound loads by about {extra:.1f} days"
-            elif s["kind"] == "theft":
-                lab = f"{s['short']} adds about {extra:.1f} days (escorts, daytime-only departures)"
-            else:
-                lab = f"{s['short']} adds {extra:.1f} days to transit from {sp['city']}"
-            drivers.append((lab, s["kind"], s["id"], delay_pts * w[s["id"]] / tw))
-    elif delay_pts > 0.5:
-        drivers.append((f"Normal transit variability against {c0:g} days of cover", "cover", None, delay_pts))
-    cw = CRIT_W[ex_part[6]]
-    crit_pts = {"line-stopper": 10, "high": 5, "normal": 1}[ex_part[6]] + (6 if ex_part[5] else 0)
-    lab = f"{ex_part[1]} is a {'single-source ' if ex_part[5] else ''}{ex_part[6].replace('-', ' ')} part"
-    drivers.append((lab, "cover", None, crit_pts))
-    if ex_part[6] in ("line-stopper", "high"):
-        thin = 8 * clamp((5 - c0) / 4)
-        if thin > 0.5: drivers.append((f"Only {c0:g} days of cover at {cust['name']}", "cover", None, thin))
-    if not flex["canAbsorb"]:
-        fp = 14 * clamp((0.99 - flex["serviceLevel"]) / 0.08)
-        drivers.append((f"Cannot absorb +15% demand: service level {flex['serviceLevel']*100:.0f}% at {flex['bottleneck']}", "flex", None, max(fp, 3)))
-    op = 10 * clamp(decline / 0.06)
-    if op > 0.5: drivers.append((f"On-time-in-full fell {decline*100:.1f} points over 12 weeks", "history", None, op))
-    vp = 8 * clamp(sp["cv"] / 0.4)
-    if vp > 0.5: drivers.append((f"Lead-time variability of {sp['cv']*100:.0f}%", "history", None, vp))
-    if sp["status"] == "invited": drivers.append(("No data from the supplier yet (invited); score uses public signals only", "history", None, 8))
-    if sp["status"] == "public-only": drivers.append(("Supplier not on FlowTwin; score uses public signals only", "history", None, 6))
-
-    total = sum(d[3] for d in drivers)
-    scale = 100 / total if total > 100 else 1
-    pts = [d[3] * scale for d in drivers]
-    score = int(round(sum(pts)))
-    fl = [int(math.floor(p)) for p in pts]
-    rem = score - sum(fl)
-    for i in sorted(range(len(pts)), key=lambda i: pts[i] - fl[i], reverse=True)[:max(0, rem)]: fl[i] += 1
-    out_drivers = [dict(label=d[0], kind=d[1], **({"signalId": d[2]} if d[2] else {}), contribution=c)
-                   for d, c in zip(drivers, fl) if c > 0]
-    out_drivers.sort(key=lambda x: -x["contribution"])
-
-    level = "red" if (score >= 65 or (dtls is not None and dtls <= 3)) else "amber" if score >= 35 else "green"
-    return dict(
-        risk=dict(customerId=cid, supplierId=sp["id"], level=level, score=score, normalTransitDays=normal,
-                  expectedTransitDays=expected, worstCaseTransitDays=worst, minCoverDays=min_cover, daysToLineStop=dtls, partStopDays=part_stops,
-                  lineStopExposureEur=exposure, drivers=out_drivers, flex=flex, otifTrend=otif, projection=projection,
-                  dataStatus=sp["status"], updatedAt=iso(ASOF)),
-        exposed=ex_part, top_signal=next((d["signalId"] for d in out_drivers if "signalId" in d), None),
-        min_proj_cover=min(p["coverDays"] for p in projection), cover_at=min(range(HORIZON), key=lambda i: projection[i]["coverDays"]))
+    """Risk of one (customer, supplier): seed-shaped risk plus the engine's snake_case risk and ctx (for alerts)."""
+    raw, ctx = compute_pair(CUST[cid], eng_supplier(sp), [eng_part(p) for p in cinfo["parts"]], ENG_SIGNALS, ENG_SETTINGS, ASOF)
+    return dict(risk=to_camel(raw), raw=raw, ctx=ctx, exposed=next(p for p in cinfo["parts"] if p[0] == ctx["exposed_part"]["number"]),
+                top_signal=ctx["top_signal"], min_proj_cover=ctx["min_proj_cover"], cover_at=ctx["cover_at"])
 
 
 # ----------------------------------------------------------------- build
