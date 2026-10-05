@@ -1,32 +1,24 @@
 #!/usr/bin/env python3
-"""FlowTwin v0 seed + risk engine. Standard library only, deterministic.
+"""FlowTwin v0 seed. Standard library only, deterministic.
 
 Run:  python3 data-gen/generate_seed.py      (writes app/src/data/seed/seed.json)
-See data-gen/README.md for the model.
+Risks and alerts come from the worker's risk engine (worker/engine, also stdlib only). See data-gen/README.md.
 """
-import json, math, random, os, sys
+import json, math, os, sys
 from datetime import date, timedelta
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "worker"))
-from engine.flex import run_flex  # the worker engine (stdlib only) is the one risk model
-from engine.geo import clamp, hash_seed, hav, pct
-from engine.otif import otif_series
-from engine.risk import compute_pair
-from naming import to_camel, to_snake
+from engine.alerts import make_alert as eng_alert  # noqa: E402
+from engine.risk import compute_pair  # noqa: E402
+from naming import to_camel, to_snake  # noqa: E402
 
 ASOF = date(2026, 10, 5)
-HORIZON = 14
-RUNS = 500
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app", "src", "data", "seed", "seed.json")
-RNG = random.Random(20261005)
 
 SETTINGS = {"lineStopCostEurPerMinute": 15000, "contractDemandSwing": 0.15, "lineHoursPerDay": 16}
-SHIFT_MIN = 480  # a stoppage is capped at one 8-hour shift
-CRIT_W = {"line-stopper": 1.0, "high": 0.4, "normal": 0.05}
 
 
 def iso(d): return d.isoformat()
-def D(s): return date.fromisoformat(s)
 
 
 # ----------------------------------------------------------------- customers
@@ -218,21 +210,6 @@ SIGNALS = [
          severity="low", transitMultiplier=1.1, source="SMN daily forecast (seeded for demo)"),
 ]
 for s in SIGNALS: s["provenance"] = "estimated"
-SIG = {s["id"]: s for s in SIGNALS}
-
-
-def affects(sp, sig):
-    return hav(sp["lat"], sp["lon"], sig["lat"], sig["lon"]) <= sig["radiusKm"] or bool(set(sp["hw"]) & set(sig["highways"]))
-
-
-def active_on(sig, d): return D(sig["startsAt"]) <= d <= D(sig["endsAt"])
-
-
-def mult_on(sp, d):
-    m = 1.0
-    for sig in SIGNALS:
-        if affects(sp, sig) and active_on(sig, d): m *= sig["transitMultiplier"]
-    return m
 
 
 # ----------------------------------------------------------------- risk (worker/engine via adapters)
@@ -248,8 +225,7 @@ def eng_part(p):
 def assess(cid, sp, cinfo):
     """Risk of one (customer, supplier): seed-shaped risk plus the engine's snake_case risk and ctx (for alerts)."""
     raw, ctx = compute_pair(CUST[cid], eng_supplier(sp), [eng_part(p) for p in cinfo["parts"]], ENG_SIGNALS, ENG_SETTINGS, ASOF)
-    return dict(risk=to_camel(raw), raw=raw, ctx=ctx, exposed=next(p for p in cinfo["parts"] if p[0] == ctx["exposed_part"]["number"]),
-                top_signal=ctx["top_signal"], min_proj_cover=ctx["min_proj_cover"], cover_at=ctx["cover_at"])
+    return dict(risk=to_camel(raw), raw=raw, ctx=ctx)
 
 
 # ----------------------------------------------------------------- build
@@ -288,59 +264,18 @@ def build():
     return companies, rels, parts_out, risks_out, assessments
 
 
-def fdate(d): return f"{d.day} {d.strftime('%b %Y')}"
-
-
-ACTIONS = {
-    "hmo": [("Pull the next order forward", "Ask Hules y Mangueras de Orizaba to ship the next two orders before the rain peaks, adding about 1.5 days of cover."),
-            ("Add 2 days of safety stock", "Raise the lumbar air line safety stock to 5 days until the rainy season ends (about MX$38k of inventory)."),
-            ("Use the alternative route via Tehuacán", "Route trucks through Tehuacán and Cuacnopalan (MEX-150 free road) to avoid the landslide-prone Orizaba–Puebla toll stretch."),
-            ("Qualify the second source", "Start a second-source qualification for the lumbar air hose; PPAP level 3 takes about 10 weeks.")],
-    "tsr": [("Pull the next order forward", "Ask Tornillos y Sujetadores to ship Thursday's flange screw order on Tuesday."),
-            ("Add 3 days of safety stock", "Buy a one-off buffer of M6 flange screws; at MX$0.62 each this is under MX$30k for 3 days."),
-            ("Qualify the second source", "Flange screws are single-source. Qualify a second heading shop in the Bajío.")],
-    "edl": [("Ask for a confirmed ship plan", "Ask Estampados del Laja for a daily ship plan until Press 4 is stable."),
-            ("Move departures to daytime", "Agree that loads for QSS leave between 06:00 and 18:00 to avoid the MEX-45D night theft risk."),
-            ("Add 2 days of safety stock", "Hold 2 extra days of the recliner mounting plate while Press 4 recovers.")],
-    "pip": [("Pull the next order forward", "Ask Plásticos Inyectados de Puebla to ship one day early, before the blockade peaks."),
-            ("Use the alternative route via MEX-150D", "Reroute through MEX-150D toll road, bypassing the Amozoc–Tlaxcala corridor."),
-            ("Add 2 days of safety stock", "Build 2 days of cover on the seat side trim cover; it is single-source and a line-stopper.")],
-    "rdp": [("Ask for resin on hand", "Ask Resinas del Pacífico to confirm how many days of PA6 compound it has outside the port."),
-            ("Add 3 days of safety stock", "Raise PA6 compound stock at QSS to 6 days while the port clears."),
-            ("Qualify the second source", "Qualify a domestic PA6 compound source so a port delay does not reach the line.")],
-}
-
-
 def make_alert(cid, sp, a, status, created, extra=None):
-    r = a["risk"]; ex = a["exposed"]
-    c0 = ex[4]; norm = r["normalTransitDays"]; exp_ = r["expectedTransitDays"]
-    sig = SIG.get(a["top_signal"]) if a["top_signal"] else None
-    if r["daysToLineStop"] is not None:
-        sd = ASOF + timedelta(days=r["daysToLineStop"])
-        title = f"Transit from {sp['city']} goes from {norm} to {round(exp_):g} days"
-        msg = (f"{CUST[cid]['name']} holds {c0:g} days of cover of {ex[1].lower()} ({ex[0]}). With transit at {round(exp_):g} days "
-               f"(up to {r['worstCaseTransitDays']:g} in the worst case) and nothing done, cover runs out in about {r['daysToLineStop']} days, "
-               f"around {fdate(sd)}.")
-        shortfall = iso(sd)
-    else:
-        title = (f"Transit from {sp['city']} goes from {norm} to {round(exp_):g} days" if exp_ - norm >= 0.9
-                 else (sig["title"] if sig else f"Delivery risk: {sp['name']}"))
-        low = a["min_proj_cover"]; ld = ASOF + timedelta(days=a["cover_at"])
-        msg = (f"{CUST[cid]['name']} holds {c0:g} days of cover of {ex[1].lower()} ({ex[0]}). Transit is {exp_:g} days against {norm} planned "
-               f"(up to {r['worstCaseTransitDays']:g} in the worst case). Without action, projected cover falls to {low:g} days around {fdate(ld)}; "
-               f"no stop is expected in the next 14 days, but a bad week could stop the line.")
-        shortfall = None
-    acts = [dict(id=f"act-{sp['id']}-{i+1}", label=l, description=d) for i, (l, d) in enumerate(ACTIONS[sp["id"]][:3])]
-    al = dict(id=f"alert-{sp['id']}-{cid}", customerId=cid, supplierId=sp["id"], partIds=[f"part-{ex[0].lower()}"],
-              level=r["level"], title=title, message=msg, createdAt=created, lineStopExposureEur=r["lineStopExposureEur"],
-              status=status, actions=acts)
-    if sig: al["signalId"] = sig["id"]
-    if shortfall: al["expectedShortfallDate"] = shortfall
-    if extra: al.update(extra)
-    return al
+    """Engine alert row -> seed shape: camelCase in the seed's key order, scripted status/createdAt, no null fields."""
+    al = eng_alert(CUST[cid], eng_supplier(sp), a["raw"], a["ctx"], ASOF, {s["id"]: s for s in ENG_SIGNALS})
+    out = dict(id=al["id"], customerId=cid, supplierId=sp["id"], partIds=al["part_ids"], level=al["level"], title=al["title"],
+               message=al["message"], createdAt=created, lineStopExposureEur=al["line_stop_exposure_eur"], status=status, actions=al["actions"])
+    if al["signal_id"]: out["signalId"] = al["signal_id"]
+    if al["expected_shortfall_date"]: out["expectedShortfallDate"] = al["expected_shortfall_date"]
+    if extra: out.update(extra)
+    return out
 
 
-def edl_operating(companies_extra):
+def edl_operating():
     E = "edl"
     sites = [dict(id="edl-plant", companyId=E, name="Planta Celaya", type="plant", city="Celaya", lat=20.52, lon=-100.81, palletPositions=900, rentedPositions=0),
              dict(id="edl-wh", companyId=E, name="Bodega rentada Apaseo el Grande", type="warehouse", city="Apaseo el Grande", lat=20.55, lon=-100.69, palletPositions=420, rentedPositions=420)]
@@ -385,7 +320,7 @@ def edl_operating(companies_extra):
 
 def main():
     companies, rels, parts, risks, ass = build()
-    sites, partners, lanes, machines, certs, uploads = edl_operating(None)
+    sites, partners, lanes, machines, certs, uploads = edl_operating()
 
     # --- alerts: one per red and per significant amber
     alerts = []
