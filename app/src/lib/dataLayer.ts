@@ -4,7 +4,7 @@
 import type {
   Company, CustomerRelationship, DataRequest, EmissionFactor, Lane, Machine, Partner, RequirementProfile,
   RoleId, Seed, Share, Site, Twin, UploadRecord, KpiValue, EnergyMonth, MaterialPurchase, Shipment, Certification,
-  Alert, Invite, Part, RiskAssessment, Signal,
+  Alert, Invite, Part, RiskAssessment, Signal, VehicleProgram,
 } from "./types";
 
 export class AccessDeniedError extends Error {
@@ -91,6 +91,10 @@ export function scope(data: AppData, viewer: Viewer) {
     alerts: (): Alert[] => data.alerts.filter((a) => canSeeRisk(a.customerId, a.supplierId))
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     parts: (): Part[] => data.parts.filter((p) => canSeeRisk(p.customerId, p.supplierId)),
+    /** Vehicle programmes: a key customer sees its own; a supplier sees the ones its parts go into. */
+    programs: (): VehicleProgram[] => (data.programs ?? []).filter((g) =>
+      viewer.role === "admin" || (viewer.role === "customer" && g.customerId === viewer.companyId)
+      || data.parts.some((p) => p.supplierId === viewer.companyId && p.programIds?.includes(g.id))),
     invites: (): Invite[] => {
       if (viewer.role !== "customer") throw new AccessDeniedError("supplier invitations");
       return data.invites.filter((i) => i.customerId === viewer.companyId);

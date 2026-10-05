@@ -2,15 +2,16 @@
 // (here, on the road, at the supplier) against the next delivery. Reads via useApp().db only.
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { CompanyMark, Empty, FormulaSource, NotShared, PageHeader, ProvenanceTag } from "../../components/shared";
+import { CompanyMark, Empty, FormulaSource, ModelSelect, NotShared, PageHeader, ProvenanceTag } from "../../components/shared";
 import { DataTable, FilterChip, SearchField, StatCard, StatusPill, type Column } from "../../keystone";
 import { AccessDeniedError } from "../../lib/dataLayer";
 import { date, num, rowNo } from "../../lib/format";
 import { CRIT_RANK, partStock, type PartStock, type StockStatus } from "../../lib/stock";
-import type { Part } from "../../lib/types";
+import { ALL_PROGRAMS, modelLabel, partsOn } from "../../lib/programs";
+import type { Part, VehicleProgram } from "../../lib/types";
 import "./parts.css";
 
-interface Row extends PartStock { id: string; supplierName: string }
+interface Row extends PartStock { id: string; supplierName: string; models: VehicleProgram[] }
 type StatusFilter = "all" | StockStatus;
 type CritFilter = "all" | Part["criticality"];
 
@@ -30,7 +31,7 @@ function CritPill({ c }: { c: Part["criticality"] }) {
 }
 
 export default function PartsPage() {
-  const { db, go, route, toggles } = useApp();
+  const { db, go, route, toggles, programId } = useApp();
   const [status, setStatus] = useState<StatusFilter>("all");
   const [crit, setCrit] = useState<CritFilter>("all");
   const [supplier, setSupplier] = useState<string>(route.sub ?? "all");
@@ -41,23 +42,26 @@ export default function PartsPage() {
     try {
       const customerId = toggles.companyId;
       const risks = new Map(db.risks().filter((r) => r.customerId === customerId).map((r) => [r.supplierId, r]));
-      const rows: Row[] = db.parts().filter((p) => p.customerId === customerId).map((p) => ({
+      const programs = db.programs();
+      const program = programs.find((g) => g.id === programId);
+      const rows: Row[] = partsOn(db.parts().filter((p) => p.customerId === customerId), program ? program.id : ALL_PROGRAMS).map((p) => ({
         ...partStock(p, risks.get(p.supplierId), db.asOf),
         id: p.id,
         supplierName: db.company(p.supplierId)?.name ?? p.supplierId,
+        models: programs.filter((g) => p.programIds?.includes(g.id)),
       }));
       rows.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]
         || CRIT_RANK[a.part.criticality] - CRIT_RANK[b.part.criticality]
         || a.part.daysOfCover - b.part.daysOfCover);
-      return { rows, plant: db.company(customerId), error: null as string | null };
+      return { rows, program, plant: db.company(customerId), error: null as string | null };
     } catch (e) {
-      if (e instanceof AccessDeniedError) return { rows: [] as Row[], plant: undefined, error: e.message };
+      if (e instanceof AccessDeniedError) return { rows: [] as Row[], program: undefined, plant: undefined, error: e.message };
       throw e;
     }
-  }, [db, toggles.companyId]);
+  }, [db, toggles.companyId, programId]);
 
   if (loaded.error) return <><PageHeader title="Parts & stock" /><NotShared message={loaded.error} /></>;
-  const { rows, plant } = loaded;
+  const { rows, program, plant } = loaded;
 
   const suppliers = [...new Map(rows.map((r) => [r.part.supplierId, r.supplierName])).entries()].sort((a, b) => a[1].localeCompare(b[1]));
   const q = query.trim().toLowerCase();
@@ -78,6 +82,8 @@ export default function PartsPage() {
       <button type="button" className="ft-linkbtn parts-supplier" onClick={() => go("supplier", r.part.supplierId)}>{r.supplierName}</button>
     ) },
     { key: "crit", label: "Criticality", render: (r) => <CritPill c={r.part.criticality} /> },
+    { key: "models", label: "Models", render: (r) => r.models.length === 0 ? <span className="parts-muted">Not mapped</span>
+      : <span className="parts-models">{r.models.map((g) => <small key={g.id} title={modelLabel(g)}>{g.model}</small>)}</span> },
     { key: "here", label: "Stock here", numeric: true, align: "right", render: (r) => (
       <span className="parts-stack"><b>{days(r.part.daysOfCover)}</b><small>{num(r.part.onHand)} units</small></span>
     ) },
@@ -101,8 +107,8 @@ export default function PartsPage() {
 
   return (
     <>
-      <PageHeader title="Parts & stock" logo={plant && <CompanyMark name={plant.name} />}
-        caption={`${plant ? `${plant.name} · ${plant.city} plant · ` : ""}${rows.length} part numbers from ${suppliers.length} suppliers · updated ${date(db.asOf)}`} />
+      <PageHeader title="Parts & stock" logo={plant && <CompanyMark name={plant.name} />} actions={<ModelSelect />}
+        caption={`${plant ? `${plant.name} · ${plant.city} plant · ` : ""}${program ? `${modelLabel(program)} · ` : ""}${rows.length} part numbers from ${suppliers.length} suppliers · updated ${date(db.asOf)}`} />
 
       <div className="parts-stats">
         <StatCard label="Run out before the next delivery" value={short.length} icon="bell" tone="accent" />

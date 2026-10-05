@@ -44,6 +44,32 @@ CUSTOMERS = [
 ]
 CUST = {c["id"]: c for c in CUSTOMERS}
 
+# ----------------------------------------------------------------- vehicle programmes (fictional OEMs and models)
+# A Tier 1 seating plant builds for several models at once (e.g. one seat plant, a compact SUV and a sedan line).
+PROGRAMS = [
+    dict(id="prog-qss-k3", customerId="qss", oem="OEM A", model="K3 compact SUV", oemPlant="Silao, Guanajuato", dailyVehicles=1150),
+    dict(id="prog-qss-m5", customerId="qss", oem="OEM B", model="M5 midsize sedan", oemPlant="Aguascalientes, Aguascalientes", dailyVehicles=620),
+    dict(id="prog-qss-t1", customerId="qss", oem="OEM A", model="T1 pickup", oemPlant="Silao, Guanajuato", dailyVehicles=380),
+    dict(id="prog-slp-c2", customerId="slp-interiors", oem="OEM C", model="C2 crossover", oemPlant="San Luis Potosí, San Luis Potosí", dailyVehicles=900),
+]
+# Part number -> programmes. Parts not listed go into every programme of their customer (screws, resin, springs...).
+# Story: the lumbar air line at risk (Orizaba) is a premium-seat part used only on the K3, so the M5 line is safe.
+PART_PROGRAMS = {
+    "QSS-6120-LMB": ["prog-qss-k3"],
+    "QSS-6140-CLH": ["prog-qss-k3", "prog-qss-t1"],
+    "QSS-4480-RCP": ["prog-qss-k3", "prog-qss-m5"],
+    "QSS-4492-XMB": ["prog-qss-k3", "prog-qss-t1"],
+    "QSS-7205-TRM": ["prog-qss-m5"],
+    "QSS-7218-HDL": ["prog-qss-k3", "prog-qss-m5"],
+    "QSS-3108-LTH": ["prog-qss-t1"],
+    "QSS-8401-HRN": ["prog-qss-k3", "prog-qss-t1"],
+    "QSS-2306-HNG": ["prog-qss-k3", "prog-qss-m5"],
+}
+
+
+def program_ids(cid, number):
+    return PART_PROGRAMS.get(number) or [g["id"] for g in PROGRAMS if g["customerId"] == cid]
+
 # ----------------------------------------------------------------- suppliers
 # part tuple: (number, name, unitCostMxn, dailyUsage, coverDays, singleSource, criticality)
 # otif: (start, end, kind) weekly series; hw = main highways of the lane to the customer
@@ -293,6 +319,7 @@ def assess(cid, sp, cinfo):
     exposure = round(sum([exposed["expo"]]) / 1000) * 1000
     stop_days = [x["stop_day"] for x in info if x["stop_day"] is not None]
     dtls = min(stop_days) if stop_days else None
+    part_stops = {f"part-{x['part'][0].lower()}": x["stop_day"] for x in info if x["stop_day"] is not None}
     min_cover = min(p[4] for p in parts)
 
     projection = [dict(date=iso(d), transitP10=round(t[0], 1), transitP50=round(t[1], 1), transitP90=round(t[2], 1),
@@ -356,7 +383,7 @@ def assess(cid, sp, cinfo):
     level = "red" if (score >= 65 or (dtls is not None and dtls <= 3)) else "amber" if score >= 35 else "green"
     return dict(
         risk=dict(customerId=cid, supplierId=sp["id"], level=level, score=score, normalTransitDays=normal,
-                  expectedTransitDays=expected, worstCaseTransitDays=worst, minCoverDays=min_cover, daysToLineStop=dtls,
+                  expectedTransitDays=expected, worstCaseTransitDays=worst, minCoverDays=min_cover, daysToLineStop=dtls, partStopDays=part_stops,
                   lineStopExposureEur=exposure, drivers=out_drivers, flex=flex, otifTrend=otif, projection=projection,
                   dataStatus=sp["status"], updatedAt=iso(ASOF)),
         exposed=ex_part, top_signal=next((d["signalId"] for d in out_drivers if "signalId" in d), None),
@@ -395,7 +422,7 @@ def build():
             for (num, name, ucost, usage, c0, single, crit) in ci["parts"]:
                 parts_out.append(dict(id=f"part-{num.lower()}", number=num, name=name, supplierId=sp["id"], customerId=cid, unitCostMxn=ucost,
                                       dailyUsage=usage, onHand=int(round(usage * c0)), daysOfCover=round(c0, 2), singleSource=single, criticality=crit,
-                                      **pipeline(sp, usage, a["risk"])))
+                                      **pipeline(sp, usage, a["risk"]), programIds=program_ids(cid, num)))
     return companies, rels, parts_out, risks_out, assessments
 
 
@@ -521,7 +548,7 @@ def main():
 
     seed = dict(generatedAt="2026-10-05T07:00:00Z", asOf=iso(ASOF), companies=companies, relationships=rels, sites=sites, partners=partners,
                 lanes=lanes, machines=machines, certifications=certs, kpis=[], energy=[], materials=[], shipments=[], emissionFactors=[],
-                twins=[], requests=[], shares=[], uploads=uploads, settings=SETTINGS, parts=parts, signals=SIGNALS, risks=risks,
+                twins=[], requests=[], shares=[], uploads=uploads, settings=SETTINGS, parts=parts, programs=PROGRAMS, signals=SIGNALS, risks=risks,
                 alerts=alerts, invites=invites)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:

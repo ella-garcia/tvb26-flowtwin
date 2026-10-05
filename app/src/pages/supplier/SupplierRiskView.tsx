@@ -7,8 +7,9 @@ import { DataTable, Icon, StatusPill, type Column } from "../../keystone";
 import { date, mxn, num, pct } from "../../lib/format";
 import { DEFAULT_OTIF_TARGET, otifSummary } from "../../lib/otif";
 import { partStock } from "../../lib/stock";
+import { programsOf } from "../../lib/programs";
 import { segmentLabel } from "../../packs";
-import type { Alert, ChainPosition, Part, ProjectionDay, RiskAssessment, Signal } from "../../lib/types";
+import type { Alert, ChainPosition, Part, ProjectionDay, RiskAssessment, Signal, VehicleProgram } from "../../lib/types";
 import "./supplier.css";
 
 export interface SupplierRiskViewProps { customerId: string; supplierId: string; audience: "customer" | "supplier" }
@@ -106,7 +107,7 @@ function Sparkline({ values }: { values: number[] }) {
 export function SupplierRiskView({ customerId, supplierId, audience }: SupplierRiskViewProps) {
   const { db, pack, go } = useApp();
   let risk: RiskAssessment | undefined;
-  let parts: Part[] = [], alerts: Alert[] = [], signals: Signal[] = [];
+  let parts: Part[] = [], alerts: Alert[] = [], signals: Signal[] = [], programs: VehicleProgram[] = [];
   let supplierName = "", place = "", customerName = "your customer", chain: ChainPosition = "sub", otifTarget = DEFAULT_OTIF_TARGET;
   let sizeBand: Parameters<typeof segmentLabel>[2] = "medium";
   try {
@@ -114,6 +115,7 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
     parts = db.parts().filter((p) => p.supplierId === supplierId && p.customerId === customerId);
     alerts = db.alerts().filter((a) => a.supplierId === supplierId && a.customerId === customerId);
     signals = db.signals();
+    programs = db.programs();
     const s = db.company(supplierId);
     supplierName = s?.name ?? supplierId;
     place = s ? `${s.city}, ${s.state}` : "";
@@ -155,6 +157,10 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
     { key: "number", label: "Part number", render: (p) => <span className="supplier-part-name">{p.number}</span> },
     { key: "name", label: "Name" },
     { key: "criticality", label: "Criticality", render: (p) => <CritPill c={p.criticality} /> },
+    { key: "models", label: "Models", render: (p) => {
+      const ms = programsOf([p], programs);
+      return ms.length ? ms.map((g) => g.model).join(", ") : <span className="supplier-muted">Not mapped</span>;
+    } },
     { key: "singleSource", label: "Single source", render: (p) => (p.singleSource ? "Yes" : "No") },
     { key: "dailyUsage", label: "Daily usage", numeric: true, align: "right", render: (p) => num(p.dailyUsage) },
     { key: "onHand", label: "On hand", numeric: true, align: "right", render: (p) => num(p.onHand) },

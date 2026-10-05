@@ -39,7 +39,7 @@ def test_edl_stays_amber(qss):
 def test_all_risks_match_seed_exactly(db_rows, seed):
     camel = {"customer_id": "customerId", "supplier_id": "supplierId", "normal_transit_days": "normalTransitDays",
              "expected_transit_days": "expectedTransitDays", "worst_case_transit_days": "worstCaseTransitDays",
-             "min_cover_days": "minCoverDays", "days_to_line_stop": "daysToLineStop", "line_stop_exposure_eur": "lineStopExposureEur",
+             "min_cover_days": "minCoverDays", "days_to_line_stop": "daysToLineStop", "part_stop_days": "partStopDays", "line_stop_exposure_eur": "lineStopExposureEur",
              "otif_trend": "otifTrend", "data_status": "dataStatus", "updated_at": "updatedAt"}
     expected = {(r["customerId"], r["supplierId"]): r for r in seed["risks"]}
     got = {}

@@ -5,8 +5,9 @@ import { Card, Empty, NotShared, PageHeader, RiskLight } from "../../components/
 import { Button, FilterChip, StatusPill, type PillTone } from "../../keystone";
 import { AccessDeniedError } from "../../lib/dataLayer";
 import { date } from "../../lib/format";
+import { modelLabel, programsOf } from "../../lib/programs";
 import * as remote from "../../lib/remote";
-import type { Alert, AlertNotification, Part, RiskLevel } from "../../lib/types";
+import type { Alert, AlertNotification, Part, RiskLevel, VehicleProgram } from "../../lib/types";
 import "./alerts.css";
 
 type Status = Alert["status"];
@@ -25,9 +26,9 @@ export default function AlertsPage() {
   const loaded = useMemo(() => {
     try {
       const alerts = [...db.alerts()].sort((a, b) => rank(a.level) - rank(b.level) || b.createdAt.localeCompare(a.createdAt));
-      return { alerts, parts: db.parts(), error: null as string | null };
+      return { alerts, parts: db.parts(), programs: db.programs(), error: null as string | null };
     } catch (e) {
-      if (e instanceof AccessDeniedError) return { alerts: [] as Alert[], parts: [] as Part[], error: e.message };
+      if (e instanceof AccessDeniedError) return { alerts: [] as Alert[], parts: [] as Part[], programs: [] as VehicleProgram[], error: e.message };
       throw e;
     }
   }, [db]);
@@ -46,7 +47,7 @@ export default function AlertsPage() {
   }, [mode, alertKey]);
 
   if (loaded.error) return <><PageHeader title="Alerts" /><NotShared message={loaded.error} /></>;
-  const { alerts, parts } = loaded;
+  const { alerts, parts, programs } = loaded;
   const shown = alerts.filter((a) => filter === "all" || a.status === filter);
   const n = (s: Status) => alerts.filter((a) => a.status === s).length;
   const chips: { id: Filter; label: string }[] = [
@@ -97,6 +98,7 @@ export default function AlertsPage() {
                       </ul>
                     )}
                   </dd></div>
+                  {programs.length > 0 && <div><dt>Models affected</dt><dd>{programsOf(aParts, programs).map(modelLabel).join(", ") || "Not mapped"}</dd></div>}
                   <div><dt>Expected shortfall</dt><dd>{a.expectedShortfallDate ? date(a.expectedShortfallDate) : "None expected"}</dd></div>
                 </dl>
 

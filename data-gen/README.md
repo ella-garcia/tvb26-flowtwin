@@ -22,6 +22,9 @@ Everything is synthetic. Signals are hand-seeded ("seeded for demo"); v0 calls n
 10. **Pipeline per part** (connected suppliers only; otherwise left out = unknown / not shared): `inTransit` = daily usage x (normal transit - 1),
     `supplierFgOnHand` = daily usage x the supplier's finished-goods days (`fg`), `nextDeliveryDate` = asOf + ceil(expected transit).
     The app estimates the next delivery from expected transit when the date is missing (lib/stock.ts).
-11. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
+11. **Vehicle programmes** (fictional OEMs): QSS builds K3 compact SUV and T1 pickup (OEM A, Silao) and M5 midsize sedan (OEM B,
+    Aguascalientes); SLP Interiors builds C2 crossover (OEM C). `PART_PROGRAMS` maps model-specific parts; all other parts go into
+    every programme of their customer. Each risk also carries `partStopDays` ({partId: day}) so the app can tell which model stops.
+12. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
 
 Edit the tables at the top of the script (suppliers, parts, signals) to change the story, then re-run.

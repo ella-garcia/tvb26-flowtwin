@@ -46,6 +46,7 @@ select public.t_assert('customer qss: sees 0 sites', (select count(*) = 0 from s
 select public.t_assert('customer qss: sees 0 machines', (select count(*) = 0 from machines));
 select public.t_assert('customer qss: sees 0 uploads', (select count(*) = 0 from uploads));
 select public.t_assert('customer qss: sees companies and signals', (select count(*) > 0 from companies) and (select count(*) > 0 from signals));
+select public.t_assert('customer qss: sees only its own vehicle programmes', (select count(*) = 3 and bool_and(customer_id = 'qss') from vehicle_programs));
 select public.t_throws('customer qss: cannot respond_alert', $$select respond_alert('alert-hmo-qss', '{"x":1}'::jsonb)$$);
 select public.t_works('customer qss: can acknowledge own alert', $$select acknowledge_alert('alert-hmo-qss', 'act-hmo-1')$$);
 select public.t_assert('customer qss: alert is now acknowledged', (select status = 'acknowledged' and chosen_action_id = 'act-hmo-1' from alerts where id = 'alert-hmo-qss'));
@@ -67,6 +68,7 @@ select public.t_assert('owner edl: 0 lanes of other companies', (select count(*)
 select public.t_assert('owner edl: risks only where supplier_id=edl', (select count(*) > 0 and bool_and(supplier_id = 'edl') from risks));
 select public.t_assert('owner edl: alerts only where supplier_id=edl', (select count(*) > 0 and bool_and(supplier_id = 'edl') from alerts));
 select public.t_assert('owner edl: parts only where supplier_id=edl', (select count(*) > 0 and bool_and(supplier_id = 'edl') from parts));
+select public.t_assert('owner edl: programmes only of qss (its parts go there), none of slp-interiors', (select count(*) > 0 and bool_and(customer_id = 'qss') from vehicle_programs));
 select public.t_assert('owner edl: sees 0 invites', (select count(*) = 0 from invites));
 select public.t_works('owner edl: can respond_alert on its own alert', $$select respond_alert('alert-edl-qss', '{"note":"ok"}'::jsonb)$$);
 select public.t_throws('owner edl: cannot respond_alert on another supplier alert', $$select respond_alert('alert-hmo-qss', '{"note":"ok"}'::jsonb)$$);

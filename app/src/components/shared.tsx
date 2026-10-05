@@ -2,7 +2,9 @@
 import { useState, type ReactNode } from "react";
 import { Icon, StatusPill } from "../keystone";
 import { date, pct } from "../lib/format";
+import { useApp } from "../app/AppContext";
 import type { OtifGrade } from "../lib/otif";
+import { ALL_PROGRAMS, modelLabel } from "../lib/programs";
 import type { Provenance } from "../lib/types";
 
 /** Page header: title (Keystone `title` style) with an optional company mark, caption and actions on the right. */
@@ -109,4 +111,21 @@ export function GradePill({ grade }: { grade: OtifGrade }) {
   if (grade === "A") return <StatusPill tone="success">A · On target</StatusPill>;
   if (grade === "B") return <StatusPill tone="warning">B · Slightly below</StatusPill>;
   return <StatusPill tone="danger">C · Below target</StatusPill>;
+}
+
+/** Vehicle model picker for the key customer. Hidden when no programmes are mapped. The choice is shared by every page. */
+export function ModelSelect() {
+  const { db, programId, setProgramId } = useApp();
+  let programs: ReturnType<typeof db.programs> = [];
+  try { programs = db.programs(); } catch { programs = []; }
+  if (programs.length === 0) return null;
+  const value = programs.some((g) => g.id === programId) ? programId : ALL_PROGRAMS;
+  return (
+    <label className="ft-model">Vehicle model
+      <select value={value} onChange={(e) => setProgramId(e.target.value)}>
+        <option value={ALL_PROGRAMS}>All models ({programs.length})</option>
+        {programs.map((g) => <option key={g.id} value={g.id}>{modelLabel(g)}</option>)}
+      </select>
+    </label>
+  );
 }

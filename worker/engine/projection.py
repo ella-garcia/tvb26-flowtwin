@@ -78,9 +78,11 @@ def project(customer, supplier, parts, signals, settings, as_of):
     exposure = round(exposed["expo"] / 1000) * 1000
     stop_days = [x["stop_day"] for x in info if x["stop_day"] is not None]
     dtls = min(stop_days) if stop_days else None
+    # Per part, so a key customer can see which vehicle model a stop would hit.
+    part_stops = {x["part"]["id"]: x["stop_day"] for x in info if x["stop_day"] is not None}
     projection = [dict(date=d.isoformat(), transitP10=round(t[0], 1), transitP50=round(t[1], 1), transitP90=round(t[2], 1),
                        coverDays=round(exposed["cover_d"][i], 1)) for i, (d, t) in enumerate(zip(days, proj_t))]
     p50s = sorted(t[1] for t in proj_t)
-    return dict(normal=normal, days=days, proj_t=proj_t, exposed=exposed, exposure=exposure, days_to_line_stop=dtls,
+    return dict(normal=normal, days=days, proj_t=proj_t, exposed=exposed, exposure=exposure, days_to_line_stop=dtls, part_stops=part_stops,
                 projection=projection, expected=round(p50s[len(p50s) // 2], 1), worst=round(max(t[2] for t in proj_t), 1),
                 min_cover=min(float(p["days_of_cover"]) for p in parts))

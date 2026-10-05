@@ -50,10 +50,12 @@ async function fetchTable(table: string, order?: string): Promise<Record<string,
 export async function loadAll(): Promise<Seed> {
   const t = async (name: string, order?: string) => fetchTable(name, order);
   const [companies, relationships, signals, factors, sites, partners, lanes, machines, certs, kpis, energy, materials,
-    shipments, twins, uploads, parts, risks, alerts, invites, requests, shares, settings] = await Promise.all([
+    shipments, twins, uploads, parts, risks, alerts, invites, requests, shares, settings, programs] = await Promise.all([
     t("companies"), t("relationships"), t("signals"), t("emission_factors"), t("sites"), t("partners"), t("lanes"),
     t("machines"), t("certifications"), t("kpis", "id"), t("energy"), t("materials", "id"), t("shipments", "id"),
     t("twins"), t("uploads"), t("parts"), t("risks"), t("alerts"), t("invites"), t("requests"), t("shares"), t("app_settings"),
+    // Added after the first live release: a database without the table still loads (no models shown).
+    t("vehicle_programs").catch(() => [] as Record<string, unknown>[]),
   ]);
   const s = settings[0] as Record<string, unknown> | undefined;
   return {
@@ -82,6 +84,7 @@ export async function loadAll(): Promise<Seed> {
       lineHoursPerDay: Number(s?.line_hours_per_day ?? 16),
     } satisfies Settings,
     parts: rowsToApp(parts),
+    programs: rowsToApp(programs),
     signals: rowsToApp(signals),
     risks: rowsToApp(risks),
     alerts: rowsToApp(alerts),

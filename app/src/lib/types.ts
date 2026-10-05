@@ -258,6 +258,7 @@ export interface Seed {
   // ---- Early warning (v0 core) ----
   settings: Settings;
   parts: Part[];
+  programs: VehicleProgram[];
   signals: Signal[];
   risks: RiskAssessment[];
   alerts: Alert[];
@@ -293,9 +294,21 @@ export interface Part {
   supplierFgOnHand?: number;
   /** Arrival date of the next delivery, when known (ASN / supplier confirmation). Absent = estimate from expected transit. */
   nextDeliveryDate?: string;
+  /** Vehicle programmes (models) this part goes into. Absent or empty = not mapped yet. */
+  programIds?: string[];
   singleSource: boolean;
   /** Line-stopper = no substitute and the OEM line stops without it (a screw can be one). */
   criticality: "line-stopper" | "high" | "normal";
+}
+
+/** A vehicle model the key customer builds for, at one OEM plant. A Tier 1 plant usually serves several at once. */
+export interface VehicleProgram {
+  id: string;
+  customerId: string;          // the key customer (Tier 1) that supplies this programme
+  oem: string;                 // "OEM A"
+  model: string;               // "K3 compact SUV"
+  oemPlant: string;            // where the OEM assembles it, e.g. "Silao, Guanajuato"
+  dailyVehicles: number;       // planned vehicles per day
 }
 
 export type SignalKind = "weather" | "road" | "theft" | "port" | "blockade" | "supplier";
@@ -363,6 +376,8 @@ export interface RiskAssessment {
   minCoverDays: number;        // lowest days of cover among this supplier's parts
   /** Days until the key customer's line stops if nothing is done; null = no stop expected in 14 days. */
   daysToLineStop: number | null;
+  /** Stop day per part (line-stopper and high parts that run out within 14 days). Lets the app say which model stops. */
+  partStopDays?: Record<string, number>;
   lineStopExposureEur: number; // expected cost if it stops (minutes × cost per minute × probability)
   drivers: RiskDriver[];
   flex: FlexResult;
