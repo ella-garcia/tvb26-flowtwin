@@ -1,0 +1,46 @@
+.supplier-risk-head { display: flex; flex-direction: column; gap: var(--space-3); }
+.supplier-risk-head-top { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.supplier-risk-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); color: var(--ink-muted); font: 400 14px/20px var(--font-sans); }
+.supplier-risk-score { font: 600 14px/20px var(--font-sans); color: var(--ink); }
+.supplier-risk-headline { font: 500 22px/30px var(--font-sans); color: var(--ink); margin: 0; }
+.supplier-risk-headline-danger { color: var(--danger); }
+.supplier-risk-headline-ok { color: var(--success); }
+.supplier-risk-stack { display: flex; flex-direction: column; gap: var(--space-6); }
+.supplier-risk-drivers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-4); }
+.supplier-risk-driver { display: grid; grid-template-columns: minmax(0, 1fr) 220px 72px; gap: var(--space-4); align-items: center; }
+.supplier-risk-driver-label { font: 500 14px/20px var(--font-sans); color: var(--ink); }
+.supplier-risk-driver-src { display: block; font: 400 12px/18px var(--font-sans); color: var(--ink-subtle); margin-top: 2px; }
+.supplier-risk-bar { height: 12px; background: var(--surface-sunken); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.supplier-risk-bar i { display: block; height: 100%; background: var(--primary); }
+.supplier-risk-driver-pts { font: 600 14px/20px var(--font-sans); color: var(--ink); text-align: right; }
+@media (max-width: 1100px) { .supplier-risk-driver { grid-template-columns: minmax(0, 1fr) 140px 64px; } }
+.supplier-risk-chart { width: 100%; height: auto; display: block; }
+.supplier-risk-chart text { fill: var(--ink-subtle); font: 400 11px var(--font-sans); }
+.supplier-risk-chart .grid { stroke: var(--border); stroke-width: 1; }
+.supplier-risk-chart .axis { stroke: var(--border-strong); stroke-width: 1; }
+.supplier-risk-chart .supplier-risk-cross { fill: var(--danger); font-weight: 700; }
+.supplier-risk-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); list-style: none; margin: 0; padding: 0; font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.supplier-risk-legend li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.supplier-risk-legend svg { flex: none; }
+.supplier-risk-flex { display: flex; flex-direction: column; gap: var(--space-4); }
+.supplier-risk-flex-verdict { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.supplier-risk-flex-word { font: 600 28px/36px var(--font-sans); color: var(--ink); }
+.supplier-risk-facts { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-2) var(--space-4); margin: 0; font-size: 14px; }
+.supplier-risk-facts dt { color: var(--ink-subtle); }
+.supplier-risk-facts dd { margin: 0; color: var(--ink); }
+.supplier-risk-note { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); margin: 0; }
+.supplier-risk-part-name { font-weight: 600; }
+.supplier-risk-otif { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
+.supplier-risk-otif-value { font: 600 28px/36px var(--font-sans); color: var(--ink); }
+.supplier-risk-spark { max-width: 100%; }
+.supplier-risk-spark polyline { fill: none; stroke: var(--primary); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.supplier-risk-spark circle { fill: var(--primary); }
+.supplier-risk-alerts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.supplier-risk-alerts li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; padding-bottom: var(--space-3); border-bottom: 1px solid var(--border); }
+.supplier-risk-alerts li:last-child { border-bottom: 0; padding-bottom: 0; }
+.supplier-risk-privacy { display: flex; gap: var(--space-3); align-items: flex-start; color: var(--ink-muted); font: 400 14px/22px var(--font-sans); }
+.supplier-risk-privacy svg { flex: none; margin-top: 2px; color: var(--ink); }
+.supplier-risk-privacy strong { color: var(--ink); }
+.supplier-risk-privacy p { margin: 0; }
+.supplier-risk-grade { display: flex; flex-direction: column; gap: var(--space-1); }
+.supplier-risk-next { display: inline-flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }

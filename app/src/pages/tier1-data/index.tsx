@@ -3,8 +3,9 @@ import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "reac
 import { useApp } from "../../app/AppContext";
 import { Button, DataTable, StatusPill, type Column, type PillTone } from "../../keystone";
 import { Card, PageHeader } from "../../components/shared";
-import { date, num } from "../../lib/format";
+import { dateTime, num } from "../../lib/format";
 import * as remote from "../../lib/remote";
+import { scoped } from "../../lib/useScoped";
 import type { UploadIssue, UploadRecord } from "../../lib/types";
 import "./tier1-data.css";
 
@@ -124,7 +125,8 @@ export default function Tier1DataPage() {
   };
 
   const demo = !live;
-  const demoUploads = demo ? Object.fromEntries((() => { try { return db.uploads(companyId); } catch { return []; } })().map((u) => [u.kind as string, u])) : {};
+  const own = demo ? scoped(() => db.uploads(companyId)) : null;
+  const demoUploads = Object.fromEntries((own?.ok ? own.data : []).map((u) => [u.kind as string, u]));
   const current = (k: string) => (demo ? demoUploads[k] : uploads[k]);
 
   return (
@@ -156,10 +158,10 @@ export default function Tier1DataPage() {
                     {busy[k.id] ? "Uploading…" : u?.fileName ? "Replace file" : "Choose file"}
                   </Button>
                   <input id={inputId} type="file" accept=".csv,.xlsx" disabled={demo || !!busy[k.id]} aria-label={`Choose a file for ${k.label}`}
-                    style={{ display: "none" }} onChange={(e) => onFile(k.id, e)} />
+                    hidden onChange={(e) => onFile(k.id, e)} />
                 </span>
                 <span className="t1-meta">
-                  {u?.fileName ? `${u.fileName} · ${num(u.rows)} rows${u.uploadedAt ? ` · ${date(u.uploadedAt)}, ${new Date(u.uploadedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "No file yet"}
+                  {u?.fileName ? `${u.fileName} · ${num(u.rows)} rows${u.uploadedAt ? ` · ${dateTime(u.uploadedAt)}` : ""}` : "No file yet"}
                 </span>
               </div>
               {errors[k.id] && <p className="t1-error" role="alert">{errors[k.id]}</p>}

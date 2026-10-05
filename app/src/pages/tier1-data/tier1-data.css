@@ -8,8 +8,6 @@
 .t1-link { color: var(--primary); font: 600 14px/20px var(--font-sans); }
 .t1-link:focus-visible, .t1-file:focus-within { outline: none; box-shadow: var(--focus-ring); }
 .t1-file { position: relative; display: inline-flex; }
-.t1-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
-.t1-file input:disabled { cursor: not-allowed; }
 .t1-note { margin: 0; padding: var(--space-3) var(--space-4); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
   background: var(--surface-selected); color: var(--ink); font: 400 14px/22px var(--font-sans); }
 .t1-error { color: var(--danger); font: 600 14px/22px var(--font-sans); margin: 0; }

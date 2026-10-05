@@ -19,9 +19,8 @@ body { background: var(--canvas); }
 .ft-testbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); padding: var(--space-2) var(--space-6);
   background: var(--surface-sunken); border-bottom: 1px solid var(--border); font: 500 12px/18px var(--font-sans); color: var(--ink-muted); }
 .ft-testbar label { display: inline-flex; align-items: center; gap: var(--space-2); }
-.ft-testbar select { font: 500 13px/18px var(--font-sans); color: var(--ink); background: var(--surface-raised); border: 1px solid var(--border-control);
-  border-radius: var(--radius-sm); padding: 4px 8px; }
-.ft-testbar select:focus-visible, .ft-linkbtn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.ft-testbar .ft-control { border-radius: var(--radius-sm); padding: 4px 8px; }
+.ft-linkbtn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .ft-testbar-tag { font: 700 11px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--on-accent);
   background: var(--accent); border-radius: var(--radius-sm); padding: 2px 8px; }
 
@@ -38,20 +37,35 @@ body { background: var(--canvas); }
 .ft-pagehead { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-2); }
 .ft-pagehead-main { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
 .ft-mark { flex: none; display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: var(--radius-md); background: var(--ink); color: var(--surface-raised); font: 700 15px/1 var(--font-sans); letter-spacing: .04em; }
-.ft-model { display: inline-flex; align-items: center; gap: var(--space-2); font: 500 13px/18px var(--font-sans); color: var(--ink-muted); }
-.ft-model select { font: 600 14px/20px var(--font-sans); color: var(--ink); background: var(--surface-raised); border: 1px solid var(--border-control);
-  border-radius: var(--radius-md); padding: 8px 12px; min-width: 240px; }
-.ft-model select:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.ft-model .ft-control { font: 600 14px/20px var(--font-sans); padding: 8px 12px; min-width: 240px; }
 .ft-title { font: 500 30px/38px var(--font-sans); letter-spacing: -0.01em; color: var(--ink); margin: 0; }
 .ft-caption { font: 400 12px/18px var(--font-sans); color: var(--ink-subtle); margin: 4px 0 0; }
 .ft-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 .ft-heading { font: 600 20px/28px var(--font-sans); color: var(--ink); margin: 0; }
 .ft-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised); box-shadow: var(--shadow-xs); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
 .ft-card-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
-.ft-grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-.ft-two { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
-@media (max-width: 1100px) { .ft-two { grid-template-columns: minmax(0, 1fr); } }
 .ft-muted { color: var(--ink-muted); }
+/* Secondary line under a value in a table cell (city, part number, file date). */
+.ft-meta { display: block; font: 400 12px/18px var(--font-sans); color: var(--ink-muted); }
+/* Row of four stat cards; two per row on narrow screens. */
+.ft-stats { display: grid; gap: var(--space-4); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1100px) { .ft-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Filter chips, selects and a search field above a table; the search sits on the right. */
+.ft-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.ft-toolbar .ks-search { margin-left: auto; }
+/* "Nothing matches these filters" under a table. */
+.ft-nodata { padding: var(--space-6); text-align: center; color: var(--ink-muted); }
+/* Name with a smaller line below it, in a table cell. */
+.ft-name { display: flex; flex-direction: column; min-width: 160px; }
+.ft-name b { font-weight: 600; color: var(--ink); }
+.ft-name small { color: var(--ink-subtle); font-size: 12px; }
+/* Form controls: select, text and number inputs, textarea. Pages only set size. */
+.ft-control { font: 500 13px/18px var(--font-sans); color: var(--ink); background: var(--surface-raised); border: 1px solid var(--border-control);
+  border-radius: var(--radius-md); padding: 7px 10px; }
+.ft-control:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.ft-control[aria-invalid="true"] { border-color: var(--danger); }
+/* Inline label + select, e.g. "Supplier [All suppliers]". */
+.ft-select { display: inline-flex; align-items: center; gap: var(--space-2); font: 500 13px/18px var(--font-sans); color: var(--ink-muted); }
 .ft-linkbtn { display: inline-flex; align-items: center; gap: var(--space-1); background: none; border: 0; padding: 2px 0; color: var(--primary);
   font: 600 13px/18px var(--font-sans); cursor: pointer; border-radius: var(--radius-sm); }
 .ft-formula dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px var(--space-3); margin: var(--space-2) 0 0; font-size: 13px; }
@@ -71,6 +85,12 @@ body { background: var(--canvas); }
 .ft-light-amber { background: var(--risk-amber-soft); color: var(--risk-amber); }
 .ft-light-green { background: var(--risk-green-soft); color: var(--risk-green); }
 .ft-light i { width: 10px; height: 10px; border-radius: var(--radius-full); background: currentColor; display: inline-block; }
+
+/* Change markers (OtifDelta): arrow + words, never colour alone. */
+.ft-delta { font-weight: 600; }
+.ft-delta-up { color: var(--success); }
+.ft-delta-down { color: var(--danger); }
+.ft-delta-flat { color: var(--ink-subtle); }
 
 /* Keep the rail full height and in view on long pages. */
 .ft-frame > .ks-rail { position: sticky; top: env(safe-area-inset-top, 0px); align-self: flex-start; height: 100vh; min-height: 0; }
