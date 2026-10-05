@@ -61,18 +61,16 @@ def project(customer, supplier, parts, signals, settings, as_of):
     for p in parts:
         c0, crit = float(p["days_of_cover"]), p["criticality"]
         cover_d = [max(0.0, c0 - min(g, i + 1)) for i, g in enumerate(gap_med)]
-        tot, stops = 0.0, 0
+        tot = 0.0
         for z in zs:
             short = 0.0
             for i, m in enumerate(M):
                 gap = max(0.0, normal * m * math.exp(sigma * z) - normal)
                 short = max(short, min(gap, i + 1) - c0)
-            if short > 0:
-                stops += 1
             tot += min(SHIFT_MIN, max(0.0, short) * lhd * 60)
         expo = CRIT_W[crit] * (tot / RUNS) * cost
         stop_day = next((i for i, c in enumerate(cover_d) if c <= 0.05), None) if crit in ("line-stopper", "high") else None
-        info.append(dict(part=p, c0=c0, cover_d=cover_d, expo=expo, stop_day=stop_day, pstop=stops / RUNS))
+        info.append(dict(part=p, c0=c0, cover_d=cover_d, expo=expo, stop_day=stop_day))
 
     exposed = max(info, key=lambda x: (round(x["expo"], -3), -x["c0"]))
     exposure = round(exposed["expo"] / 1000) * 1000

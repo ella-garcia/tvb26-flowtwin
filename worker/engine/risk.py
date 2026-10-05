@@ -3,7 +3,6 @@ from datetime import date
 
 from .alerts import make_alert
 from .flex import run_flex
-from .geo import hash_seed  # noqa: F401  (re-export convenience)
 from .otif import otif_series
 from .projection import HORIZON, project
 from .scoring import score_drivers, traffic_light
