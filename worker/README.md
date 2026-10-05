@@ -31,7 +31,7 @@ The engine reproduces `app/src/data/seed/seed.json` exactly (same random seeds, 
 
 ## Run locally
 ```
-cd worker && python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
+cd worker && python3.12 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/pytest
 export SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=...     # in the shell only
 .venv/bin/uvicorn main:app --port 8080
@@ -63,3 +63,14 @@ The container listens on `$PORT`.
 - `sources/file.py` the seeded demo signals (never marked inactive by another source).
 
 Tests: `tests/test_sources*.py`, `test_notify*.py`, `test_scheduled*.py` use fakes and mocked HTTP; no network.
+
+## Deploy on Vercel (prototype hosting)
+The same FastAPI app runs as a Vercel Python function (`api/index.py`, `vercel.json`). Cloud Run (Dockerfile) stays an option for heavier simulation later.
+1. In Vercel, create a **new project** from this repository with **Root Directory `worker`** (keep the app's project separate).
+2. Environment variables (Production): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TOKEN` (a long random string), `APP_URL` (the app's URL). Optional: `RESEND_API_KEY`, `NOTIFY_FROM`, `SIGNAL_SOURCES` (default `open-meteo,file`).
+3. Deploy, then check `https://<worker>.vercel.app/health` shows `"supabase_configured": true`.
+4. In the Supabase SQL editor, point the scheduler at it:
+   ```sql
+   update public.worker_config set worker_url = 'https://<worker>.vercel.app', worker_token = '<WORKER_TOKEN>' where id = 1;
+   ```
+Each request is limited to 60 seconds (`vercel.json`); an hourly run takes about a second at prototype scale.

@@ -31,7 +31,7 @@ Open http://localhost:5173. The yellow **Testing** bar switches role (Key custom
 
 ## Phase 2 backend (Supabase + worker)
 - `supabase/` — migrations (schema, sharing rules, intake, signals, notifications, scheduling), `seed.sql`, RLS tests (`supabase/tests/run.sh`).
-- `worker/` — FastAPI service for Cloud Run: risk engine, Tier 1 upload parsing, Open-Meteo/SMN signals, email alerts (Resend; dry-run without a key). Routes: `/health`, `/jobs/run-next`, `/jobs/drain`, `/cron/hourly`, `/recompute-risk`.
+- `worker/` — FastAPI service (Vercel function for the prototype; Dockerfile for Cloud Run): risk engine, Tier 1 upload parsing, Open-Meteo/SMN signals, email alerts (Resend; dry-run without a key). Routes: `/health`, `/jobs/run-next`, `/jobs/drain`, `/cron/hourly`, `/recompute-risk`.
 - App live mode: set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (see `app/.env.example`).
 
 ### Local development

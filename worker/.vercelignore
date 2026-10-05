@@ -1,0 +1,9 @@
+.venv
+tests
+spikes
+Dockerfile
+pytest.ini
+.pytest_cache
+__pycache__
+*.pyc
+.env*
