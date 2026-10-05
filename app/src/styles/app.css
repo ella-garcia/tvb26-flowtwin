@@ -36,6 +36,8 @@ body { background: var(--canvas); }
 
 /* Page building blocks */
 .ft-pagehead { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-2); }
+.ft-pagehead-main { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.ft-mark { flex: none; display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: var(--radius-md); background: var(--ink); color: var(--surface-raised); font: 700 15px/1 var(--font-sans); letter-spacing: .04em; }
 .ft-title { font: 500 30px/38px var(--font-sans); letter-spacing: -0.01em; color: var(--ink); margin: 0; }
 .ft-caption { font: 400 12px/18px var(--font-sans); color: var(--ink-subtle); margin: 4px 0 0; }
 .ft-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }

@@ -2,9 +2,10 @@
 // "My risk" page (audience "supplier": "this is exactly what your customer sees").
 import { useApp } from "../../app/AppContext";
 import { AccessDeniedError } from "../../lib/dataLayer";
-import { Card, Empty, FormulaSource, NotShared, ProvenanceTag, RiskLight } from "../../components/shared";
+import { Card, Empty, FormulaSource, GradePill, NotShared, ProvenanceTag, RiskLight } from "../../components/shared";
 import { DataTable, Icon, StatusPill, type Column } from "../../keystone";
 import { date, mxn, num, pct } from "../../lib/format";
+import { DEFAULT_OTIF_TARGET, otifSummary } from "../../lib/otif";
 import { segmentLabel } from "../../packs";
 import type { Alert, ChainPosition, Part, ProjectionDay, RiskAssessment, Signal } from "../../lib/types";
 import "./supplier.css";
@@ -105,7 +106,7 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
   const { db, pack, go } = useApp();
   let risk: RiskAssessment | undefined;
   let parts: Part[] = [], alerts: Alert[] = [], signals: Signal[] = [];
-  let supplierName = "", place = "", customerName = "your customer", chain: ChainPosition = "sub";
+  let supplierName = "", place = "", customerName = "your customer", chain: ChainPosition = "sub", otifTarget = DEFAULT_OTIF_TARGET;
   let sizeBand: Parameters<typeof segmentLabel>[2] = "medium";
   try {
     risk = db.risk(customerId, supplierId);
@@ -121,7 +122,7 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
       const rel = audience === "customer"
         ? db.suppliersOf(customerId).find((x) => x.company.id === supplierId)
         : db.customersOf(supplierId).find((x) => x.customerId === customerId);
-      if (rel) chain = rel.chainPosition;
+      if (rel) { chain = rel.chainPosition; otifTarget = rel.requirements.otifTarget; }
     } catch { /* keep default */ }
   } catch (e) {
     if (e instanceof AccessDeniedError) return <NotShared message={e.message} />;
@@ -141,7 +142,9 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
   const f = risk.flex;
   const otif = risk.otifTrend;
   const otifNow = otif.length ? otif[otif.length - 1] : undefined;
-  const otifDelta = otif.length > 1 ? otifNow! - otif[0] : undefined;
+  const record = otifSummary(otif, otifTarget);
+  // Same comparison as the risk board and the score: last 4 weeks vs first 4 weeks.
+  const otifDelta = record?.change;
   const privacy = audience === "supplier"
     ? <>This is exactly what <strong>{customerName}</strong> sees: risk light, drivers, parts and stock, flex test, delivery performance. Never shared: costs, prices and margins.</>
     : <>Shared with <strong>{customerName}</strong>: risk light, drivers, parts and stock, flex test, delivery performance. <strong>Never shared:</strong> costs, prices and margins.</>;
@@ -243,13 +246,19 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
               <div className="supplier-otif-value ks-num">{pct(otifNow!)}</div>
               {otifDelta != null && (
                 <div className={otifDelta >= 0 ? "supplier-delta-up" : "supplier-delta-down"}>
-                  {otifDelta >= 0 ? "▲" : "▼"} {num(Math.abs(otifDelta) * 100, 1)} points vs 12 weeks ago
+                  {otifDelta >= 0 ? "▲" : "▼"} {num(Math.abs(otifDelta) * 100, 1)} points, last 4 weeks vs first 4
                 </div>
               )}
             </div>
+            {record && (
+              <div className="supplier-grade">
+                <GradePill grade={record.grade} />
+                <span className="supplier-note ks-num">12-week average {pct(record.average)} · target {pct(record.target, 0)}</span>
+              </div>
+            )}
           </div>
         )}
-        <FormulaSource formula="Order lines delivered on time and in full ÷ all order lines, per week." data="Delivery records shared by the supplier." provenance={status.prov} />
+        <FormulaSource formula="Order lines delivered on time and in full ÷ all order lines, per week. Delivery record: 12-week average against the contract OTIF target; A at or above target, B up to 3 points below, C further below. Kept separate from the risk light, which looks forward." data="Delivery records shared by the supplier." provenance={status.prov} />
       </Card>
 
       {audience === "customer" && (

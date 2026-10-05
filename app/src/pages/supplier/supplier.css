@@ -43,3 +43,4 @@
 .supplier-privacy svg { flex: none; margin-top: 2px; color: var(--ink); }
 .supplier-privacy strong { color: var(--ink); }
 .supplier-back { align-self: flex-start; }
+.supplier-grade { display: flex; flex-direction: column; gap: var(--space-1); }

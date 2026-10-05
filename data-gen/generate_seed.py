@@ -384,9 +384,6 @@ def build():
     return companies, rels, parts_out, risks_out, assessments
 
 
-def money(x):
-    if x < 1000: return "under €1k"
-    return f"€{x/1e6:.1f}M" if x >= 1e6 else f"€{x/1e3:.0f}k"
 def fdate(d): return f"{d.day} {d.strftime('%b %Y')}"
 
 
@@ -419,7 +416,7 @@ def make_alert(cid, sp, a, status, created, extra=None):
         title = f"Transit from {sp['city']} goes from {norm} to {round(exp_):g} days"
         msg = (f"{CUST[cid]['name']} holds {c0:g} days of cover of {ex[1].lower()} ({ex[0]}). With transit at {round(exp_):g} days "
                f"(up to {r['worstCaseTransitDays']:g} in the worst case) and nothing done, cover runs out in about {r['daysToLineStop']} days, "
-               f"around {fdate(sd)}. Expected line-stop exposure: {money(r['lineStopExposureEur'])}.")
+               f"around {fdate(sd)}.")
         shortfall = iso(sd)
     else:
         title = (f"Transit from {sp['city']} goes from {norm} to {round(exp_):g} days" if exp_ - norm >= 0.9
@@ -427,7 +424,7 @@ def make_alert(cid, sp, a, status, created, extra=None):
         low = a["min_proj_cover"]; ld = ASOF + timedelta(days=a["cover_at"])
         msg = (f"{CUST[cid]['name']} holds {c0:g} days of cover of {ex[1].lower()} ({ex[0]}). Transit is {exp_:g} days against {norm} planned "
                f"(up to {r['worstCaseTransitDays']:g} in the worst case). Without action, projected cover falls to {low:g} days around {fdate(ld)}; "
-               f"no stop is expected in the next 14 days, but a bad week could stop the line. Expected line-stop exposure: {money(r['lineStopExposureEur'])}.")
+               f"no stop is expected in the next 14 days, but a bad week could stop the line.")
         shortfall = None
     acts = [dict(id=f"act-{sp['id']}-{i+1}", label=l, description=d) for i, (l, d) in enumerate(ACTIONS[sp["id"]][:3])]
     al = dict(id=f"alert-{sp['id']}-{cid}", customerId=cid, supplierId=sp["id"], partIds=[f"part-{ex[0].lower()}"],

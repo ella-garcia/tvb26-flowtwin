@@ -4,7 +4,7 @@ import { useApp } from "../../app/AppContext";
 import { Card, Empty, NotShared, PageHeader, RiskLight } from "../../components/shared";
 import { Button, FilterChip, StatusPill, type PillTone } from "../../keystone";
 import { AccessDeniedError } from "../../lib/dataLayer";
-import { date, num } from "../../lib/format";
+import { date } from "../../lib/format";
 import * as remote from "../../lib/remote";
 import type { Alert, AlertNotification, Part, RiskLevel } from "../../lib/types";
 import "./alerts.css";
@@ -98,7 +98,6 @@ export default function AlertsPage() {
                     )}
                   </dd></div>
                   <div><dt>Expected shortfall</dt><dd>{a.expectedShortfallDate ? date(a.expectedShortfallDate) : "None expected"}</dd></div>
-                  <div><dt>Exposure</dt><dd className="ks-num">€{num(a.lineStopExposureEur)}</dd></div>
                 </dl>
 
                 {a.supplierResponse && (

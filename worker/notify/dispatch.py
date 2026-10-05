@@ -18,11 +18,6 @@ def _contact_email(company: dict | None) -> str | None:
     return (c.get("email") or "").strip() or None
 
 
-def _money(x) -> str:
-    x = float(x or 0)
-    return "under EUR 1k" if x < 1000 else (f"EUR {x / 1e6:.1f}M" if x >= 1e6 else f"EUR {x / 1e3:.0f}k")
-
-
 def compose(alert: dict, reason: str, audience: str, risk: dict | None, companies: dict) -> tuple[str, str, str]:
     """(subject, text, html). Link goes to #alerts for the customer, #my-risk for the supplier."""
     base = resend.app_url()
@@ -31,15 +26,13 @@ def compose(alert: dict, reason: str, audience: str, risk: dict | None, companie
     stop = f"about {float(dtls):g} days" if dtls is not None else "no line stop expected in the next 14 days"
     level = alert["level"].upper() if reason != "auto-resolved" else "GREEN"
     supplier = (companies.get(alert["supplier_id"]) or {}).get("name", alert["supplier_id"])
-    lines = [alert["title"], "", alert["message"], "", f"Supplier: {supplier}", f"Days to line stop: {stop}",
-             f"Expected line-stop exposure: {_money(alert.get('line_stop_exposure_eur'))}"]
+    lines = [alert["title"], "", alert["message"], "", f"Supplier: {supplier}", f"Days to line stop: {stop}"]
     if reason == "supplier-responded":
         resp = alert.get("supplier_response") or {}
         if resp.get("message"):
             lines += ["", f"{resp.get('by') or supplier} replied: {resp['message']}"]
     if reason == "auto-resolved":
-        lines = [alert["title"], "", f"The risk for {supplier} is back to green, so the engine closed this alert.", "",
-                 f"Last expected exposure: {_money(alert.get('line_stop_exposure_eur'))}"]
+        lines = [alert["title"], "", f"The risk for {supplier} is back to green, so the engine closed this alert."]
     if link:
         lines += ["", f"Open FlowTwin: {link}"]
     text = "\n".join(lines)

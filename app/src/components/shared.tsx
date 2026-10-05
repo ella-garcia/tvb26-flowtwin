@@ -2,15 +2,19 @@
 import { useState, type ReactNode } from "react";
 import { Icon, StatusPill } from "../keystone";
 import { date, pct } from "../lib/format";
+import type { OtifGrade } from "../lib/otif";
 import type { Provenance } from "../lib/types";
 
-/** Page header: title (Keystone `title` style) with an optional caption and actions on the right. */
-export function PageHeader({ title, caption, actions }: { title: string; caption?: ReactNode; actions?: ReactNode }) {
+/** Page header: title (Keystone `title` style) with an optional company mark, caption and actions on the right. */
+export function PageHeader({ title, caption, actions, logo }: { title: string; caption?: ReactNode; actions?: ReactNode; logo?: ReactNode }) {
   return (
     <div className="ft-pagehead">
-      <div>
-        <h1 className="ft-title">{title}</h1>
-        {caption && <p className="ft-caption">{caption}</p>}
+      <div className="ft-pagehead-main">
+        {logo}
+        <div>
+          <h1 className="ft-title">{title}</h1>
+          {caption && <p className="ft-caption">{caption}</p>}
+        </div>
       </div>
       {actions && <div className="ft-actions">{actions}</div>}
     </div>
@@ -92,4 +96,17 @@ export function KpiStatusPill({ status }: { status: "on-track" | "watch" | "belo
 export function RiskLight({ level }: { level: "green" | "amber" | "red" }) {
   const word = level === "red" ? "Act now" : level === "amber" ? "Watch" : "OK";
   return <span className={`ft-light ft-light-${level}`}><i aria-hidden="true" />{word}</span>;
+}
+
+/** Placeholder company logo: initials in a tile. Swap for the customer's real logo when they provide one. */
+export function CompanyMark({ name }: { name: string }) {
+  const initials = name.split(/\s+/).filter((w) => /^[A-ZÁÉÍÓÚÑ]/.test(w)).slice(0, 3).map((w) => w[0]).join("") || name.slice(0, 2).toUpperCase();
+  return <span className="ft-mark" role="img" aria-label={`${name} logo`}>{initials}</span>;
+}
+
+/** Delivery performance grade (from OTIF history). Always letter + word. */
+export function GradePill({ grade }: { grade: OtifGrade }) {
+  if (grade === "A") return <StatusPill tone="success">A · On target</StatusPill>;
+  if (grade === "B") return <StatusPill tone="warning">B · Slightly below</StatusPill>;
+  return <StatusPill tone="danger">C · Below target</StatusPill>;
 }

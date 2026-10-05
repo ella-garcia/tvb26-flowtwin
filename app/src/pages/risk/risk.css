@@ -25,3 +25,7 @@
 .risk-label-red { font-weight: 700; fill: var(--risk-red); }
 .risk-signal-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
 .risk-signal-list b { color: var(--ink); font-weight: 600; }
+.risk-otif { display: inline-flex; flex-direction: column; align-items: flex-end; }
+.risk-otif small { font-size: 12px; font-weight: 600; }
+.risk-up { color: var(--success); } .risk-down { color: var(--danger); }
+.risk-flat { color: var(--ink-subtle); }
