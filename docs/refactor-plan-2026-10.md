@@ -41,3 +41,13 @@ unless a package says otherwise; `npx tsc -b && npx vite build` and `worker/.ven
   (utilisation, bottleneck) visible to the customer even when "public only"; turn off testing mode before real data.
 - Risk engine using the pipeline fields (in transit, next delivery) — fold into D (route legs).
 - Single source of truth for the schema (generate types/columns from Postgres) — after D, when the schema settles.
+
+## Outcome (merged on professor-feedback)
+- WP2 merged at 023f15d, WP1 at d089a08, WP3 at 240227b; post-merge fixes in the following commit.
+- Checks: tsc and vite build clean, oxlint 9 existing warnings (none new), pytest 82 passed, seed outputs reproducible
+  and seed.json byte-identical to before the refactor, RLS suite passes except 2 upload assertions caused by local test uploads,
+  every page smoke-tested in the browser for all four roles.
+- Independent review verdict: ship with fixes. Fixed after review: model selector label style, false "line stops today" for
+  a new part with no stock and no receipts (risk_runner skips it; a real stock-out still counts).
+- Still open: reset_demo() is callable by any signed-in user while testing mode is on, and it leaves `uploads` rows of
+  tier1-* kinds; unused Site/Lane/Certification types (may be needed by D); RiskMap and FlexCard read the data layer directly.

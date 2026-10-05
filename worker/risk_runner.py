@@ -25,6 +25,10 @@ def recompute_customer(db: DB, customer_id: str, as_of=None) -> dict:
     if not customers:
         raise ValueError(f"customer {customer_id} not found")
     parts = db.select("parts", {"customer_id": f"eq.{customer_id}"})
+    # A part added by a parts upload has on_hand 0 until stock is reported; without receipts either, that is
+    # "no data yet", not "out of stock", so it must not raise a false line stop. Real stock-outs keep counting.
+    received = {r["part_id"] for r in db.select("receipts", {"customer_id": f"eq.{customer_id}"}) if r.get("part_id")}
+    parts = [p for p in parts if float(p.get("on_hand") or 0) > 0 or p["id"] in received]
     signals = db.select("signals", {"active": "eq.true"})  # retired signals no longer affect projections
     sup_ids = sorted({p["supplier_id"] for p in parts})
     suppliers = {}
