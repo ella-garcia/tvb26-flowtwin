@@ -13,7 +13,7 @@ const TOGGLE_KEY = "flowtwin-v0-toggles";
 const PROGRAM_KEY = "flowtwin-v0-program";
 
 export type ModuleId =
-  | "risk" | "parts" | "alerts" | "supplier" | "invite" | "tier1-data" // key customer (Tier 1): the v0 lead journey
+  | "risk" | "parts" | "what-if" | "alerts" | "supplier" | "invite" | "tier1-data" // key customer (Tier 1): the v0 lead journey
   | "my-risk" | "data"                                 // supplier (Tier 2 owner / ops)
   | "signals" | "companies";                           // admin
 

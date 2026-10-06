@@ -34,6 +34,10 @@ Everything is synthetic. Signals are hand-seeded ("seeded for demo"); v0 calls n
     as in the projection) vs the lowest cover of the supplier's critical parts: High if it uses up that cover, Watch if half of it
     or >= 1 day. Seasonal and announced signals (`sig-season-*`) all start after the 14-day window (from 21 Oct), so they feed the
     outlook only and today's numbers are unchanged.
-14. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
+14. **What-if scenarios** (`worker/engine/scenarios.py`): up to 3 recommended actions per supplier, picked from the signal kinds
+    that reach it in 12 weeks (priority customs release, alternative route, daytime departures, daily ship plan) and its parts
+    (safety stock, second source from week 11, pulled-forward orders). Every combination (<= 8) is computed with the outlook rule
+    and stored in `risks.scenarios`; the app only combines them. The "no action" combination equals the outlook.
+15. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
 
 Edit the tables at the top of the script (suppliers, parts, signals) to change the story, then re-run.

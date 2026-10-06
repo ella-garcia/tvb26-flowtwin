@@ -5,6 +5,7 @@ from .alerts import make_alert
 from .flex import run_flex
 from .otif import otif_series
 from .outlook import outlook
+from .scenarios import scenarios
 from .projection import HORIZON, project
 from .scoring import score_drivers, traffic_light
 
@@ -32,6 +33,7 @@ def compute_pair(customer, supplier, parts, signals, settings, as_of):
                 line_stop_exposure_eur=proj["exposure"],
                 drivers=drivers, flex=flex, otif_trend=otif, projection=proj["projection"],
                 outlook=outlook(supplier, parts, signals, as_of, proj["normal"]),
+                scenarios=scenarios(supplier, parts, signals, as_of, proj["normal"]),
                 data_status=supplier["data_status"], updated_at=as_of.isoformat())
     covers = [p["coverDays"] for p in proj["projection"]]
     ctx = dict(exposed_part=proj["exposed"]["part"],

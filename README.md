@@ -19,10 +19,13 @@ Open http://localhost:5173. The yellow **Testing** bar switches role (Key custom
    at the border and customs, not on the road.
 5. Back on the **Risk board**, "Next 12 weeks": Orizaba stays High until the rain ends, then Watch through hurricane season;
    Polímeros Frontera turns Watch again for the year-end cargo peak at Nuevo Laredo.
-6. **Alerts**: choose "Pull the next order forward" → Acknowledge.
-7. **Invite**: invite another supplier (sponsored, free for them).
-8. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
-9. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
+6. **What-if**: choose a horizon (2, 4 or 12 weeks) and the share of suppliers that act on their recommended actions;
+   "Randomize who acts" draws which ones do, and 500 random draws show the likely range. "All act" takes High
+   supplier-weeks from 3 to 0 and Watch from 18 to 6; the chart shows before and after per week.
+7. **Alerts**: choose "Pull the next order forward" → Acknowledge.
+8. **Invite**: invite another supplier (sponsored, free for them).
+9. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
+10. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
 
 "Reset demo data" in the Testing bar restores the seed.
 

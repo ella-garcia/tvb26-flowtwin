@@ -210,6 +210,11 @@ export interface Signal {
 
 export type RiskLevel = "green" | "amber" | "red";
 
+/** A recommended action for one supplier in the what-if view. */
+export interface ScenarioAction { id: string; label: string; detail: string }
+/** combos: key = one "0"/"1" per action, in `actions` order -> 12 weekly results with those actions in place. */
+export interface Scenarios { actions: ScenarioAction[]; combos: Record<string, { level: RiskLevel; extraDays: number }[]> }
+
 /** One week of the 12-week outlook. */
 export interface OutlookWeek {
   weekStart: string;           // ISO date
@@ -273,6 +278,8 @@ export interface RiskAssessment {
   legs?: TransitLeg[];
   /** 12-week outlook from signals known in advance (estimated; alerts still come from the 14-day projection). */
   outlook?: OutlookWeek[];
+  /** What-if: recommended actions and the outlook levels for every combination of them (precomputed by the engine). */
+  scenarios?: Scenarios;
   lineStopExposureEur: number; // expected cost if it stops (minutes × cost per minute × probability)
   drivers: RiskDriver[];
   flex: FlexResult;
