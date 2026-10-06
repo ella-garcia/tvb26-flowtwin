@@ -9,6 +9,9 @@ problems *before* they happen, e.g. a supplier near Veracruz in rainy season: tr
   (professor feedback, Oct 2026: impact does not need to be monetised; see docs/evidence-brief-professor-feedback.md).
 - A car has 18–25k parts; one missing screw can stop the line → rank by time to line stop, then part criticality, never by spend or €.
 - Delivery history (OTIF) is graded A/B/C against the contract target and shown next to, not inside, the forward-looking risk light.
+- **Money rule (Oct 2026):** no money on the risk board, alerts or emails. MXN appears only on the What-if page, built from the
+  Tier 1's own data (unit costs it pays, its content value per vehicle) and stated assumptions, always marked estimated.
+  The risk board shows the optimization score, lever benefits and line uptime %, never currency.
 - Contracts allow ±15% demand changes → "Can this supplier absorb +15%?" (FlexResult) is a headline indicator.
 - Contracts include ~3% price cuts a year → suppliers' costs and margins are NEVER visible to the Tier 1.
 

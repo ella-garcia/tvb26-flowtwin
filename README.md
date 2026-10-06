@@ -22,10 +22,13 @@ Open http://localhost:5173. The yellow **Testing** bar switches role (Key custom
 6. **What-if**: choose a horizon (2, 4 or 12 weeks) and the share of suppliers that act on their recommended actions;
    "Randomize who acts" draws which ones do, and 500 random draws show the likely range. "All act" takes High
    supplier-weeks from 3 to 0 and Watch from 18 to 6; the chart shows before and after per week.
-7. **Alerts**: choose "Pull the next order forward" → Acknowledge.
-8. **Invite**: invite another supplier (sponsored, free for them).
-9. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
-10. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
+7. Back on the **Risk board**, "Optimization score": "All adopt" lifts the score from 80 (Fair) to 95 (Good); route and weather
+   is the strongest lever; line uptime goes from about 82% to 100% in the first two weeks. "Randomize optimizations" draws
+   which suppliers adopt. What-if shows the same scenario in MXN: revenue protected per model and stock added per part.
+8. **Alerts**: choose "Pull the next order forward" → Acknowledge.
+9. **Invite**: invite another supplier (sponsored, free for them).
+10. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
+11. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
 
 "Reset demo data" in the Testing bar restores the seed.
 

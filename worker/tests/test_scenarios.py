@@ -30,6 +30,13 @@ def test_rerouting_lowers_the_level_while_the_rain_lasts():
     assert routed[0]["extraDays"] == 1.3 and routed[0]["level"] == "amber"     # 60% of the storm delay avoided
 
 
+def test_short_days_are_the_delay_beyond_cover():
+    sc = scenarios(SUP, PARTS, [RAIN], AS_OF, 2)
+    assert sc["combos"]["000"][0]["shortDays"] == 0.2          # 3.2 days of delay against 3 days of cover
+    assert sc["combos"]["100"][0]["shortDays"] == 0.0          # rerouted: 1.3 days, covered
+    assert sc["combos"]["010"][0]["shortDays"] == 0.0          # 2 more days of stock: 5 days cover
+
+
 def test_second_source_only_counts_from_week_ten():
     late = dict(RAIN, starts_at="2026-12-07", ends_at="2026-12-27")
     sc = scenarios(SUP, PARTS, [late], AS_OF, 2)

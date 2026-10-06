@@ -11,6 +11,11 @@ const SEED = seedJson as Seed;
 const STORE_KEY = "flowtwin-v0-data";
 const TOGGLE_KEY = "flowtwin-v0-toggles";
 const PROGRAM_KEY = "flowtwin-v0-program";
+const SCENARIO_KEY = "flowtwin-v0-scenario";
+
+/** What-if / optimization scenario, shared by the risk board and the What-if page. */
+export interface ScenarioState { weeks: number; share: number; seed: number; overrides: Record<string, string> }
+const DEFAULT_SCENARIO: ScenarioState = { weeks: 12, share: 0.5, seed: 1, overrides: {} };
 
 export type ModuleId =
   | "risk" | "parts" | "what-if" | "alerts" | "supplier" | "invite" | "tier1-data" // key customer (Tier 1): the v0 lead journey
@@ -40,6 +45,9 @@ interface Ctx {
   /** Vehicle programme the key customer is looking at ("all" = every model). Remembered per company. */
   programId: string;
   setProgramId: (id: string) => void;
+  /** Optimization scenario for the current company (horizon, share of suppliers acting, draw, manual changes). */
+  scenario: ScenarioState;
+  setScenario: (patch: Partial<ScenarioState>) => void;
   resetDemo: () => void;
   /** "live" = Supabase, "seed" = bundled demo data. */
   mode: DataMode;
@@ -88,6 +96,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => save(PROGRAM_KEY, programByCompany), [programByCompany]);
   const programId = programByCompany[toggles.companyId] ?? "all";
   const setProgramId = useCallback((id: string) => setProgramByCompany((m) => ({ ...m, [toggles.companyId]: id })), [toggles.companyId]);
+  const [scenarioByCompany, setScenarioByCompany] = useState<Record<string, ScenarioState>>(() => load(SCENARIO_KEY, {}));
+  useEffect(() => save(SCENARIO_KEY, scenarioByCompany), [scenarioByCompany]);
+  const scenario = useMemo(() => ({ ...DEFAULT_SCENARIO, ...scenarioByCompany[toggles.companyId] }), [scenarioByCompany, toggles.companyId]);
+  const setScenario = useCallback((patch: Partial<ScenarioState>) => setScenarioByCompany((m) => (
+    { ...m, [toggles.companyId]: { ...DEFAULT_SCENARIO, ...m[toggles.companyId], ...patch } })), [toggles.companyId]);
 
   useEffect(() => save(TOGGLE_KEY, toggles), [toggles]);
   useEffect(() => {
@@ -177,8 +190,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Ctx>(() => ({
     toggles, setToggles, route, go, pack: getPack(toggles.packId), data,
     db: scope(data, { role: toggles.role, companyId: toggles.companyId }),
-    dispatch, programId, setProgramId, resetDemo, mode, status, error, notice, dismissNotice: () => setNotice(null), useDemoData, retry: reload,
-  }), [toggles, setToggles, route, go, data, dispatch, programId, setProgramId, resetDemo, mode, status, error, notice, useDemoData, reload]);
+    dispatch, programId, setProgramId, scenario, setScenario, resetDemo, mode, status, error, notice, dismissNotice: () => setNotice(null), useDemoData, retry: reload,
+  }), [toggles, setToggles, route, go, data, dispatch, programId, setProgramId, scenario, setScenario, resetDemo, mode, status, error, notice, useDemoData, reload]);
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }

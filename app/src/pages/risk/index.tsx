@@ -1,5 +1,5 @@
 // Tier 1 risk board: summary, map, suppliers table. Reads via useApp().db only.
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useApp } from "../../app/AppContext";
 import { Card, CompanyMark, DataStatusPill, Empty, FlexPill, FormulaSource, GradePill, ModelSelect, OtifDelta, PageHeader, RiskLight, ScopedError } from "../../components/shared";
 import { DataTable, FilterChip, IconButton, SearchField, StatCard, type Column } from "../../keystone";
@@ -10,6 +10,9 @@ import { ALL_PROGRAMS, modelLabel, partsOn, stopDaysFor } from "../../lib/progra
 import { scoped, useScoped } from "../../lib/useScoped";
 import type { Part, RiskAssessment, RiskLevel } from "../../lib/types";
 import { RiskMap } from "./RiskMap";
+import { LeverBars, ScoreGauge, UptimeChart } from "../../components/optimization/Charts";
+import { ScenarioControls } from "../../components/optimization/Controls";
+import { everyone, optimizationView, scenarioChoice } from "../../lib/scenarios";
 import { OUTLOOK_FORMULA, OutlookGrid, OutlookLegend } from "../../components/outlook/Outlook";
 import "./risk.css";
 
@@ -26,8 +29,10 @@ interface Row {
   otif: OtifSummary | null;
 }
 
+const NO_ROWS: Row[] = [];
+
 export default function RiskPage() {
-  const { db, go, toggles, programId } = useApp();
+  const { db, go, toggles, programId, scenario, setScenario } = useApp();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
 
@@ -54,11 +59,18 @@ export default function RiskPage() {
       if (da !== dbb) { if (da == null) return 1; if (dbb == null) return -1; return da - dbb; }
       return a.critRank - b.critRank || b.risk.score - a.risk.score;
     });
-    return { rows, program, signals: db.signals(), plant: db.company(toggles.companyId) };
+    const programs = program ? [program] : db.programs().filter((g) => g.customerId === toggles.companyId);
+    return { rows, program, programs, parts: parts.filter((p) => p.customerId === toggles.companyId), signals: db.signals(), plant: db.company(toggles.companyId) };
   }, [db, toggles.companyId, programId]);
 
+  const optRows = loaded.ok ? loaded.data.rows : NO_ROWS;
+  const choice = useMemo(() => scenarioChoice(optRows, scenario), [optRows, scenario]);
+  const opt = useMemo(() => loaded.ok ? optimizationView(optRows, choice, scenario.weeks, loaded.data.programs, loaded.data.parts) : null,
+    [loaded, optRows, choice, scenario.weeks]);
   if (!loaded.ok) return <ScopedError title="Supplier risk" error={loaded.error} />;
   const { rows, program, signals, plant } = loaded.data;
+  const weekLabels = (rows.find((r) => r.risk.outlook?.length)?.risk.outlook ?? []).slice(0, scenario.weeks)
+    .map((w) => date(w.weekStart).replace(/ \d{4}$/, ""));
 
   const count = (l: RiskLevel) => rows.filter((r) => r.risk.level === l).length;
   const stops = rows.map((r) => r.stopDays).filter((d): d is number => d != null);
@@ -109,6 +121,20 @@ export default function RiskPage() {
         <StatCard label={lineStoppersBelow ? `Parts below safe cover (${lineStoppersBelow} line stopper${lineStoppersBelow === 1 ? "" : "s"})` : "Parts below safe cover"}
           value={partsBelow} icon="chart" />
       </div>
+
+      {opt && (
+        <Card title="Optimization score" actions={<button type="button" className="ft-linkbtn" onClick={() => go("what-if")}>Costs and revenue in What-if</button>}>
+          <ScenarioControls onAll={(all) => setScenario({ overrides: everyone(rows, scenario.weeks, all) })} />
+          <p className="risk-opt-note">{opt.actingNow} of {opt.acting} suppliers with a risk in the next {scenario.weeks} weeks adopt their recommended optimizations (draw {scenario.seed}).</p>
+          <ScoreGauge before={opt.scoreBefore} after={opt.scoreAfter} />
+          <FormulaSource formula="Score = 100 × (1 − (2 × High supplier-weeks + Watch supplier-weeks) ÷ (2 × at-risk suppliers × weeks)), over the chosen horizon, for the suppliers that have a risk in it; 100 means all their weeks are OK. Weekly levels come from the 12-week outlook; with optimizations, from the engine's result for the actions each supplier adopts. Randomize draws which suppliers adopt (each with the chosen probability)." data="Seasonal and announced signals, route legs, your stock cover, and each supplier's recommended optimizations." provenance="estimated" />
+          <h3 className="risk-opt-heading">Benefit by optimization lever</h3>
+          <LeverBars levers={opt.levers} />
+          <h3 className="risk-opt-heading">Line uptime</h3>
+          <UptimeChart before={opt.uptimeBefore} after={opt.uptimeAfter} labels={weekLabels} models={opt.models} />
+          <FormulaSource formula="A model's line is down on the days a supplier's expected delay outruns the cover of its line-stopper or high parts for that model (the worst supplier that week). Uptime = 1 − down days ÷ 7 per week; the total is weighted by planned vehicles per day. Lever benefit = each action on its own vs no action: risk-weeks improved (High → Watch counts 1, High → OK counts 2) and line-down days avoided." data="Engine results per supplier and action, parts mapped to vehicle models, planned vehicles per day." provenance="estimated" />
+        </Card>
+      )}
 
       <Card title="Where the risk is">
         <RiskMap suppliers={rows} plant={plant} signals={signals} asOf={asOf} onOpen={(id) => go("supplier", id)} />

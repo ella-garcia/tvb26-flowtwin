@@ -16,3 +16,5 @@
 .risk-signal-list b { color: var(--ink); font-weight: 600; }
 .risk-otif { display: inline-flex; flex-direction: column; align-items: flex-end; }
 .risk-otif .ft-delta { font-size: 12px; }
+.risk-opt-note { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); margin: 0; }
+.risk-opt-heading { font: 600 15px/20px var(--font-sans); color: var(--ink); margin: var(--space-2) 0 0; }

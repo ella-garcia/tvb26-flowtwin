@@ -34,11 +34,12 @@ CUST = {c["id"]: c for c in CUSTOMERS}
 
 # ----------------------------------------------------------------- vehicle programmes (fictional OEMs and models)
 # A Tier 1 seating plant builds for several models at once (e.g. one seat plant, a compact SUV and a sedan line).
+# revenuePerVehicleMxn: the Tier 1's own content value per vehicle (seat set or trim it sells), estimated, for What-if only.
 PROGRAMS = [
-    dict(id="prog-qss-k3", customerId="qss", oem="OEM A", model="K3 compact SUV", oemPlant="Silao, Guanajuato", dailyVehicles=1150),
-    dict(id="prog-qss-m5", customerId="qss", oem="OEM B", model="M5 midsize sedan", oemPlant="Aguascalientes, Aguascalientes", dailyVehicles=620),
-    dict(id="prog-qss-t1", customerId="qss", oem="OEM A", model="T1 pickup", oemPlant="Silao, Guanajuato", dailyVehicles=380),
-    dict(id="prog-slp-c2", customerId="slp-interiors", oem="OEM C", model="C2 crossover", oemPlant="San Luis Potosí, San Luis Potosí", dailyVehicles=900),
+    dict(id="prog-qss-k3", customerId="qss", oem="OEM A", model="K3 compact SUV", oemPlant="Silao, Guanajuato", dailyVehicles=1150, revenuePerVehicleMxn=21000),
+    dict(id="prog-qss-m5", customerId="qss", oem="OEM B", model="M5 midsize sedan", oemPlant="Aguascalientes, Aguascalientes", dailyVehicles=620, revenuePerVehicleMxn=17500),
+    dict(id="prog-qss-t1", customerId="qss", oem="OEM A", model="T1 pickup", oemPlant="Silao, Guanajuato", dailyVehicles=380, revenuePerVehicleMxn=24000),
+    dict(id="prog-slp-c2", customerId="slp-interiors", oem="OEM C", model="C2 crossover", oemPlant="San Luis Potosí, San Luis Potosí", dailyVehicles=900, revenuePerVehicleMxn=9000),
 ]
 # Part number -> programmes. Parts not listed go into every programme of their customer (screws, resin, springs...).
 # Story: the lumbar air line at risk (Orizaba) is a premium-seat part used only on the K3, so the M5 line is safe.

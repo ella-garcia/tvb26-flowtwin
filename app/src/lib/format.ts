@@ -3,6 +3,8 @@ const mxn0 = new Intl.NumberFormat("en-US", { style: "currency", currency: "MXN"
 
 /** MX$12,000 */
 export const mxn = (v: number) => mxn0.format(Math.round(v)).replace(/^MX\$|^\$/, "MX$");
+/** Unit prices keep centavos below MX$100: MX$0.62, MX$44.00, MX$1,250 */
+export const mxnUnit = (v: number) => (v < 100 ? `MX$${v.toFixed(2)}` : mxn(v));
 /** 91.4% from 0.914 */
 export const pct = (v: number, digits = 1) => `${(v * 100).toFixed(digits).replace(/\.0$/, "")}%`;
 export const num = (v: number, digits = 0) => v.toLocaleString("en-US", { maximumFractionDigits: digits, minimumFractionDigits: digits });

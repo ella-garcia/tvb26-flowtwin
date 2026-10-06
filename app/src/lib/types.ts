@@ -182,6 +182,8 @@ export interface VehicleProgram {
   model: string;               // "K3 compact SUV"
   oemPlant: string;            // where the OEM assembles it, e.g. "Silao, Guanajuato"
   dailyVehicles: number;       // planned vehicles per day
+  /** The key customer's own content value per vehicle (seat set or trim it sells), MXN. Estimated; What-if only. */
+  revenuePerVehicleMxn?: number;
 }
 
 export type SignalKind = "weather" | "road" | "theft" | "port" | "blockade" | "supplier" | "customs";
@@ -213,7 +215,7 @@ export type RiskLevel = "green" | "amber" | "red";
 /** A recommended action for one supplier in the what-if view. */
 export interface ScenarioAction { id: string; label: string; detail: string }
 /** combos: key = one "0"/"1" per action, in `actions` order -> 12 weekly results with those actions in place. */
-export interface Scenarios { actions: ScenarioAction[]; combos: Record<string, { level: RiskLevel; extraDays: number }[]> }
+export interface Scenarios { actions: ScenarioAction[]; combos: Record<string, { level: RiskLevel; extraDays: number; shortDays?: number }[]> }
 
 /** One week of the 12-week outlook. */
 export interface OutlookWeek {

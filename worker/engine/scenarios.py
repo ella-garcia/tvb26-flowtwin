@@ -9,6 +9,7 @@ Action effects (deliberately simple and stated in the app):
   cover      : more days of cover on critical parts (in `weeks` only, if given)
   from_week  : the action only counts from that week (e.g. second-source qualification)
   clears     : from then on a delay at this supplier no longer threatens the line (level OK)
+Each week also carries shortDays: the days the delay outruns the cover (0-7), i.e. days the line would be down.
 """
 from itertools import product
 
@@ -69,7 +70,7 @@ def weeks_with(supplier, parts, signals, as_of, normal, action_ids):
         live = [a for a in acts if w >= a.get("from_week", 0) and (not a.get("weeks") or w in a["weeks"])]
         cover = base_cover + sum(a.get("cover", 0) for a in live)
         delay = 0.0 if any(a.get("clears") for a in live) else week_delay(supplier, sigs, week_days(as_of, w), normal)
-        out.append(dict(level=level_for(delay, cover), extraDays=round(delay, 1)))
+        out.append(dict(level=level_for(delay, cover), extraDays=round(delay, 1), shortDays=round(min(7.0, max(0.0, delay - cover)), 1)))
     return out
 
 
