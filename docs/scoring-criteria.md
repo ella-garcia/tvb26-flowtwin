@@ -115,9 +115,12 @@ These percentages are modelling assumptions. They have not been measured yet.
 | **Benefit by lever** | Risk board | Each optimization on its own vs no action, summed over suppliers. *Risk-weeks better* counts each step down per week (High→Watch = 1, High→OK = 2, Watch→OK = 1). Also *line-down days avoided*, and how many suppliers improve. |
 | **Line uptime %** | Risk board, What-if | Per model and week: 1 − (line-down days ÷ 7). A model is down for the worst supplier of its line-stopper or high parts that week. The total is weighted by planned vehicles per day. |
 | **Revenue lost / protected** (MXN) | What-if only | Vehicles not built = line-down days × planned vehicles per day. Lost = vehicles × the Tier 1's content value per vehicle (estimated: K3 MX$21,000, M5 MX$17,500, T1 MX$24,000). Protected = lost with no action − lost with the optimizations. |
+| **Revenue at risk by week** (MXN) | What-if only | Per week: line-down days × planned vehicles per day × content value per vehicle, summed over models; no action vs the chosen optimizations. |
+| **Return on each optimization** (MXN) | What-if only | Each optimization on its own, one supplier at a time, vs no action: revenue protected, stock it adds, and protected per peso of stock. Route, customs, security and second source are not costed. |
+| **Revenue gained from +15% demand** (MXN) | What-if only | Extra volume = 15% × planned vehicles per day × days in the horizon × content value per vehicle. A supplier delivers (service level under the surge × 1.15 − 1) ÷ 0.15 of the extra; a model takes the share of its weakest supplier of critical parts. |
 | **Stock added** (MXN) | What-if only | Added days × daily usage × the Tier 1's unit cost, per critical part. Route, customs and second-source actions are not costed: the data has no freight or qualification costs. |
 
-**Money rule:** no money on the risk board, alerts or emails. MXN only on What-if, from the Tier 1's own data, always marked estimated (see `BRIEF.md`).
+**Money rule:** no money on the risk board, alerts or emails. MXN only on What-if, from the Tier 1's own data, always marked estimated (see `BRIEF.md`). Each alert links to What-if filtered to its supplier ("See value at risk in What-if"), so the money is one click away but never inside the alert or email. Unit prices are not shown on the supplier page, which suppliers also see.
 
 ---
 

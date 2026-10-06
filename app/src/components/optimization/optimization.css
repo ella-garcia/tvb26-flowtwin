@@ -58,3 +58,12 @@
 .opt-rev-after { display: block; height: 12px; background: var(--risk-red); border-radius: 3px; }
 .opt-cost-safety_stock { background: var(--primary); }
 .opt-cost-pull_forward { background: var(--chart-2); }
+.opt-scroll { overflow-x: auto; min-width: 0; }
+.opt-table-wide { max-width: none; }
+.opt-muted { color: var(--ink-subtle); }
+.opt-money-before { fill: color-mix(in srgb, var(--risk-red) 30%, var(--surface-raised)); stroke: var(--risk-red); stroke-width: 1; stroke-dasharray: 3 2; }
+.opt-money-after { fill: var(--risk-red); }
+.opt-money-before-key { background: color-mix(in srgb, var(--risk-red) 30%, var(--surface-raised)); border: 1px dashed var(--risk-red); }
+.opt-money-after-key { background: var(--risk-red); }
+.opt-up-potential { display: block; height: 12px; background: color-mix(in srgb, var(--success) 30%, var(--surface-raised)); border: 1px dashed var(--success); border-radius: 3px; }
+.opt-up-captured { display: block; height: 12px; background: var(--success); border-radius: 3px; }

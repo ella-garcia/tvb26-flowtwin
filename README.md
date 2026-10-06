@@ -24,7 +24,9 @@ Open http://localhost:5173. The yellow **Testing** bar switches role (Key custom
    supplier-weeks from 3 to 0 and Watch from 18 to 6; the chart shows before and after per week.
 7. Back on the **Risk board**, "Optimization score": "All adopt" lifts the score from 80 (Fair) to 95 (Good); route and weather
    is the strongest lever; line uptime goes from about 82% to 100% in the first two weeks. "Randomize optimizations" draws
-   which suppliers adopt. What-if shows the same scenario in MXN: revenue protected per model and stock added per part.
+   which suppliers adopt. What-if shows the same scenario in MXN: revenue at risk by week, revenue protected per model,
+   return on each optimization, revenue gained if the OEM raises volume 15%, and stock added per part. From an alert,
+   "See value at risk in What-if" opens What-if for that supplier only.
 8. **Alerts**: choose "Pull the next order forward" → Acknowledge.
 9. **Invite**: invite another supplier (sponsored, free for them).
 10. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.

@@ -6,8 +6,8 @@ import { Card, CompanyMark, FormulaSource, ModelSelect, PageHeader, ProvenanceTa
 import { StatCard } from "../../keystone";
 import { date, mxn, num } from "../../lib/format";
 import { ALL_PROGRAMS, modelLabel, partsOn } from "../../lib/programs";
-import { actionable, drawStats, everyone, levelsFor, noneKey, optimizationView, scenarioChoice, totals, type Choice, type ScenarioRow } from "../../lib/scenarios";
-import { CostBars, RevenueChart, ScoreGauge, UptimeChart } from "../../components/optimization/Charts";
+import { actionReturns, actionable, downDays, drawStats, everyone, flexUpside, weeklyRevenueLost, levelsFor, noneKey, optimizationView, scenarioChoice, totals, type Choice, type ScenarioRow } from "../../lib/scenarios";
+import { CostBars, ReturnsTable, RevenueChart, ScoreGauge, UpsideChart, UptimeChart, WeeklyMoneyChart } from "../../components/optimization/Charts";
 import { ScenarioControls } from "../../components/optimization/Controls";
 import { useScoped } from "../../lib/useScoped";
 import type { RiskLevel } from "../../lib/types";
@@ -72,23 +72,36 @@ function RangeBar({ label, base, now, p10, p50, p90 }: { label: string; base: nu
 }
 
 export default function WhatIfPage() {
-  const { db, go, toggles, programId, scenario, setScenario } = useApp();
+  const { db, go, route, toggles, programId, scenario, setScenario } = useApp();
+  const focus = route.sub;  // #what-if/<supplierId>: opened from an alert, one supplier only
   const { weeks, share, seed } = scenario;
 
   const loaded = useScoped(() => {
     const customerId = toggles.companyId;
     const program = db.programs().find((g) => g.id === programId);
     const parts = partsOn(db.parts().filter((p) => p.customerId === customerId), program ? program.id : ALL_PROGRAMS);
-    const rows: ScenarioRow[] = db.risks().filter((r) => r.customerId === customerId && parts.some((p) => p.supplierId === r.supplierId))
+    const rows: ScenarioRow[] = db.risks().filter((r) => r.customerId === customerId && parts.some((p) => p.supplierId === r.supplierId)
+      && (!focus || r.supplierId === focus))
       .map((risk) => ({ id: risk.supplierId, name: db.company(risk.supplierId)?.name ?? risk.supplierId, risk }));
     const programs = program ? [program] : db.programs().filter((g) => g.customerId === customerId);
-    return { rows, program, programs, parts, plant: db.company(customerId) };
-  }, [db, toggles.companyId, programId]);
+    return { rows, program, programs, parts, plant: db.company(customerId), swing: db.settings()?.contractDemandSwing ?? 0.15 };
+  }, [db, toggles.companyId, programId, focus]);
 
   const rows = loaded.ok ? loaded.data.rows : NO_ROWS;
   const choice = useMemo<Choice>(() => scenarioChoice(rows, scenario), [rows, scenario]);
   const stats = useMemo(() => drawStats(rows, share, weeks), [rows, share, weeks]);
   const opt = useMemo(() => loaded.ok ? optimizationView(rows, choice, weeks, loaded.data.programs, loaded.data.parts) : null, [loaded, rows, choice, weeks]);
+  const money = useMemo(() => {
+    if (!loaded.ok) return null;
+    const { programs, parts, swing } = loaded.data;
+    return {
+      weeklyBefore: weeklyRevenueLost(downDays(rows, {}, weeks, programs, parts), programs, weeks),
+      weeklyAfter: weeklyRevenueLost(downDays(rows, choice, weeks, programs, parts), programs, weeks),
+      returns: actionReturns(rows, weeks, programs, parts),
+      upside: flexUpside(rows, weeks, programs, parts, swing),
+      swing,
+    };
+  }, [loaded, rows, choice, weeks]);
   if (!loaded.ok) return <ScopedError title="What-if" error={loaded.error} />;
   const { program, plant } = loaded.data;
 
@@ -111,6 +124,13 @@ export default function WhatIfPage() {
     <>
       <PageHeader title="What-if" logo={plant && <CompanyMark name={plant.name} />} actions={<ModelSelect />}
         caption={`${program ? `${modelLabel(program)} · ` : ""}What changes in the next ${weeks} weeks if suppliers act on their recommendations`} />
+
+      {focus && (
+        <div className="what-if-focus" role="status">
+          Showing only <b>{rows[0]?.name ?? focus}</b>: the value at risk from this supplier and what its optimizations protect.
+          <button type="button" className="ft-linkbtn" onClick={() => go("what-if")}>Show all suppliers</button>
+        </div>
+      )}
 
       <Card title="Scenario">
         <ScenarioControls onAll={(all) => setScenario({ overrides: everyone(rows, weeks, all) })} />
@@ -157,6 +177,27 @@ export default function WhatIfPage() {
           <p className="what-if-net ks-num">Revenue protected <b>{mxn(protectedMxn)}</b> · extra stock held <b>{mxn(stockMxn)}</b>. Stock is working capital you hold, not an expense.</p>
           <RevenueChart rows={opt.revenue} />
           <FormulaSource formula="Vehicles not built = line-down days × planned vehicles per day, per model. Revenue lost = vehicles not built × your content value per vehicle (seat set or trim you sell for that model). Protected = lost with no action − lost with the chosen optimizations." data={`Your content value per vehicle: ${opt.revenue.map((r) => `${r.program.model} ${mxn(r.program.revenuePerVehicleMxn ?? 0)}`).join(", ")} (estimated); planned vehicles per day per model.`} provenance="estimated" />
+        </Card>
+      )}
+
+      {money && (
+        <Card title="Revenue at risk by week (MXN, estimated)">
+          <WeeklyMoneyChart before={money.weeklyBefore} after={money.weeklyAfter} labels={labels} />
+          <FormulaSource formula="Per week: line-down days × planned vehicles per day × your content value per vehicle, summed over models; no action vs the chosen optimizations." data="Engine results per supplier and action, vehicle models, your content value per vehicle (estimated)." provenance="estimated" />
+        </Card>
+      )}
+
+      {money && (
+        <Card title="Return on each optimization (MXN, estimated)">
+          <ReturnsTable rows={money.returns} />
+          <FormulaSource formula="Each optimization on its own, one supplier at a time, against no action: revenue protected over the horizon, and the stock it adds (added days × daily usage × your unit cost). Protected per peso of stock = revenue protected ÷ stock added. Route, customs, security and second-source optimizations are not costed: there are no freight, broker or qualification costs in your data." data="Engine results per supplier and action, your unit costs and daily usage, your content value per vehicle (estimated)." provenance="estimated" />
+        </Card>
+      )}
+
+      {money && (
+        <Card title={`Revenue gained if the OEM raises volume ${Math.round(money.swing * 100)}% (MXN, estimated)`}>
+          <UpsideChart rows={money.upside} swing={money.swing} />
+          <FormulaSource formula={`Extra volume = ${Math.round(money.swing * 100)}% × planned vehicles per day × days in the horizon × your content value per vehicle. A supplier delivers (service level under the surge × (1 + ${Math.round(money.swing * 100)}%) − 1) ÷ ${Math.round(money.swing * 100)}% of the extra; a model can take the share of its weakest supplier of critical parts.`} data="The +15% demand test of each supplier (service level and bottleneck), vehicle models, your content value per vehicle (estimated)." provenance="estimated" />
         </Card>
       )}
 

@@ -14532,7 +14532,7 @@
     {
      "id": "act-hmo-2",
      "label": "Add 2 days of safety stock",
-     "description": "Raise the lumbar air line safety stock to 5 days until the rainy season ends (about MX$38k of inventory)."
+     "description": "Raise the lumbar air line safety stock from 3 to 5 days until the rainy season ends (about 3,600 more units)."
     },
     {
      "id": "act-hmo-3",
@@ -14598,7 +14598,7 @@
     {
      "id": "act-tsr-2",
      "label": "Add 3 days of safety stock",
-     "description": "Buy a one-off buffer of M6 flange screws; at MX$0.62 each this is under MX$30k for 3 days."
+     "description": "Buy a one-off buffer of 3 days of M6 flange screws (about 43,200 screws)."
     },
     {
      "id": "act-tsr-3",

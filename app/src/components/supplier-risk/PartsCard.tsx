@@ -2,7 +2,7 @@
 import { useApp } from "../../app/AppContext";
 import { Card, CritPill, ProvenanceTag } from "../shared";
 import { DataTable, StatusPill, type Column } from "../../keystone";
-import { date, mxn, num, rowNo } from "../../lib/format";
+import { date, num, rowNo } from "../../lib/format";
 import { programsOf } from "../../lib/programs";
 import { CRIT_RANK, partStock } from "../../lib/stock";
 import type { Part, RiskAssessment, VehicleProgram } from "../../lib/types";
@@ -39,7 +39,6 @@ export function PartsCard({ parts, programs, risk, supplierId, audience }: Props
         </span>
       );
     } },
-    { key: "unitCostMxn", label: "Unit cost", numeric: true, align: "right", render: (p) => mxn(p.unitCostMxn) },
   ];
 
   return (
@@ -47,7 +46,7 @@ export function PartsCard({ parts, programs, risk, supplierId, audience }: Props
       {sorted.length === 0 ? <p className="supplier-risk-note">No parts are shared for this supplier yet.</p> : (
         <DataTable<Part> caption="Parts from this supplier" columns={cols} rows={sorted} />
       )}
-      <p className="supplier-risk-note">Ranked by line-stop risk, not by value. A MX$2 clip can stop a line.
+      <p className="supplier-risk-note">Ranked by line-stop risk, not by value: a small clip can stop a line.
         {audience === "customer" && <> <button type="button" className="ft-linkbtn" onClick={() => go("parts", supplierId)}>See these parts on Parts &amp; stock</button></>}</p>
     </Card>
   );

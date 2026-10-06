@@ -1,5 +1,5 @@
 // Optimization charts shared by the risk board and the What-if page. Hand-drawn SVG, tokens only, words with every status.
-import { mxn, mxnUnit, num, pct } from "../../lib/format";
+import { mxn, mxnCompact, mxnUnit, num, pct } from "../../lib/format";
 import type { Part, VehicleProgram } from "../../lib/types";
 import "./optimization.css";
 
@@ -134,5 +134,80 @@ export function CostBars({ lines, notCosted, top = 8 }: { lines: { part: Part; l
       </ul>
       {notCosted.length > 0 && <p className="opt-note">Not costed (no freight or qualification costs in your data): {notCosted.join(", ")}.</p>}
     </>
+  );
+}
+
+/** Revenue lost per week (MXN): no action (dashed outline) vs with optimizations (solid). */
+export function WeeklyMoneyChart({ before, after, labels }: { before: number[]; after: number[]; labels: string[] }) {
+  const n = before.length, W = 720, H = 210, L = 64, R = 8, T = 10, B = 30;
+  if (before.every((v) => v === 0)) return <p className="opt-note">No revenue is at risk in this horizon, even with no action.</p>;
+  const max = Math.max(...before, ...after);
+  const step = (W - L - R) / n, bw = Math.min(24, step * 0.36);
+  const y = (v: number) => T + (H - T - B) * (1 - v / max);
+  return (
+    <>
+      <svg className="opt-chart" viewBox={`0 0 ${W} ${H}`} role="img"
+        aria-label={`Revenue lost per week. No action: ${before.map(mxnCompact).join(", ")}. With optimizations: ${after.map(mxnCompact).join(", ")}.`}>
+        {[0, max / 2, max].map((t) => <g key={t}><line className="opt-grid" x1={L} x2={W - R} y1={y(t)} y2={y(t)} /><text className="opt-axis" x={L - 8} y={y(t) + 4} textAnchor="end">{mxnCompact(t)}</text></g>)}
+        {before.map((v, i) => {
+          const cx = L + step * i + step / 2;
+          return (
+            <g key={i}>
+              <rect className="opt-money-before" x={cx - bw - 2} y={y(v)} width={bw} height={y(0) - y(v)}><title>{`${labels[i]}: ${mxn(v)} with no action`}</title></rect>
+              <rect className="opt-money-after" x={cx + 2} y={y(after[i])} width={bw} height={y(0) - y(after[i])}><title>{`${labels[i]}: ${mxn(after[i])} with optimizations`}</title></rect>
+              <text className="opt-axis" x={cx} y={H - 10} textAnchor="middle">{labels[i]}</text>
+            </g>
+          );
+        })}
+      </svg>
+      <ul className="opt-legend">
+        <li><span className="opt-key opt-money-before-key" />No action</li>
+        <li><span className="opt-key opt-money-after-key" />With optimizations</li>
+      </ul>
+    </>
+  );
+}
+
+/** Each optimization on its own: revenue protected vs stock added (MXN). */
+export function ReturnsTable({ rows }: { rows: { id: string; label: string; suppliers: number; protectedMxn: number; stockMxn: number; costed: boolean }[] }) {
+  const shown = rows.filter((r) => r.protectedMxn > 0 || r.stockMxn > 0);
+  if (!shown.length) return <p className="opt-note">No optimization changes revenue in this horizon.</p>;
+  return (
+    <div className="opt-scroll">
+      <table className="opt-table opt-table-wide">
+        <thead><tr><th scope="col">Optimization</th><th scope="col">Suppliers</th><th scope="col">Revenue protected</th><th scope="col">Stock added</th><th scope="col">Protected per peso of stock</th></tr></thead>
+        <tbody>
+          {shown.map((r) => (
+            <tr key={r.id}>
+              <th scope="row">{r.label}</th>
+              <td className="ks-num">{r.suppliers}</td>
+              <td className="ks-num">{mxn(r.protectedMxn)}</td>
+              <td className="ks-num">{r.costed ? mxn(r.stockMxn) : <span className="opt-muted">Not costed</span>}</td>
+              <td className="ks-num">{r.costed && r.stockMxn > 0 ? `${num(r.protectedMxn / r.stockMxn, 0)} to 1` : <span className="opt-muted">n/a</span>}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** Revenue the Tier 1 could gain if the OEM raises volume (contract swing), and how much its suppliers can deliver. */
+export function UpsideChart({ rows, swing }: { rows: { program: VehicleProgram; potential: number; captured: number; share: number; vehicles: number; blockers: { name: string; share: number; bottleneck: string }[] }[]; swing: number }) {
+  const max = Math.max(1, ...rows.map((r) => r.potential));
+  return (
+    <ul className="opt-rev" aria-label={`Revenue gained per model if volume rises ${pct(swing, 0)}`}>
+      {rows.map((r) => (
+        <li key={r.program.id}>
+          <div className="opt-rev-head"><b>{r.program.model}</b> <small>{r.program.oem}</small>
+            <span className="ks-num">you can take <b className={r.share >= 0.999 ? "opt-up" : "opt-down"}>{pct(r.share, 0)}</b> of it</span></div>
+          <div className="opt-rev-bar"><span className="opt-up-potential" style={{ width: `${(r.potential / max) * 100}%` }} /><em className="ks-num">Extra volume: {mxn(r.potential)} · {num(r.vehicles)} vehicles</em></div>
+          <div className="opt-rev-bar"><span className="opt-up-captured" style={{ width: `${(r.captured / max) * 100}%` }} /><em className="ks-num">Your suppliers can deliver: {mxn(r.captured)}</em></div>
+          {r.blockers.length > 0 && (
+            <p className="opt-note">Limited by {r.blockers.map((b) => `${b.name} (${pct(b.share, 0)} of the extra, at ${b.bottleneck})`).join("; ")}.</p>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }

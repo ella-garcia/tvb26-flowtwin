@@ -36,3 +36,5 @@ rect.what-if-after { stroke: var(--ink); }
 .what-if-action small { color: var(--ink-muted); font-size: 12px; }
 .what-if-net { font: 400 14px/20px var(--font-sans); color: var(--ink-muted); margin: 0; }
 .what-if-net b { color: var(--ink); font-weight: 600; }
+.what-if-focus { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); background: var(--surface-raised); font: 400 14px/20px var(--font-sans); color: var(--ink-muted); }
+.what-if-focus b { color: var(--ink); font-weight: 600; }

@@ -196,3 +196,53 @@ export function optimizationView(rows: ScenarioRow[], choice: Choice, weeks: num
     actingNow: rows.filter((r) => actionable(r.risk, weeks) && (choice[r.id] ?? noneKey(r.risk)).includes("1")).length,
   };
 }
+
+// ---------------------------------------------------------------- money views (What-if only, MXN, estimated)
+
+/** Revenue lost per week across models (MXN): line-down days x planned vehicles x revenue per vehicle. */
+export function weeklyRevenueLost(down: Record<string, number[]>, programs: VehicleProgram[], weeks: number): number[] {
+  return Array.from({ length: weeks }, (_, k) =>
+    programs.reduce((s, g) => s + (down[g.id]?.[k] ?? 0) * g.dailyVehicles * (g.revenuePerVehicleMxn ?? 0), 0));
+}
+
+const totalLost = (down: Record<string, number[]>, programs: VehicleProgram[]) =>
+  revenueLost(down, programs).reduce((a, r) => a + r.mxn, 0);
+
+/** Each optimization on its own, per supplier, summed by action: revenue protected vs stock it adds (MXN). */
+export function actionReturns(rows: ScenarioRow[], weeks: number, programs: VehicleProgram[], parts: Part[]) {
+  const base = totalLost(downDays(rows, {}, weeks, programs, parts), programs);
+  const out = new Map<string, { id: string; label: string; suppliers: number; protectedMxn: number; stockMxn: number; costed: boolean }>();
+  for (const r of rows) {
+    if (!actionable(r.risk, weeks)) continue;
+    const acts = r.risk.scenarios?.actions ?? [];
+    acts.forEach((a, i) => {
+      const choice: Choice = { [r.id]: acts.map((_, j) => (j === i ? "1" : "0")).join("") };
+      const saved = base - totalLost(downDays(rows, choice, weeks, programs, parts), programs);
+      const cost = actionCost(rows, choice, parts);
+      const e = out.get(a.id) ?? { id: a.id, label: a.label, suppliers: 0, protectedMxn: 0, stockMxn: 0, costed: STOCK_DAYS[a.id] != null };
+      e.suppliers++; e.protectedMxn += saved; e.stockMxn += cost.lines.reduce((x, l) => x + l.mxn, 0);
+      out.set(a.id, e);
+    });
+  }
+  return [...out.values()].sort((a, b) => b.protectedMxn - a.protectedMxn);
+}
+
+/** If the OEM raises volume by `swing` (contract +15%): extra revenue per model over the horizon, and how much the
+ *  suppliers of its critical parts can deliver (flex test). A supplier at service level s under the surge delivers
+ *  (s x (1 + swing) - 1) / swing of the extra volume; the model captures the weakest supplier's share. */
+export function flexUpside(rows: ScenarioRow[], weeks: number, programs: VehicleProgram[], parts: Part[], swing: number) {
+  const days = weeks * 7;
+  return programs.map((g) => {
+    const feeding = new Set(parts.filter((p) => p.programIds?.includes(g.id) && p.criticality !== "normal").map((p) => p.supplierId));
+    let share = 1;
+    const blockers: { name: string; share: number; bottleneck: string }[] = [];
+    for (const r of rows) {
+      if (!feeding.has(r.id) || !r.risk.flex) continue;
+      const s = Math.max(0, Math.min(1, (r.risk.flex.serviceLevel * (1 + swing) - 1) / swing));
+      if (s < 0.999) blockers.push({ name: r.name, share: s, bottleneck: r.risk.flex.bottleneck });
+      share = Math.min(share, s);
+    }
+    const potential = swing * g.dailyVehicles * days * (g.revenuePerVehicleMxn ?? 0);
+    return { program: g, potential, captured: potential * share, share, vehicles: Math.round(swing * g.dailyVehicles * days), blockers: blockers.sort((a, b) => a.share - b.share) };
+  });
+}

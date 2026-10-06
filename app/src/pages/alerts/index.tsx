@@ -140,6 +140,7 @@ export default function AlertsPage() {
                   )}
                   {!closed && <Button variant="secondary" onClick={() => dispatch({ type: "resolve-alert", id: a.id })}>Mark resolved</Button>}
                   <Button variant="secondary" icon="eye" onClick={() => go("supplier", a.supplierId)}>View supplier</Button>
+                  <Button variant="secondary" icon="chart" onClick={() => go("what-if", a.supplierId)}>See value at risk in What-if</Button>
                 </div>
               </Card>
             );
