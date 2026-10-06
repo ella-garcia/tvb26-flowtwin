@@ -1,36 +1,24 @@
 #!/usr/bin/env python3
-"""FlowTwin v0 seed + risk engine. Standard library only, deterministic.
+"""FlowTwin v0 seed. Standard library only, deterministic.
 
 Run:  python3 data-gen/generate_seed.py      (writes app/src/data/seed/seed.json)
-See data-gen/README.md for the model.
+Risks and alerts come from the worker's risk engine (worker/engine, also stdlib only). See data-gen/README.md.
 """
-import json, math, random, os
+import json, math, os, sys
 from datetime import date, timedelta
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "worker"))
+from engine.alerts import make_alert as eng_alert  # noqa: E402
+from engine.risk import compute_pair  # noqa: E402
+from naming import to_camel, to_snake  # noqa: E402
+
 ASOF = date(2026, 10, 5)
-HORIZON = 14
-RUNS = 500
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app", "src", "data", "seed", "seed.json")
-RNG = random.Random(20261005)
 
 SETTINGS = {"lineStopCostEurPerMinute": 15000, "contractDemandSwing": 0.15, "lineHoursPerDay": 16}
-SHIFT_MIN = 480  # a stoppage is capped at one 8-hour shift
-CRIT_W = {"line-stopper": 1.0, "high": 0.4, "normal": 0.05}
 
 
 def iso(d): return d.isoformat()
-def D(s): return date.fromisoformat(s)
-
-
-def hav(lat1, lon1, lat2, lon2):
-    r = 6371.0
-    p1, p2 = math.radians(lat1), math.radians(lat2)
-    dp, dl = p2 - p1, math.radians(lon2 - lon1)
-    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
-    return 2 * r * math.asin(math.sqrt(a))
-
-
-def clamp(x, lo=0.0, hi=1.0): return max(lo, min(hi, x))
 
 
 # ----------------------------------------------------------------- customers
@@ -43,6 +31,32 @@ CUSTOMERS = [
          contact=dict(name="Mauricio Del Valle", email="m.delvalle@slp-interiors.example", role="Purchasing director")),
 ]
 CUST = {c["id"]: c for c in CUSTOMERS}
+
+# ----------------------------------------------------------------- vehicle programmes (fictional OEMs and models)
+# A Tier 1 seating plant builds for several models at once (e.g. one seat plant, a compact SUV and a sedan line).
+PROGRAMS = [
+    dict(id="prog-qss-k3", customerId="qss", oem="OEM A", model="K3 compact SUV", oemPlant="Silao, Guanajuato", dailyVehicles=1150),
+    dict(id="prog-qss-m5", customerId="qss", oem="OEM B", model="M5 midsize sedan", oemPlant="Aguascalientes, Aguascalientes", dailyVehicles=620),
+    dict(id="prog-qss-t1", customerId="qss", oem="OEM A", model="T1 pickup", oemPlant="Silao, Guanajuato", dailyVehicles=380),
+    dict(id="prog-slp-c2", customerId="slp-interiors", oem="OEM C", model="C2 crossover", oemPlant="San Luis Potosí, San Luis Potosí", dailyVehicles=900),
+]
+# Part number -> programmes. Parts not listed go into every programme of their customer (screws, resin, springs...).
+# Story: the lumbar air line at risk (Orizaba) is a premium-seat part used only on the K3, so the M5 line is safe.
+PART_PROGRAMS = {
+    "QSS-6120-LMB": ["prog-qss-k3"],
+    "QSS-6140-CLH": ["prog-qss-k3", "prog-qss-t1"],
+    "QSS-4480-RCP": ["prog-qss-k3", "prog-qss-m5"],
+    "QSS-4492-XMB": ["prog-qss-k3", "prog-qss-t1"],
+    "QSS-7205-TRM": ["prog-qss-m5"],
+    "QSS-7218-HDL": ["prog-qss-k3", "prog-qss-m5"],
+    "QSS-3108-LTH": ["prog-qss-t1"],
+    "QSS-8401-HRN": ["prog-qss-k3", "prog-qss-t1"],
+    "QSS-2306-HNG": ["prog-qss-k3", "prog-qss-m5"],
+}
+
+
+def program_ids(cid, number):
+    return PART_PROGRAMS.get(number) or [g["id"] for g in PROGRAMS if g["customerId"] == cid]
 
 # ----------------------------------------------------------------- suppliers
 # part tuple: (number, name, unitCostMxn, dailyUsage, coverDays, singleSource, criticality)
@@ -143,7 +157,27 @@ sup(id="pis", name="Pinturas Industriales de San Luis", city="San Luis Potosí",
     cust={"slp-interiors": dict(share=0.60, parts=[
         ("SLP-5101-PWD", "Powder coat, textured black (kg)", 96.0, 480, 12.0, False, "normal"),
         ("SLP-5110-CPT", "Coated door support bracket", 7.4, 2600, 4.0, False, "high")])})
+# Imported material: crosses the border at Nuevo Laredo, so the route has border and customs legs (D, Oct 2026).
+# Leg days are normal times; signals slow only the legs they reach (worker/engine/projection.py SIGNAL_LEGS).
+sup(id="pfl", name="Polímeros Frontera", city="Laredo", state="Texas", lat=27.53, lon=-99.49, size="small", emp=45,
+    scian="424610", status="connected", cv=0.18, hw=["MEX-85D", "MEX-57D"], bn="Customs clearance at Nuevo Laredo", util=0.70, ceil=0.95, fg=3.0,
+    contact=dict(name="Carlos Garza", email="cgarza@pfl.example", role="Logistics manager"),
+    otif=(0.962, 0.95, "flat"),
+    route=[dict(kind="road", label="Road to the border", place="Laredo, Texas", lat=27.53, lon=-99.49, days=0.5, highways=["I-35"]),
+           dict(kind="border", label="Border crossing", place="Nuevo Laredo", lat=27.60, lon=-99.53, days=0.5, highways=[]),
+           dict(kind="customs", label="Mexican customs clearance", place="Nuevo Laredo", lat=27.48, lon=-99.51, days=1.0, highways=[]),
+           dict(kind="road", label="Road to Querétaro", place="MEX-85D and MEX-57D", lat=25.67, lon=-100.31, days=2.0,
+                highways=["MEX-85D", "MEX-57D"])],
+    cust={"qss": dict(share=0.15, parts=[
+        ("QSS-5401-PPH", "PP homopolymer pellets, imported (kg)", 38.0, 1500, 5.0, True, "high")])})
 SUP = {s["id"]: s for s in S}
+
+
+def eng_supplier(sp):
+    """Supplier spec -> engine supplier dict (companies row merged with its profile)."""
+    return dict(id=sp["id"], name=sp["name"], city=sp["city"], lat=sp["lat"], lon=sp["lon"], highways=sp["hw"],
+                lead_time_variability=sp["cv"], utilization=sp["util"], ceiling=sp["ceil"], fg_days=sp["fg"],
+                bottleneck=sp["bn"], otif=sp["otif"], data_status=sp["status"], **({"route": sp["route"]} if sp.get("route") else {}))
 
 # ----------------------------------------------------------------- signals
 SIGNALS = [
@@ -187,183 +221,46 @@ SIGNALS = [
          description="Daily storms flood low-lying roads around Toluca and slow trucks on MEX-15D.",
          state="México", lat=19.29, lon=-99.65, radiusKm=50, highways=[], startsAt="2026-09-30", endsAt="2026-10-15",
          severity="low", transitMultiplier=1.1, source="SMN daily forecast (seeded for demo)"),
+    dict(id="sig-customs-nld", kind="customs", short="Customs system outage at Nuevo Laredo",
+         title="Customs system outage, Nuevo Laredo commercial bridge",
+         description="Repeated failures of the customs system slowed the release of cargo at the Nuevo Laredo commercial bridge. Trucks queue for kilometres and the backlog clears slowly; release takes about three times longer. Modelled on press reports of ANAM outages.",
+         state="Tamaulipas", lat=27.50, lon=-99.52, radiusKm=25, highways=[], startsAt="2026-10-03", endsAt="2026-10-20",
+         severity="high", transitMultiplier=3.0, source="Press reports of ANAM system outages (seeded for demo)"),
 ]
 for s in SIGNALS: s["provenance"] = "estimated"
-SIG = {s["id"]: s for s in SIGNALS}
 
 
-def affects(sp, sig):
-    return hav(sp["lat"], sp["lon"], sig["lat"], sig["lon"]) <= sig["radiusKm"] or bool(set(sp["hw"]) & set(sig["highways"]))
+# ----------------------------------------------------------------- risk (worker/engine via adapters)
+ENG_SETTINGS = to_snake(SETTINGS)
+ENG_SIGNALS = [to_snake(s) for s in SIGNALS]  # radius_km, starts_at, ...; `short` stays for the driver labels
 
 
-def active_on(sig, d): return D(sig["startsAt"]) <= d <= D(sig["endsAt"])
+def eng_part(p):
+    num, name, _ucost, _usage, c0, single, crit = p
+    return dict(id=f"part-{num.lower()}", number=num, name=name, days_of_cover=c0, criticality=crit, single_source=single)
 
 
-def mult_on(sp, d):
-    m = 1.0
-    for sig in SIGNALS:
-        if affects(sp, sig) and active_on(sig, d): m *= sig["transitMultiplier"]
-    return m
-
-
-def pct(sorted_vals, p): return sorted_vals[min(len(sorted_vals) - 1, int(p * len(sorted_vals)))]
-
-
-# ----------------------------------------------------------------- flex
-def run_flex(sp, swing):
-    u, ceil_, fg = sp["util"], sp["ceil"], sp["fg"]
-    rng = random.Random(hash_seed(sp["id"], "flex"))
-    sl, backlogs, recov = [], [], []
-    for _ in range(300):
-        stock, fg0, backlog, unmet_tot, dem_tot = fg * u, fg * u, 0.0, 0.0, 0.0
-        for _d in range(28):
-            demand = u * (1 + swing) * (1 + rng.gauss(0, 0.04))
-            cap = ceil_ * (1 + rng.gauss(0, 0.03))
-            avail = cap + stock
-            ship = min(demand, avail)
-            unmet = demand - ship
-            stock = min(fg0, avail - ship)
-            backlog += unmet; unmet_tot += unmet; dem_tot += demand
-        spare = max(0.005, ceil_ - u)
-        sl.append(1 - unmet_tot / dem_tot); backlogs.append(backlog); recov.append(backlog / spare)
-    service = sum(sl) / len(sl)
-    days = sum(recov) / len(recov)
-    can = service >= 0.985
-    return dict(demandIncrease=swing, canAbsorb=can, serviceLevel=round(service, 3),
-                daysToRecover=0 if can and days < 0.5 else int(math.ceil(days)),
-                headroom=round(1 - u, 2), bottleneck=sp["bn"],
-                provenance="measured" if sp["status"] == "connected" else "estimated")
-
-
-def hash_seed(*a): return sum(ord(c) * (i + 7) for i, c in enumerate("|".join(a))) + 1000003
-
-
-# ----------------------------------------------------------------- otif
-def otif_series(sp):
-    a, b, kind = sp["otif"]
-    rng = random.Random(hash_seed(sp["id"], "otif"))
-    out = []
-    for w in range(12):
-        t = w / 11
-        if kind == "decline": v = a + (b - a) * (t ** 1.3)
-        elif kind == "dip": v = a - 0.004 * t + (-0.03 if w >= 9 else 0) * ((w - 8) / 3 if w >= 9 else 0) * 1.0
-        else: v = a
-        out.append(round(clamp(v + rng.gauss(0, 0.004), 0.5, 0.999), 3))
-    if kind == "dip": out[-1] = min(out[-1], 0.935)
-    return out
-
-
-# ----------------------------------------------------------------- risk engine
 def assess(cid, sp, cinfo):
-    cust = CUST[cid]
-    rng = random.Random(hash_seed(cid, sp["id"], "mc"))
-    parts = cinfo["parts"]
-    km = hav(sp["lat"], sp["lon"], cust["lat"], cust["lon"]) * 1.3  # road km ~ 1.3 x straight line
-    normal = max(1, math.ceil(km / 400))                              # ~1 day per 400 km incl. loading, min 1
-    sigma = 0.6 * sp["cv"]
-    days = [ASOF + timedelta(days=i) for i in range(HORIZON)]
-    M = [mult_on(sp, d) for d in days]
-
-    # --- per-day transit percentiles (independent draws, RUNS per day)
-    proj_t = []
-    for m in M:
-        xs = sorted(normal * m * math.exp(sigma * rng.gauss(0, 1)) for _ in range(RUNS))
-        proj_t.append((pct(xs, .1), pct(xs, .5), pct(xs, .9)))
-    gap_med = [normal * (m - 1) for m in M]                           # median extra days vs plan
-
-    # --- per-part cover and stop exposure (one noise draw per run, applied over all 14 days)
-    zs = [rng.gauss(0, 1) for _ in range(RUNS)]
-    cost = SETTINGS["lineStopCostEurPerMinute"]; lhd = SETTINGS["lineHoursPerDay"]
-    info = []
-    for (num, name, ucost, usage, c0, single, crit) in parts:
-        cover_d = [max(0.0, c0 - min(g, i + 1)) for i, g in enumerate(gap_med)]
-        tot, stops = 0.0, 0
-        for z in zs:
-            short = 0.0
-            for i, m in enumerate(M):
-                gap = max(0.0, normal * m * math.exp(sigma * z) - normal)
-                short = max(short, min(gap, i + 1) - c0)
-            if short > 0:
-                stops += 1
-            tot += min(SHIFT_MIN, max(0.0, short) * lhd * 60)
-        expo = CRIT_W[crit] * (tot / RUNS) * cost
-        stop_day = next((i for i, c in enumerate(cover_d) if c <= 0.05), None) if crit in ("line-stopper", "high") else None
-        info.append(dict(part=(num, name, ucost, usage, c0, single, crit), cover_d=cover_d, expo=expo, stop_day=stop_day, pstop=stops / RUNS))
-    exposed = max(info, key=lambda x: (round(x["expo"], -3), -x["part"][4]))
-    exposure = round(sum([exposed["expo"]]) / 1000) * 1000
-    stop_days = [x["stop_day"] for x in info if x["stop_day"] is not None]
-    dtls = min(stop_days) if stop_days else None
-    min_cover = min(p[4] for p in parts)
-
-    projection = [dict(date=iso(d), transitP10=round(t[0], 1), transitP50=round(t[1], 1), transitP90=round(t[2], 1),
-                       coverDays=round(exposed["cover_d"][i], 1)) for i, (d, t) in enumerate(zip(days, proj_t))]
-    p50s = sorted(t[1] for t in proj_t)
-    expected = round(p50s[len(p50s) // 2], 1)
-    worst = round(max(t[2] for t in proj_t), 1)
-
-    flex = run_flex(sp, SETTINGS["contractDemandSwing"])
-    otif = otif_series(sp)
-    decline = sum(otif[:4]) / 4 - sum(otif[-4:]) / 4
-
-    # --- score drivers (points)
-    drivers = []  # (label, kind, signalId, points)
-    ex_part = exposed["part"]; c0 = ex_part[4]
-    gap90 = max(0.0, max(t[2] for t in proj_t) - normal)
-    delay_pts = 45 * clamp(gap90 / max(c0, 0.5) / 2.0)
-    sigs = [s for s in SIGNALS if affects(sp, s) and any(active_on(s, d) for d in days)]
-    if sigs and delay_pts > 0.5:
-        w = {s["id"]: math.log(s["transitMultiplier"]) for s in sigs}
-        tw = sum(w.values())
-        for s in sigs:
-            extra = normal * (s["transitMultiplier"] - 1)
-            if s["kind"] == "supplier":
-                lab = f"{s['short']} delays outbound loads by about {extra:.1f} days"
-            elif s["kind"] == "theft":
-                lab = f"{s['short']} adds about {extra:.1f} days (escorts, daytime-only departures)"
-            else:
-                lab = f"{s['short']} adds {extra:.1f} days to transit from {sp['city']}"
-            drivers.append((lab, s["kind"], s["id"], delay_pts * w[s["id"]] / tw))
-    elif delay_pts > 0.5:
-        drivers.append((f"Normal transit variability against {c0:g} days of cover", "cover", None, delay_pts))
-    cw = CRIT_W[ex_part[6]]
-    crit_pts = {"line-stopper": 10, "high": 5, "normal": 1}[ex_part[6]] + (6 if ex_part[5] else 0)
-    lab = f"{ex_part[1]} is a {'single-source ' if ex_part[5] else ''}{ex_part[6].replace('-', ' ')} part"
-    drivers.append((lab, "cover", None, crit_pts))
-    if ex_part[6] in ("line-stopper", "high"):
-        thin = 8 * clamp((5 - c0) / 4)
-        if thin > 0.5: drivers.append((f"Only {c0:g} days of cover at {cust['name']}", "cover", None, thin))
-    if not flex["canAbsorb"]:
-        fp = 14 * clamp((0.99 - flex["serviceLevel"]) / 0.08)
-        drivers.append((f"Cannot absorb +15% demand: service level {flex['serviceLevel']*100:.0f}% at {flex['bottleneck']}", "flex", None, max(fp, 3)))
-    op = 10 * clamp(decline / 0.06)
-    if op > 0.5: drivers.append((f"On-time-in-full fell {decline*100:.1f} points over 12 weeks", "history", None, op))
-    vp = 8 * clamp(sp["cv"] / 0.4)
-    if vp > 0.5: drivers.append((f"Lead-time variability of {sp['cv']*100:.0f}%", "history", None, vp))
-    if sp["status"] == "invited": drivers.append(("No data from the supplier yet (invited); score uses public signals only", "history", None, 8))
-    if sp["status"] == "public-only": drivers.append(("Supplier not on FlowTwin; score uses public signals only", "history", None, 6))
-
-    total = sum(d[3] for d in drivers)
-    scale = 100 / total if total > 100 else 1
-    pts = [d[3] * scale for d in drivers]
-    score = int(round(sum(pts)))
-    fl = [int(math.floor(p)) for p in pts]
-    rem = score - sum(fl)
-    for i in sorted(range(len(pts)), key=lambda i: pts[i] - fl[i], reverse=True)[:max(0, rem)]: fl[i] += 1
-    out_drivers = [dict(label=d[0], kind=d[1], **({"signalId": d[2]} if d[2] else {}), contribution=c)
-                   for d, c in zip(drivers, fl) if c > 0]
-    out_drivers.sort(key=lambda x: -x["contribution"])
-
-    level = "red" if (score >= 65 or (dtls is not None and dtls <= 3)) else "amber" if score >= 35 else "green"
-    return dict(
-        risk=dict(customerId=cid, supplierId=sp["id"], level=level, score=score, normalTransitDays=normal,
-                  expectedTransitDays=expected, worstCaseTransitDays=worst, minCoverDays=min_cover, daysToLineStop=dtls,
-                  lineStopExposureEur=exposure, drivers=out_drivers, flex=flex, otifTrend=otif, projection=projection,
-                  dataStatus=sp["status"], updatedAt=iso(ASOF)),
-        exposed=ex_part, top_signal=next((d["signalId"] for d in out_drivers if "signalId" in d), None),
-        min_proj_cover=min(p["coverDays"] for p in projection), cover_at=min(range(HORIZON), key=lambda i: projection[i]["coverDays"]))
+    """Risk of one (customer, supplier): seed-shaped risk plus the engine's snake_case risk and ctx (for alerts)."""
+    raw, ctx = compute_pair(CUST[cid], eng_supplier(sp), [eng_part(p) for p in cinfo["parts"]], ENG_SIGNALS, ENG_SETTINGS, ASOF)
+    return dict(risk=to_camel(raw), raw=raw, ctx=ctx)
 
 
 # ----------------------------------------------------------------- build
+def pipeline(sp, usage, risk):
+    """Stock beyond the key customer's own: on the road and at the supplier, plus the next delivery date.
+
+    Only a connected supplier shares ASNs and finished goods, so the other fields stay absent (unknown / not shared)
+    and the app estimates the next delivery from expected transit. One truck is on the road per day of normal
+    transit beyond the first (a 2-day lane has one day of usage in transit); it lands after the expected transit.
+    """
+    if sp["status"] != "connected":
+        return {}
+    norm = risk["normalTransitDays"]
+    return dict(inTransit=int(round(usage * max(0, norm - 1))), supplierFgOnHand=int(round(usage * sp["fg"])),
+                nextDeliveryDate=iso(ASOF + timedelta(days=math.ceil(risk["expectedTransitDays"]))))
+
+
 def build():
     companies, rels, parts_out, risks_out, assessments = [], [], [], [], {}
     for c in CUSTOMERS:
@@ -375,71 +272,28 @@ def build():
         for cid, ci in sp["cust"].items():
             rels.append(dict(supplierId=sp["id"], customerId=cid, chainPosition="sub", shareOfSales=ci["share"],
                              requirements=dict(otifTarget=0.98, ppmTarget=50, approvalLevel=3, certifications=["IATF 16949"])))
-            for (num, name, ucost, usage, c0, single, crit) in ci["parts"]:
-                parts_out.append(dict(id=f"part-{num.lower()}", number=num, name=name, supplierId=sp["id"], customerId=cid, unitCostMxn=ucost,
-                                      dailyUsage=usage, onHand=int(round(usage * c0)), daysOfCover=round(c0, 2), singleSource=single, criticality=crit))
             a = assess(cid, sp, ci)
             assessments[(cid, sp["id"])] = a
             risks_out.append(a["risk"])
+            for (num, name, ucost, usage, c0, single, crit) in ci["parts"]:
+                parts_out.append(dict(id=f"part-{num.lower()}", number=num, name=name, supplierId=sp["id"], customerId=cid, unitCostMxn=ucost,
+                                      dailyUsage=usage, onHand=int(round(usage * c0)), daysOfCover=round(c0, 2), singleSource=single, criticality=crit,
+                                      **pipeline(sp, usage, a["risk"]), programIds=program_ids(cid, num)))
     return companies, rels, parts_out, risks_out, assessments
 
 
-def money(x):
-    if x < 1000: return "under €1k"
-    return f"€{x/1e6:.1f}M" if x >= 1e6 else f"€{x/1e3:.0f}k"
-def fdate(d): return f"{d.day} {d.strftime('%b %Y')}"
-
-
-ACTIONS = {
-    "hmo": [("Pull the next order forward", "Ask Hules y Mangueras de Orizaba to ship the next two orders before the rain peaks, adding about 1.5 days of cover."),
-            ("Add 2 days of safety stock", "Raise the lumbar air line safety stock to 5 days until the rainy season ends (about MX$38k of inventory)."),
-            ("Use the alternative route via Tehuacán", "Route trucks through Tehuacán and Cuacnopalan (MEX-150 free road) to avoid the landslide-prone Orizaba–Puebla toll stretch."),
-            ("Qualify the second source", "Start a second-source qualification for the lumbar air hose; PPAP level 3 takes about 10 weeks.")],
-    "tsr": [("Pull the next order forward", "Ask Tornillos y Sujetadores to ship Thursday's flange screw order on Tuesday."),
-            ("Add 3 days of safety stock", "Buy a one-off buffer of M6 flange screws; at MX$0.62 each this is under MX$30k for 3 days."),
-            ("Qualify the second source", "Flange screws are single-source. Qualify a second heading shop in the Bajío.")],
-    "edl": [("Ask for a confirmed ship plan", "Ask Estampados del Laja for a daily ship plan until Press 4 is stable."),
-            ("Move departures to daytime", "Agree that loads for QSS leave between 06:00 and 18:00 to avoid the MEX-45D night theft risk."),
-            ("Add 2 days of safety stock", "Hold 2 extra days of the recliner mounting plate while Press 4 recovers.")],
-    "pip": [("Pull the next order forward", "Ask Plásticos Inyectados de Puebla to ship one day early, before the blockade peaks."),
-            ("Use the alternative route via MEX-150D", "Reroute through MEX-150D toll road, bypassing the Amozoc–Tlaxcala corridor."),
-            ("Add 2 days of safety stock", "Build 2 days of cover on the seat side trim cover; it is single-source and a line-stopper.")],
-    "rdp": [("Ask for resin on hand", "Ask Resinas del Pacífico to confirm how many days of PA6 compound it has outside the port."),
-            ("Add 3 days of safety stock", "Raise PA6 compound stock at QSS to 6 days while the port clears."),
-            ("Qualify the second source", "Qualify a domestic PA6 compound source so a port delay does not reach the line.")],
-}
-
-
 def make_alert(cid, sp, a, status, created, extra=None):
-    r = a["risk"]; ex = a["exposed"]
-    c0 = ex[4]; norm = r["normalTransitDays"]; exp_ = r["expectedTransitDays"]
-    sig = SIG.get(a["top_signal"]) if a["top_signal"] else None
-    if r["daysToLineStop"] is not None:
-        sd = ASOF + timedelta(days=r["daysToLineStop"])
-        title = f"Transit from {sp['city']} goes from {norm} to {round(exp_):g} days"
-        msg = (f"{CUST[cid]['name']} holds {c0:g} days of cover of {ex[1].lower()} ({ex[0]}). With transit at {round(exp_):g} days "
-               f"(up to {r['worstCaseTransitDays']:g} in the worst case) and nothing done, cover runs out in about {r['daysToLineStop']} days, "
-               f"around {fdate(sd)}. Expected line-stop exposure: {money(r['lineStopExposureEur'])}.")
-        shortfall = iso(sd)
-    else:
-        title = (f"Transit from {sp['city']} goes from {norm} to {round(exp_):g} days" if exp_ - norm >= 0.9
-                 else (sig["title"] if sig else f"Delivery risk: {sp['name']}"))
-        low = a["min_proj_cover"]; ld = ASOF + timedelta(days=a["cover_at"])
-        msg = (f"{CUST[cid]['name']} holds {c0:g} days of cover of {ex[1].lower()} ({ex[0]}). Transit is {exp_:g} days against {norm} planned "
-               f"(up to {r['worstCaseTransitDays']:g} in the worst case). Without action, projected cover falls to {low:g} days around {fdate(ld)}; "
-               f"no stop is expected in the next 14 days, but a bad week could stop the line. Expected line-stop exposure: {money(r['lineStopExposureEur'])}.")
-        shortfall = None
-    acts = [dict(id=f"act-{sp['id']}-{i+1}", label=l, description=d) for i, (l, d) in enumerate(ACTIONS[sp["id"]][:3])]
-    al = dict(id=f"alert-{sp['id']}-{cid}", customerId=cid, supplierId=sp["id"], partIds=[f"part-{ex[0].lower()}"],
-              level=r["level"], title=title, message=msg, createdAt=created, lineStopExposureEur=r["lineStopExposureEur"],
-              status=status, actions=acts)
-    if sig: al["signalId"] = sig["id"]
-    if shortfall: al["expectedShortfallDate"] = shortfall
-    if extra: al.update(extra)
-    return al
+    """Engine alert row -> seed shape: camelCase in the seed's key order, scripted status/createdAt, no null fields."""
+    al = eng_alert(CUST[cid], eng_supplier(sp), a["raw"], a["ctx"], ASOF, {s["id"]: s for s in ENG_SIGNALS})
+    out = dict(id=al["id"], customerId=cid, supplierId=sp["id"], partIds=al["part_ids"], level=al["level"], title=al["title"],
+               message=al["message"], createdAt=created, lineStopExposureEur=al["line_stop_exposure_eur"], status=status, actions=al["actions"])
+    if al["signal_id"]: out["signalId"] = al["signal_id"]
+    if al["expected_shortfall_date"]: out["expectedShortfallDate"] = al["expected_shortfall_date"]
+    if extra: out.update(extra)
+    return out
 
 
-def edl_operating(companies_extra):
+def edl_operating():
     E = "edl"
     sites = [dict(id="edl-plant", companyId=E, name="Planta Celaya", type="plant", city="Celaya", lat=20.52, lon=-100.81, palletPositions=900, rentedPositions=0),
              dict(id="edl-wh", companyId=E, name="Bodega rentada Apaseo el Grande", type="warehouse", city="Apaseo el Grande", lat=20.55, lon=-100.69, palletPositions=420, rentedPositions=420)]
@@ -484,11 +338,11 @@ def edl_operating(companies_extra):
 
 def main():
     companies, rels, parts, risks, ass = build()
-    sites, partners, lanes, machines, certs, uploads = edl_operating(None)
+    sites, partners, lanes, machines, certs, uploads = edl_operating()
 
     # --- alerts: one per red and per significant amber
     alerts = []
-    meta = {"hmo": ("new", "2026-10-05"), "tsr": ("new", "2026-10-04"), "edl": ("supplier-responded", "2026-10-04"),
+    meta = {"pfl": ("new", "2026-10-05"), "hmo": ("new", "2026-10-05"), "tsr": ("new", "2026-10-04"), "edl": ("supplier-responded", "2026-10-04"),
             "pip": ("acknowledged", "2026-10-03"), "rdp": ("new", "2026-10-02")}
     for (cid, sid), a in sorted(ass.items(), key=lambda kv: -kv[1]["risk"]["lineStopExposureEur"]):
         r = a["risk"]
@@ -509,7 +363,7 @@ def main():
 
     seed = dict(generatedAt="2026-10-05T07:00:00Z", asOf=iso(ASOF), companies=companies, relationships=rels, sites=sites, partners=partners,
                 lanes=lanes, machines=machines, certifications=certs, kpis=[], energy=[], materials=[], shipments=[], emissionFactors=[],
-                twins=[], requests=[], shares=[], uploads=uploads, settings=SETTINGS, parts=parts, signals=SIGNALS, risks=risks,
+                twins=[], requests=[], shares=[], uploads=uploads, settings=SETTINGS, parts=parts, programs=PROGRAMS, signals=SIGNALS, risks=risks,
                 alerts=alerts, invites=invites)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:

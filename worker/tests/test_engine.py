@@ -5,6 +5,7 @@ import pytest
 
 from engine import compute_customer
 from engine.profiles import build_supplier, derive_from_operating_data, static_profiles
+from naming import to_camel
 
 AS_OF = date(2026, 10, 5)
 
@@ -37,15 +38,11 @@ def test_edl_stays_amber(qss):
 
 
 def test_all_risks_match_seed_exactly(db_rows, seed):
-    camel = {"customer_id": "customerId", "supplier_id": "supplierId", "normal_transit_days": "normalTransitDays",
-             "expected_transit_days": "expectedTransitDays", "worst_case_transit_days": "worstCaseTransitDays",
-             "min_cover_days": "minCoverDays", "days_to_line_stop": "daysToLineStop", "line_stop_exposure_eur": "lineStopExposureEur",
-             "otif_trend": "otifTrend", "data_status": "dataStatus", "updated_at": "updatedAt"}
     expected = {(r["customerId"], r["supplierId"]): r for r in seed["risks"]}
     got = {}
     for cid in ("qss", "slp-interiors"):
         for r in run(db_rows, cid)[0]:
-            got[(cid, r["supplier_id"])] = {camel.get(k, k): v for k, v in r.items()}
+            got[(cid, r["supplier_id"])] = to_camel(r)
     assert got.keys() == expected.keys()
     for k, exp in expected.items():
         assert got[k] == exp, k
@@ -81,3 +78,12 @@ def test_no_signals_means_no_delay(db_rows):
     risks, _ = run(rows, "qss")
     assert all(r["expected_transit_days"] <= r["normal_transit_days"] * 1.1 for r in risks)
     assert all(r["days_to_line_stop"] is None for r in risks)
+
+
+def test_db_signal_rows_use_short_label_in_drivers(db_rows):
+    # signals rows from the DB carry short_label (no `short`): drivers must use it, not the long title
+    sigs = [{**{k: v for k, v in s.items() if k != "short"}, "short_label": s["short"]} for s in db_rows["signals"]]
+    risks, _ = run(dict(db_rows, signals=sigs), "qss")
+    hmo = next(r for r in risks if r["supplier_id"] == "hmo")
+    rain = next(d for d in hmo["drivers"] if d.get("signalId") == "sig-rain-veracruz")
+    assert rain["label"].startswith("Rainy season adds")

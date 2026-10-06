@@ -1,13 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { useApp } from "../../app/AppContext";
-import { AccessDeniedError } from "../../lib/dataLayer";
-import { Card, NotShared, PageHeader } from "../../components/shared";
+import { useScoped } from "../../lib/useScoped";
+import { Card, PageHeader, ScopedError } from "../../components/shared";
 import { Button, DataTable, Icon, StatusPill, type Column } from "../../keystone";
-import { date, rowNo } from "../../lib/format";
-import type { Invite, RiskAssessment } from "../../lib/types";
+import { date, pct, rowNo } from "../../lib/format";
 import "./invite.css";
 
-const SHARED = ["Risk light and the reasons behind it", "Parts you buy from them, and your stock of those parts", "Result of the +15% demand test", "Delivery performance (OTIF)"];
+const shared = (swing: string) => ["Risk light and the reasons behind it", "Parts you buy from them, and your stock of those parts", `Result of the +${swing} demand test`, "Delivery performance (OTIF)"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 interface Row { id: string; name: string; contact: string; status: "Invited" | "Joined"; when?: string }
@@ -19,16 +18,14 @@ export default function InvitePage() {
   const [touched, setTouched] = useState(false);
   const [sent, setSent] = useState<string | null>(null);
 
-  let invites: Invite[] = [], risks: RiskAssessment[] = [];
-  let customerName = "your company";
-  try {
-    invites = db.invites();
-    risks = db.risks().filter((r) => r.customerId === toggles.companyId);
-    customerName = db.company(toggles.companyId)?.name ?? customerName;
-  } catch (e) {
-    if (e instanceof AccessDeniedError) return <NotShared message={e.message} />;
-    throw e;
-  }
+  const read = useScoped(() => ({
+    invites: db.invites(),
+    risks: db.risks().filter((r) => r.customerId === toggles.companyId),
+    customerName: db.company(toggles.companyId)?.name ?? "your company",
+    swing: pct(db.settings().contractDemandSwing, 0),
+  }), [db, toggles.companyId]);
+  if (!read.ok) return <ScopedError title="Invite suppliers" error={read.error} />;
+  const { invites, risks, customerName, swing } = read.data;
 
   const connected: Row[] = risks.filter((r) => r.dataStatus === "connected").map((r) => ({
     id: `c-${r.supplierId}`, name: db.company(r.supplierId)?.name ?? r.supplierId, contact: "On the platform", status: "Joined" as const, when: r.updatedAt,
@@ -70,18 +67,18 @@ export default function InvitePage() {
         <Card title="Send an invitation">
           <form className="invite-form" onSubmit={submit} noValidate>
             <label className="invite-field">Supplier company name
-              <input value={name} onChange={(e) => { setName(e.target.value); setSent(null); }} autoComplete="off"
+              <input className="ft-control" value={name} onChange={(e) => { setName(e.target.value); setSent(null); }} autoComplete="off"
                 aria-invalid={touched && !nameOk} aria-describedby={touched && !nameOk ? "inv-name-err" : undefined} />
               {touched && !nameOk && <p id="inv-name-err" className="invite-error">Enter the supplier's company name.</p>}
             </label>
             <label className="invite-field">Contact email
-              <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setSent(null); }} autoComplete="off"
+              <input className="ft-control" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setSent(null); }} autoComplete="off"
                 aria-invalid={touched && !emailOk} aria-describedby={touched && !emailOk ? "inv-mail-err" : undefined} />
               {touched && !emailOk && <p id="inv-mail-err" className="invite-error">Enter a valid email address, like name@company.mx.</p>}
             </label>
             <fieldset className="invite-fieldset">
               <legend>What the supplier will share with you</legend>
-              {SHARED.map((s) => (
+              {shared(swing).map((s) => (
                 <label key={s} className="invite-check"><input type="checkbox" checked readOnly disabled />{s}</label>
               ))}
               <div className="invite-never"><Icon name="lock" size={18} />Never shared: costs, prices and margins</div>

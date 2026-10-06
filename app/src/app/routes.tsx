@@ -4,6 +4,7 @@ import type { IconName, SubNavItem } from "../keystone";
 import type { ModuleId } from "./AppContext";
 import RiskBoardPage from "../pages/risk";
 import AlertsPage from "../pages/alerts";
+import PartsPage from "../pages/parts";
 import SupplierPage from "../pages/supplier";
 import InvitePage from "../pages/invite";
 import MyRiskPage from "../pages/my-risk";
@@ -22,6 +23,7 @@ export interface ModuleDef {
 
 export const MODULES: Record<ModuleId, ModuleDef> = {
   risk: { label: "Risk board", icon: "pulse", Page: RiskBoardPage },
+  parts: { label: "Parts & stock", icon: "cube", Page: PartsPage },
   alerts: { label: "Alerts", icon: "bell", Page: AlertsPage },
   supplier: { label: "Supplier", icon: "users", Page: SupplierPage },
   invite: { label: "Invite", icon: "plus", Page: InvitePage },

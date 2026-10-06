@@ -7,12 +7,13 @@ import { reduce, scope, type Action, type AppData, type Scope } from "../lib/dat
 import { getPack, type Pack } from "../packs";
 import * as remote from "../lib/remote";
 
-const SEED = seedJson as unknown as Seed;
+const SEED = seedJson as Seed;
 const STORE_KEY = "flowtwin-v0-data";
 const TOGGLE_KEY = "flowtwin-v0-toggles";
+const PROGRAM_KEY = "flowtwin-v0-program";
 
 export type ModuleId =
-  | "risk" | "alerts" | "supplier" | "invite" | "tier1-data"          // key customer (Tier 1): the v0 lead journey
+  | "risk" | "parts" | "alerts" | "supplier" | "invite" | "tier1-data" // key customer (Tier 1): the v0 lead journey
   | "my-risk" | "data"                                 // supplier (Tier 2 owner / ops)
   | "signals" | "companies";                           // admin
 
@@ -22,7 +23,7 @@ export type DataMode = "live" | "seed";
 export type LoadStatus = "loading" | "ready" | "error";
 
 /** SEED with every collection emptied: the placeholder shown while live data loads. */
-const EMPTY: AppData = Object.fromEntries(Object.entries(SEED).map(([k, v]) => [k, Array.isArray(v) ? [] : v])) as unknown as AppData;
+const EMPTY: AppData = Object.fromEntries(Object.entries(SEED).map(([k, v]) => [k, Array.isArray(v) ? [] : v])) as AppData;
 
 export interface Toggles { packId: string; role: RoleId; companyId: string; plan: PlanId }
 
@@ -36,6 +37,9 @@ interface Ctx {
   /** Access-controlled reads for the current viewer. */
   db: Scope;
   dispatch: (a: Action) => void;
+  /** Vehicle programme the key customer is looking at ("all" = every model). Remembered per company. */
+  programId: string;
+  setProgramId: (id: string) => void;
   resetDemo: () => void;
   /** "live" = Supabase, "seed" = bundled demo data. */
   mode: DataMode;
@@ -80,13 +84,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [notice, setNotice] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
   const reqId = useRef(0);
+  const [programByCompany, setProgramByCompany] = useState<Record<string, string>>(() => load(PROGRAM_KEY, {}));
+  useEffect(() => save(PROGRAM_KEY, programByCompany), [programByCompany]);
+  const programId = programByCompany[toggles.companyId] ?? "all";
+  const setProgramId = useCallback((id: string) => setProgramByCompany((m) => ({ ...m, [toggles.companyId]: id })), [toggles.companyId]);
 
   useEffect(() => save(TOGGLE_KEY, toggles), [toggles]);
   useEffect(() => {
     if (mode !== "seed") return; // live data is never persisted locally
     save(STORE_KEY, {
-      generatedAt: data.generatedAt, requests: data.requests, shares: data.shares, uploads: data.uploads,
-      relationships: data.relationships, emissionFactors: data.emissionFactors, alerts: data.alerts, invites: data.invites,
+      generatedAt: data.generatedAt, uploads: data.uploads, relationships: data.relationships, alerts: data.alerts, invites: data.invites,
     });
   }, [data, mode]);
   useEffect(() => {
@@ -170,8 +177,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Ctx>(() => ({
     toggles, setToggles, route, go, pack: getPack(toggles.packId), data,
     db: scope(data, { role: toggles.role, companyId: toggles.companyId }),
-    dispatch, resetDemo, mode, status, error, notice, dismissNotice: () => setNotice(null), useDemoData, retry: reload,
-  }), [toggles, setToggles, route, go, data, dispatch, resetDemo, mode, status, error, notice, useDemoData, reload]);
+    dispatch, programId, setProgramId, resetDemo, mode, status, error, notice, dismissNotice: () => setNotice(null), useDemoData, retry: reload,
+  }), [toggles, setToggles, route, go, data, dispatch, programId, setProgramId, resetDemo, mode, status, error, notice, useDemoData, reload]);
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }

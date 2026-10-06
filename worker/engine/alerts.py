@@ -22,16 +22,13 @@ ACTIONS = {
     "pip": [("Pull the next order forward", "Ask Plásticos Inyectados de Puebla to ship one day early, before the blockade peaks."),
             ("Use the alternative route via MEX-150D", "Reroute through MEX-150D toll road, bypassing the Amozoc–Tlaxcala corridor."),
             ("Add 2 days of safety stock", "Build 2 days of cover on the seat side trim cover; it is single-source and a line-stopper.")],
+    "pfl": [("Ask the customs broker for priority release", "Ask the customs broker to file the pedimento early and request priority release at Nuevo Laredo as soon as the system is back."),
+            ("Cross at the Colombia bridge", "Route loads through the Colombia bridge (Nuevo León), about 40 km west, which has its own customs office and shorter queues."),
+            ("Add 3 days of safety stock", "Hold 3 extra days of PP pellets at QSS while the Nuevo Laredo queues last.")],
     "rdp": [("Ask for resin on hand", "Ask Resinas del Pacífico to confirm how many days of PA6 compound it has outside the port."),
             ("Add 3 days of safety stock", "Raise PA6 compound stock at QSS to 6 days while the port clears."),
             ("Qualify the second source", "Qualify a domestic PA6 compound source so a port delay does not reach the line.")],
 }
-
-
-def money(x):
-    if x < 1000:
-        return "under €1k"
-    return f"€{x/1e6:.1f}M" if x >= 1e6 else f"€{x/1e3:.0f}k"
 
 
 def fdate(d):
@@ -54,7 +51,7 @@ def make_alert(customer, supplier, risk, ctx, as_of, signals_by_id):
         title = f"Transit from {supplier['city']} goes from {norm} to {round(exp_):g} days"
         msg = (f"{nm} holds {c0:g} days of cover of {ex['name'].lower()} ({ex['number']}). With transit at {round(exp_):g} days "
                f"(up to {risk['worst_case_transit_days']:g} in the worst case) and nothing done, cover runs out in about {dtls} days, "
-               f"around {fdate(sd)}. Expected line-stop exposure: {money(risk['line_stop_exposure_eur'])}.")
+               f"around {fdate(sd)}.")
         shortfall = sd.isoformat()
     else:
         title = (f"Transit from {supplier['city']} goes from {norm} to {round(exp_):g} days" if exp_ - norm >= 0.9
@@ -62,7 +59,7 @@ def make_alert(customer, supplier, risk, ctx, as_of, signals_by_id):
         ld = as_of + timedelta(days=ctx["cover_at"])
         msg = (f"{nm} holds {c0:g} days of cover of {ex['name'].lower()} ({ex['number']}). Transit is {exp_:g} days against {norm} planned "
                f"(up to {risk['worst_case_transit_days']:g} in the worst case). Without action, projected cover falls to {ctx['min_proj_cover']:g} days around {fdate(ld)}; "
-               f"no stop is expected in the next 14 days, but a bad week could stop the line. Expected line-stop exposure: {money(risk['line_stop_exposure_eur'])}.")
+               f"no stop is expected in the next 14 days, but a bad week could stop the line.")
         shortfall = None
     scripted = ACTIONS.get(supplier["id"], [(l, d.format(supplier=supplier["name"])) for l, d in DEFAULT_ACTIONS])
     acts = [dict(id=f"act-{supplier['id']}-{i+1}", label=l, description=d) for i, (l, d) in enumerate(scripted[:3])]

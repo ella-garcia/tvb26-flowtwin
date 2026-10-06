@@ -20,7 +20,7 @@ DEFAULTS = dict(highways=[], lead_time_variability=0.2, utilization=0.75, ceilin
 # supplier_profiles column -> engine key
 ROW_FIELDS = {"highways": "highways", "lead_time_variability": "lead_time_variability", "utilization": "utilization",
               "capacity_ceiling": "ceiling", "finished_goods_days": "fg_days", "bottleneck": "bottleneck",
-              "lead_time_mean_days": "lead_time_mean_days"}
+              "lead_time_mean_days": "lead_time_mean_days", "route": "route"}
 NUMERIC = {"lead_time_variability", "utilization", "ceiling", "fg_days", "lead_time_mean_days"}
 DEFAULT_REFERENCE_LEAD_DAYS = 7.0
 MIN_LINES_FOR_VARIABILITY = 3
@@ -56,7 +56,7 @@ def from_profile_row(row: dict) -> dict:
     out = {}
     for col, key in ROW_FIELDS.items():
         v = row.get(col)
-        if v is None or (col == "highways" and not v):
+        if v is None or (col in ("highways", "route") and not v):
             continue
         out[key] = float(v) if key in NUMERIC else v
     weekly = row.get("otif_weekly")

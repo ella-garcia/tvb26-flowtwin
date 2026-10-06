@@ -1,10 +1,13 @@
 """Job queue: atomic claim of the oldest queued job, dispatch by kind, done/failed bookkeeping."""
+import logging
 from datetime import datetime, timezone
 
 import config  # noqa: F401
 from db import DB
 from risk_runner import recompute_all, recompute_customer
 from sources import get_source
+
+log = logging.getLogger("flowtwin.jobs")
 
 
 def now() -> str:
@@ -51,5 +54,18 @@ def run_next(db: DB) -> dict:
         db.update("jobs", {"id": job["id"]}, {"status": "done", "finished_at": now(), "error": None})
         return {"status": "done", "job_id": job["id"], "kind": job["kind"], "result": result}
     except Exception as e:  # noqa: BLE001 - any failure is recorded on the job
-        db.update("jobs", {"id": job["id"]}, {"status": "failed", "finished_at": now(), "error": f"{type(e).__name__}: {e}"[:1000]})
-        return {"status": "failed", "job_id": job["id"], "kind": job["kind"], "error": f"{type(e).__name__}: {e}"}
+        error = f"{type(e).__name__}: {e}"
+        mark_failed(db, job["id"], error)
+        return {"status": "failed", "job_id": job["id"], "kind": job["kind"], "error": error}
+
+
+def mark_failed(db: DB, job_id, error: str, attempts: int = 2) -> None:
+    """Record the failure; retry once, then log and re-raise so the job is never left `running` without a trace."""
+    for attempt in range(1, attempts + 1):
+        try:
+            db.update("jobs", {"id": job_id}, {"status": "failed", "finished_at": now(), "error": error[:1000]})
+            return
+        except Exception:  # noqa: BLE001
+            log.exception("could not mark job %s failed (attempt %d of %d); job error was: %s", job_id, attempt, attempts, error)
+            if attempt == attempts:
+                raise

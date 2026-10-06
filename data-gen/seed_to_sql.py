@@ -3,9 +3,9 @@
 
 Run: python3 data-gen/seed_to_sql.py
 Column kinds: s = scalar, j = jsonb (kept as camelCase JSON), a = text[].
-Keys absent from a seed row become DEFAULT. Seed keys that are not columns (e.g. signals.short) are dropped.
+Keys absent from a seed row become DEFAULT. Seed keys that are not columns are dropped; SEED_KEY maps the few that differ.
 """
-import json, re, sys
+import json, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -14,6 +14,7 @@ OUT = ROOT / "supabase/seed.sql"
 PROFILES = ROOT / "worker/data/supplier_profiles.json"
 sys.path.insert(0, str(ROOT / "worker"))
 from engine.otif import otif_series  # same synthetic 12-week OTIF generator the engine uses
+from naming import camel
 
 # (seed key, table, columns). Columns are snake_case; kinds default to scalar.
 J, A = "j", "a"
@@ -33,8 +34,9 @@ TABLES = [
     ("shipments", "shipments", {}),
     ("twins", "twins", {"counts": J, "accuracy": J, "days": J}),
     ("uploads", "uploads", {}),
-    ("parts", "parts", {}),
-    ("risks", "risks", {"drivers": J, "flex": J, "otif_trend": J, "projection": J}),
+    ("programs", "vehicle_programs", {}),
+    ("parts", "parts", {"program_ids": A}),
+    ("risks", "risks", {"drivers": J, "flex": J, "otif_trend": J, "projection": J, "part_stop_days": J, "legs": J}),
     ("alerts", "alerts", {"part_ids": A, "actions": J, "supplier_response": J}),
     ("invites", "invites", {}),
     ("requests", "requests", {"items": A}),
@@ -44,7 +46,7 @@ TABLES = [
 COLUMNS = {
     "companies": "id name city state lat lon kind size_band employees scian pack_ids synthetic contact",
     "relationships": "supplier_id customer_id chain_position share_of_sales requirements",
-    "signals": "id kind title description state lat lon radius_km highways starts_at ends_at severity transit_multiplier source provenance",
+    "signals": "id kind title description state lat lon radius_km highways starts_at ends_at severity transit_multiplier source provenance short_label",
     "emission_factors": "id version name value unit scope source year",
     "sites": "id company_id name type city lat lon pallet_positions rented_positions",
     "partners": "id company_id name role city lat lon linked_company_id material lead_time_days lead_time_variability",
@@ -57,17 +59,23 @@ COLUMNS = {
     "shipments": "company_id customer_id year tonnes",
     "twins": "company_id synced_through built_at counts accuracy overall_accuracy days",
     "uploads": "company_id kind file_name rows source status uploaded_at storage_path",
-    "parts": "id number name supplier_id customer_id unit_cost_mxn daily_usage on_hand days_of_cover single_source criticality",
-    "risks": "customer_id supplier_id level score normal_transit_days expected_transit_days worst_case_transit_days min_cover_days days_to_line_stop line_stop_exposure_eur drivers flex otif_trend projection data_status updated_at",
+    "parts": "id number name supplier_id customer_id unit_cost_mxn daily_usage on_hand days_of_cover single_source criticality in_transit supplier_fg_on_hand next_delivery_date program_ids",
+    "vehicle_programs": "id customer_id oem model oem_plant daily_vehicles",
+    "risks": "customer_id supplier_id level score normal_transit_days expected_transit_days worst_case_transit_days min_cover_days days_to_line_stop part_stop_days legs line_stop_exposure_eur drivers flex otif_trend projection data_status updated_at",
     "alerts": "id customer_id supplier_id part_ids signal_id level title message created_at expected_shortfall_date line_stop_exposure_eur status actions chosen_action_id supplier_response",
     "invites": "id customer_id supplier_id supplier_name contact_email sent_at status plan",
     "requests": "id from_company_id to_company_id items fiscal_year sent_at due_date status note",
     "shares": "id supplier_id customer_id request_id items approved_by approved_at version revoked scorecard carbon",
 }
 
-def camel(s):
-    parts = s.split("_")
-    return parts[0] + "".join(p.title() for p in parts[1:])
+# column -> seed key where it is not just the camelCase of the column
+SEED_KEY = {"short_label": "short"}
+
+def seed_key(c):
+    return SEED_KEY.get(c) or camel(c)
+
+# Tables reset_demo() restores from demo_snapshot (plus supplier_profiles, built below).
+SNAPSHOT_TABLES = ("companies", "relationships", "vehicle_programs", "parts", "risks", "alerts", "invites")
 
 def q(s):
     return "'" + str(s).replace("'", "''") + "'"
@@ -94,21 +102,21 @@ def main():
         rows = seed.get(key) or []
         if not rows:
             continue
-        cols = [c for c in COLUMNS[table].split() if any(camel(c) in r for r in rows)]
+        cols = [c for c in COLUMNS[table].split() if any(seed_key(c) in r for r in rows)]
         out.append(f"-- {table} ({len(rows)})")
         out.append(f"insert into public.{table} ({', '.join(cols)}) values")
         vals = []
         for r in rows:
             vals.append("  (" + ", ".join(
-                lit(r[camel(c)], kinds.get(c, "s")) if camel(c) in r else "DEFAULT" for c in cols) + ")")
+                lit(r[seed_key(c)], kinds.get(c, "s")) if seed_key(c) in r else "DEFAULT" for c in cols) + ")")
         out.append(",\n".join(vals) + ";\n")
-        if table in ("alerts", "invites"):
-            snapshots[table] = [{c: r[camel(c)] for c in COLUMNS[table].split() if camel(c) in r} for r in rows]
+        if table in SNAPSHOT_TABLES:
+            snapshots[table] = [{c: r[seed_key(c)] for c in COLUMNS[table].split() if seed_key(c) in r} for r in rows]
     # supplier_profiles: one row per (customer, supplier) relationship, from worker/data/supplier_profiles.json
     prof = json.loads(PROFILES.read_text())
     pcols = ("customer_id supplier_id highways lead_time_variability utilization capacity_ceiling finished_goods_days "
-             "bottleneck otif_weekly data_status source").split()
-    prows = []
+             "bottleneck otif_weekly data_status source route").split()
+    prows, psnap = [], []
     for rel in seed.get("relationships", []):
         p = prof.get(rel["supplierId"])
         if not p:
@@ -116,7 +124,11 @@ def main():
         prows.append("  (" + ", ".join([
             lit(rel["customerId"], "s"), lit(rel["supplierId"], "s"), lit(p["highways"], A), lit(p["lead_time_variability"], "s"),
             lit(p["utilization"], "s"), lit(p["ceiling"], "s"), lit(p["fg_days"], "s"), lit(p["bottleneck"], "s"),
-            lit(otif_series(rel["supplierId"], p["otif"]), J), lit(p["data_status"], "s"), lit("seed", "s")]) + ")")
+            lit(otif_series(rel["supplierId"], p["otif"]), J), lit(p["data_status"], "s"), lit("seed", "s"), lit(p.get("route"), J)]) + ")")
+        psnap.append(dict(zip(pcols, [rel["customerId"], rel["supplierId"], p["highways"], p["lead_time_variability"], p["utilization"],
+                                      p["ceiling"], p["fg_days"], p["bottleneck"], otif_series(rel["supplierId"], p["otif"]),
+                                      p["data_status"], "seed", p.get("route")])))
+    snapshots["supplier_profiles"] = psnap
     out.append(f"-- supplier_profiles ({len(prows)})")
     out.append(f"insert into public.supplier_profiles ({', '.join(pcols)}) values")
     out.append(",\n".join(prows) + ";\n")

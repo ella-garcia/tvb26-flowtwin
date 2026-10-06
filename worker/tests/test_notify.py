@@ -94,7 +94,7 @@ def test_resend_call_shape_and_body(monkeypatch):
     assert res["by_status"] == {"sent": 2}
     path, auth, body = next(s for s in seen if s[2]["to"] == ["a.ruiz@qss.example"])
     assert path == "/emails" and auth == "Bearer re_test" and body["from"] == "FlowTwin <a@x.example>"
-    assert "https://app.example/#alerts" in body["text"] and "about 2 days" in body["text"] and "EUR 480k" in body["text"]
+    assert "https://app.example/#alerts" in body["text"] and "about 2 days" in body["text"] and "EUR" not in body["text"] and "exposure" not in body["text"]
     sup = next(s for s in seen if s[2]["to"] == ["ops@hmo.example"])[2]
     assert "https://app.example/#my-risk" in sup["text"] and "<a href=" in sup["html"]
 

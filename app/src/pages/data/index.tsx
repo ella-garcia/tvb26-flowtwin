@@ -1,10 +1,10 @@
 // My data: light onboarding for the supplier's operations associate. About 15 minutes.
-import { useMemo, useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent } from "react";
 import { useApp } from "../../app/AppContext";
-import { AccessDeniedError } from "../../lib/dataLayer";
+import { useScoped } from "../../lib/useScoped";
 import type { Machine, Partner, UploadKind, UploadRecord } from "../../lib/types";
 import { Button, DataTable, Icon, StatusPill, type Column } from "../../keystone";
-import { Card, Empty, NotShared, PageHeader } from "../../components/shared";
+import { Card, Empty, PageHeader, ScopedError } from "../../components/shared";
 import { date, num } from "../../lib/format";
 import "./data.css";
 
@@ -20,7 +20,7 @@ function Saved({ show }: { show: boolean }) {
 
 function NumInput({ label, value, onChange, min = 0, max, step = 1 }:
   { label: string; value: number; onChange: (v: number) => void; min?: number; max?: number; step?: number }) {
-  return <input className="data-input" type="number" aria-label={label} value={Number.isFinite(value) ? value : 0} min={min} max={max} step={step}
+  return <input className="ft-control data-input" type="number" aria-label={label} value={Number.isFinite(value) ? value : 0} min={min} max={max} step={step}
     onChange={(e) => onChange(Number(e.target.value))} />;
 }
 
@@ -34,16 +34,12 @@ export default function DataPage() {
   const { db, dispatch, pack } = useApp();
   const companyId = db.viewer.companyId;
 
-  const read = useMemo(() => {
-    try {
-      return {
-        machines: db.machines(companyId),
-        suppliers: db.partners(companyId).filter((p) => p.role === "supplier"),
-        uploads: db.uploads(companyId),
-        parts: db.parts().filter((p) => p.supplierId === companyId),
-      };
-    } catch (e) { if (e instanceof AccessDeniedError) return { error: e.message }; throw e; }
-  }, [db, companyId]);
+  const read = useScoped(() => ({
+    machines: db.machines(companyId),
+    suppliers: db.partners(companyId).filter((p) => p.role === "supplier"),
+    uploads: db.uploads(companyId),
+    parts: db.parts().filter((p) => p.supplierId === companyId),
+  }), [db, companyId]);
 
   const [machineEdits, setMachineEdits] = useState<Record<string, Partial<Machine>>>({});
   const [partnerEdits, setPartnerEdits] = useState<Record<string, Partial<Partner>>>({});
@@ -51,8 +47,8 @@ export default function DataPage() {
   const [saved, setSaved] = useState<Record<string, boolean>>({});
   const mark = (k: string) => setSaved((s) => ({ ...s, [k]: true }));
 
-  if ("error" in read) return <><PageHeader title="Your data" /><NotShared message={read.error ?? ""} /></>;
-  const { machines, suppliers, uploads, parts } = read;
+  if (!read.ok) return <ScopedError title="Your data" error={read.error} />;
+  const { machines, suppliers, uploads, parts } = read.data;
 
   const m = (r: Machine): Machine => ({ ...r, ...machineEdits[r.id] });
   const setM = (id: string, patch: Partial<Machine>) => { setMachineEdits((e) => ({ ...e, [id]: { ...e[id], ...patch } })); mark("machines"); };
@@ -71,7 +67,7 @@ export default function DataPage() {
       <NumInput label={`Utilization of ${r.name} in percent`} value={Math.round(m(r).utilization * 100)} max={100} onChange={(v) => setM(r.id, { utilization: v / 100 })} /> },
   ];
   const supplierCols: Column<Partner>[] = [
-    { key: "name", label: "Your supplier", render: (r) => <>{r.name}<div className="ft-muted" style={{ fontSize: 12 }}>{r.city}</div></> },
+    { key: "name", label: "Your supplier", render: (r) => <>{r.name}<span className="ft-meta">{r.city}</span></> },
     { key: "material", label: "Material", render: (r) => materialLabel(r.material) },
     { key: "leadTimeDays", label: "Lead time (days)", numeric: true, align: "right", render: (r) =>
       <NumInput label={`Lead time in days for ${r.name}`} value={p(r).leadTimeDays ?? 0} onChange={(v) => setP(r.id, { leadTimeDays: v })} /> },
@@ -97,7 +93,7 @@ export default function DataPage() {
     { key: "kind", label: "File", render: (r) => KIND_LABEL[r.kind] },
     { key: "status", label: "Status", render: (r) => <UploadPill status={r.status} /> },
     { key: "fileName", label: "Latest file", render: (r) => r.fileName
-      ? <>{r.fileName}<div className="ft-muted" style={{ fontSize: 12 }}>{r.uploadedAt && date(r.uploadedAt)}{r.rows > 0 && <> · {num(r.rows)} rows</>}</div></>
+      ? <>{r.fileName}<span className="ft-meta">{r.uploadedAt && date(r.uploadedAt)}{r.rows > 0 && <> · {num(r.rows)} rows</>}</span></>
       : <span className="ft-muted">None yet</span> },
     { key: "act", label: "Add a file", render: (r) => (
       <div className="data-up">
@@ -120,7 +116,7 @@ export default function DataPage() {
         : <Empty title="No suppliers yet">Upload your purchase orders in step 4 and we will list them here.</Empty> },
     { key: "stock", title: "Stock you hold for each customer", sub: "Units of each part you keep ready for your customer.", body:
       parts.length ? <DataTable<typeof parts[number]> rows={parts} caption="Stock you hold" columns={[
-        { key: "part", label: "Part", render: (r) => <>{r.name}<div className="ft-muted" style={{ fontSize: 12 }}>{r.number}</div></> },
+        { key: "part", label: "Part", render: (r) => <>{r.name}<span className="ft-meta">{r.number}</span></> },
         { key: "customer", label: "Customer", render: (r) => customerName(r.customerId) },
         { key: "mine", label: "Units you hold", numeric: true, align: "right", render: (r) =>
           <NumInput label={`Units of ${r.name} you hold`} value={stock[r.id] ?? 0} onChange={(v) => { setStock((s) => ({ ...s, [r.id]: v })); mark("stock"); }} /> },

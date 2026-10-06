@@ -2,7 +2,7 @@
 import math
 
 from .geo import clamp
-from .projection import CRIT_W, active_on, affects
+from .projection import CRIT_W, active_on, hit_legs
 
 
 def score_drivers(customer, supplier, proj, flex, otif, signals):
@@ -12,14 +12,19 @@ def score_drivers(customer, supplier, proj, flex, otif, signals):
     drivers = []  # (label, kind, signal_id, points)
     gap90 = max(0.0, max(t[2] for t in proj_t) - normal)
     delay_pts = 45 * clamp(gap90 / max(c0, 0.5) / 2.0)
-    sigs = [s for s in signals if affects(supplier, s) and any(active_on(s, d) for d in days)]
+    sigs = [s for s in signals if hit_legs(supplier, s) and any(active_on(s, d) for d in days)]
     if sigs and delay_pts > 0.5:
         w = {s["id"]: math.log(float(s["transit_multiplier"])) for s in sigs}
         tw = sum(w.values())
         for s in sigs:
-            extra = normal * (float(s["transit_multiplier"]) - 1)
-            short = s.get("short") or s["title"]
-            if s["kind"] == "supplier":
+            legs = [leg for leg in hit_legs(supplier, s) if leg]  # route legs this signal slows (none without a route)
+            base = sum(float(leg["days"]) for leg in legs) if legs else normal
+            extra = base * (float(s["transit_multiplier"]) - 1)
+            short = s.get("short_label") or s.get("short") or s["title"]  # DB column; `short` in the v0 seed
+            if legs and legs[0]["kind"] in ("customs", "border", "port", "sea"):
+                kinds = " and ".join(dict.fromkeys(leg["kind"] for leg in legs))
+                lab = f"{short} adds {extra:.1f} days at {legs[0]['place']} ({kinds})"
+            elif s["kind"] == "supplier":
                 lab = f"{short} delays outbound loads by about {extra:.1f} days"
             elif s["kind"] == "theft":
                 lab = f"{short} adds about {extra:.1f} days (escorts, daytime-only departures)"

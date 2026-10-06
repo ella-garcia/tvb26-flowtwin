@@ -1,19 +1,18 @@
 // Tier 1 alerts feed. Reads via useApp().db only; writes via dispatch.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { Card, Empty, NotShared, PageHeader, RiskLight } from "../../components/shared";
-import { Button, FilterChip, StatusPill, type PillTone } from "../../keystone";
-import { AccessDeniedError } from "../../lib/dataLayer";
-import { date, num } from "../../lib/format";
+import { AlertStatusPill, Card, CritPill, Empty, PageHeader, RiskLight, ScopedError } from "../../components/shared";
+import { Button, FilterChip, StatusPill } from "../../keystone";
+import { date, dateTime } from "../../lib/format";
+import { ALERT_STATUS } from "../../lib/labels";
+import { modelLabel, programsOf } from "../../lib/programs";
 import * as remote from "../../lib/remote";
+import { useScoped } from "../../lib/useScoped";
 import type { Alert, AlertNotification, Part, RiskLevel } from "../../lib/types";
 import "./alerts.css";
 
 type Status = Alert["status"];
 type Filter = "all" | Status;
-const STATUS_LABEL: Record<Status, string> = { new: "New", acknowledged: "Acknowledged", "supplier-responded": "Supplier responded", resolved: "Resolved" };
-const STATUS_TONE: Record<Status, PillTone> = { new: "danger", acknowledged: "warning", "supplier-responded": "fresh", resolved: "success" };
-const CRIT: Record<Part["criticality"], string> = { "line-stopper": "Line stopper", high: "High", normal: "Normal" };
 const rank = (l: RiskLevel) => (l === "red" ? 0 : l === "amber" ? 1 : 2);
 
 export default function AlertsPage() {
@@ -22,17 +21,12 @@ export default function AlertsPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [picked, setPicked] = useState<Record<string, string>>({});
 
-  const loaded = useMemo(() => {
-    try {
-      const alerts = [...db.alerts()].sort((a, b) => rank(a.level) - rank(b.level) || b.createdAt.localeCompare(a.createdAt));
-      return { alerts, parts: db.parts(), error: null as string | null };
-    } catch (e) {
-      if (e instanceof AccessDeniedError) return { alerts: [] as Alert[], parts: [] as Part[], error: e.message };
-      throw e;
-    }
+  const loaded = useScoped(() => {
+    const alerts = [...db.alerts()].sort((a, b) => rank(a.level) - rank(b.level) || b.createdAt.localeCompare(a.createdAt));
+    return { alerts, parts: db.parts(), programs: db.programs() };
   }, [db]);
 
-  const alertKey = loaded.alerts.map((a) => a.id).join(",");
+  const alertKey = loaded.ok ? loaded.data.alerts.map((a) => a.id).join(",") : "";
   useEffect(() => {
     if (mode !== "live" || !alertKey) { setNotes({}); return; }
     let cancelled = false;
@@ -45,19 +39,19 @@ export default function AlertsPage() {
     return () => { cancelled = true; };
   }, [mode, alertKey]);
 
-  if (loaded.error) return <><PageHeader title="Alerts" /><NotShared message={loaded.error} /></>;
-  const { alerts, parts } = loaded;
+  if (!loaded.ok) return <ScopedError title="Alerts" error={loaded.error} />;
+  const { alerts, parts, programs } = loaded.data;
   const shown = alerts.filter((a) => filter === "all" || a.status === filter);
   const n = (s: Status) => alerts.filter((a) => a.status === s).length;
   const chips: { id: Filter; label: string }[] = [
     { id: "all", label: `All (${alerts.length})` },
-    ...(Object.keys(STATUS_LABEL) as Status[]).map((s) => ({ id: s as Filter, label: `${STATUS_LABEL[s]} (${n(s)})` })),
+    ...(Object.keys(ALERT_STATUS) as Status[]).map((s) => ({ id: s as Filter, label: `${ALERT_STATUS[s].label} (${n(s)})` })),
   ];
 
   return (
     <>
       <PageHeader title="Alerts" caption={`${n("new")} new · ${alerts.length} in total`} />
-      <div className="alerts-filters" role="group" aria-label="Filter alerts by status">
+      <div className="ft-toolbar" role="group" aria-label="Filter alerts by status">
         {chips.map((c) => <FilterChip key={c.id} pressed={filter === c.id} onClick={() => setFilter(c.id)}>{c.label}</FilterChip>)}
       </div>
 
@@ -77,7 +71,7 @@ export default function AlertsPage() {
               <Card key={a.id} className="alerts-card">
                 <div className="alerts-top">
                   <RiskLight level={a.level} />
-                  <StatusPill tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</StatusPill>
+                  <AlertStatusPill status={a.status} />
                   <span className="alerts-meta">{date(a.createdAt)}</span>
                 </div>
                 <div>
@@ -92,13 +86,13 @@ export default function AlertsPage() {
                       <ul className="alerts-parts">
                         {aParts.map((p) => (
                           <li key={p.id}><span className="ks-num">{p.number}</span> {p.name}
-                            <StatusPill tone={p.criticality === "line-stopper" ? "danger" : p.criticality === "high" ? "warning" : "neutral"}>{CRIT[p.criticality]}</StatusPill></li>
+                            <CritPill c={p.criticality} /></li>
                         ))}
                       </ul>
                     )}
                   </dd></div>
+                  {programs.length > 0 && <div><dt>Models affected</dt><dd>{programsOf(aParts, programs).map(modelLabel).join(", ") || "Not mapped"}</dd></div>}
                   <div><dt>Expected shortfall</dt><dd>{a.expectedShortfallDate ? date(a.expectedShortfallDate) : "None expected"}</dd></div>
-                  <div><dt>Exposure</dt><dd className="ks-num">€{num(a.lineStopExposureEur)}</dd></div>
                 </dl>
 
                 {a.supplierResponse && (
@@ -130,7 +124,7 @@ export default function AlertsPage() {
                   <div className="alerts-notes">
                     {[...(notes[a.id] ?? [])].sort((x, y) => (y.sentAt ?? "").localeCompare(x.sentAt ?? "")).map((n, i) => {
                       const word = n.dryRun ? "dry run" : n.status === "failed" ? "failed" : n.status === "skipped" ? "skipped" : "sent";
-                      const when = n.sentAt ? new Date(n.sentAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+                      const when = n.sentAt ? dateTime(n.sentAt) : "";
                       return <p key={n.id ?? i} className="alerts-meta">{n.channel === "whatsapp" ? "Messaged" : "Emailed"} to {n.recipient ?? "a recipient"}{when ? ` · ${when}` : ""} ({word})</p>;
                     })}
                     {a.resolvedBy === "engine" && <p className="alerts-meta">Resolved automatically when the risk turned green</p>}

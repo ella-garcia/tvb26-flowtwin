@@ -3,7 +3,8 @@ import hmac
 import os
 
 import httpx
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 import config
@@ -13,6 +14,19 @@ import scheduled
 from db import DB
 
 app = FastAPI(title="FlowTwin worker", version="0.1.0")
+
+
+@app.exception_handler(httpx.HTTPError)
+def supabase_unreachable(_req: Request, e: httpx.HTTPError):
+    return JSONResponse(status_code=502, content={"detail": f"Supabase unreachable: {type(e).__name__}"})
+
+
+@app.exception_handler(RuntimeError)
+def supabase_error(_req: Request, e: RuntimeError):
+    """db.py and the storage download raise RuntimeError for Supabase error responses (the text never holds the key)."""
+    if type(e) is not RuntimeError:  # subclasses (NotImplementedError, RecursionError) are our bugs, not Supabase's
+        return JSONResponse(status_code=500, content={"detail": f"Internal error: {type(e).__name__}"})
+    return JSONResponse(status_code=502, content={"detail": "Supabase request failed", "error": str(e)[:500]})
 
 
 def require_token(authorization: str | None = Header(default=None)) -> None:
@@ -43,11 +57,8 @@ def health():
 
 @app.post("/jobs/run-next", dependencies=[Depends(require_token)])
 def run_next(db: DB = Depends(get_db)):
-    """Claim the oldest queued job (atomic queued -> running), run it, mark done/failed."""
-    try:
-        return jobs.run_next(db)
-    except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Supabase unreachable: {type(e).__name__}") from e
+    """Claim the oldest queued job (atomic queued -> running), run it, mark done/failed. Supabase errors give 502."""
+    return jobs.run_next(db)
 
 
 @app.post("/recompute-risk", dependencies=[Depends(require_token)])
@@ -57,8 +68,6 @@ def recompute_risk(req: RecomputeRequest, db: DB = Depends(get_db)):
         return risk_runner.recompute_customer(db, req.customer_id, req.as_of)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
-    except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Supabase unreachable: {type(e).__name__}") from e
 
 
 @app.post("/cron/hourly", dependencies=[Depends(require_token)])
@@ -70,7 +79,4 @@ def cron_hourly(db: DB = Depends(get_db)):
 @app.post("/jobs/drain", dependencies=[Depends(require_token)])
 def jobs_drain(db: DB = Depends(get_db)):
     """Called by pg_cron every 2 minutes: run queued jobs (e.g. uploads) until idle."""
-    try:
-        return scheduled.drain_jobs(db, max_jobs=20)
-    except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Supabase unreachable: {type(e).__name__}") from e
+    return scheduled.drain_jobs(db, max_jobs=20)

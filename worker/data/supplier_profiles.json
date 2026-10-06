@@ -193,5 +193,65 @@
    "flat"
   ],
   "data_status": "connected"
+ },
+ "pfl": {
+  "highways": [
+   "MEX-85D",
+   "MEX-57D"
+  ],
+  "lead_time_variability": 0.18,
+  "utilization": 0.7,
+  "ceiling": 0.95,
+  "fg_days": 3.0,
+  "bottleneck": "Customs clearance at Nuevo Laredo",
+  "otif": [
+   0.962,
+   0.95,
+   "flat"
+  ],
+  "data_status": "connected",
+  "route": [
+   {
+    "kind": "road",
+    "label": "Road to the border",
+    "place": "Laredo, Texas",
+    "lat": 27.53,
+    "lon": -99.49,
+    "days": 0.5,
+    "highways": [
+     "I-35"
+    ]
+   },
+   {
+    "kind": "border",
+    "label": "Border crossing",
+    "place": "Nuevo Laredo",
+    "lat": 27.6,
+    "lon": -99.53,
+    "days": 0.5,
+    "highways": []
+   },
+   {
+    "kind": "customs",
+    "label": "Mexican customs clearance",
+    "place": "Nuevo Laredo",
+    "lat": 27.48,
+    "lon": -99.51,
+    "days": 1.0,
+    "highways": []
+   },
+   {
+    "kind": "road",
+    "label": "Road to Querétaro",
+    "place": "MEX-85D and MEX-57D",
+    "lat": 25.67,
+    "lon": -100.31,
+    "days": 2.0,
+    "highways": [
+     "MEX-85D",
+     "MEX-57D"
+    ]
+   }
+  ]
  }
 }

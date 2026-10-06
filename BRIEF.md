@@ -5,8 +5,10 @@ pays and invites its Tier 2 suppliers for free. Each supplier gets a **risk traf
 problems *before* they happen, e.g. a supplier near Veracruz in rainy season: transit goes from 2 to 5 days → alert.
 
 **Facts from our advisor (use in copy, mark as "to validate" where shown):**
-- An OEM line stop costs about €15,000 per minute (settings.lineStopCostEurPerMinute).
-- A car has 18–25k parts; one missing screw can stop the line → rank by line-stop exposure, never by spend.
+- An OEM line stop costs about €15,000 per minute (settings.lineStopCostEurPerMinute). **Internal only: never shown in the UI**
+  (professor feedback, Oct 2026: impact does not need to be monetised; see docs/evidence-brief-professor-feedback.md).
+- A car has 18–25k parts; one missing screw can stop the line → rank by time to line stop, then part criticality, never by spend or €.
+- Delivery history (OTIF) is graded A/B/C against the contract target and shown next to, not inside, the forward-looking risk light.
 - Contracts allow ±15% demand changes → "Can this supplier absorb +15%?" (FlexResult) is a headline indicator.
 - Contracts include ~3% price cuts a year → suppliers' costs and margins are NEVER visible to the Tier 1.
 

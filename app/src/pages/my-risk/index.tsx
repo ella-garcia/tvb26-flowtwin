@@ -1,39 +1,32 @@
 // My risk: what the supplier's customers see about it, plus alerts and ways to improve the score.
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useApp } from "../../app/AppContext";
-import { AccessDeniedError } from "../../lib/dataLayer";
+import { useScoped } from "../../lib/useScoped";
 import type { Alert, RiskAssessment } from "../../lib/types";
-import { Button, FilterChip, Icon, StatusPill, type IconName, type PillTone } from "../../keystone";
-import { Card, Empty, NotShared, PageHeader, RiskLight } from "../../components/shared";
+import { Button, FilterChip, Icon, StatusPill, type IconName } from "../../keystone";
+import { AlertStatusPill, Card, Empty, FormulaSource, PageHeader, RiskLight, ScopedError } from "../../components/shared";
 import { date } from "../../lib/format";
-import SupplierRiskView from "../supplier/SupplierRiskView";
+import { SupplierRiskView } from "../../components/supplier-risk";
 import "./my-risk.css";
-
-const statusPill = (s: Alert["status"]): { tone: PillTone; label: string } =>
-  s === "new" ? { tone: "danger", label: "Needs your answer" }
-  : s === "acknowledged" ? { tone: "warning", label: "Seen by customer" }
-  : s === "supplier-responded" ? { tone: "success", label: "You answered" }
-  : { tone: "neutral", label: "Resolved" };
 
 function AlertCard({ alert, customerName }: { alert: Alert; customerName: string }) {
   const { db, dispatch } = useApp();
   const [message, setMessage] = useState("");
   const [capacity, setCapacity] = useState(false);
-  const pill = statusPill(alert.status);
   const unanswered = alert.status === "new" || alert.status === "acknowledged";
   const by = db.company(db.viewer.companyId)?.contact?.name ?? db.viewer.role;
 
   return (
     <div className="my-risk-alert">
       <div className="my-risk-alert-head">
-        <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "center", flexWrap: "wrap" }}>
+        <div className="my-risk-alert-title">
           <RiskLight level={alert.level} />
           <h3>{alert.title}</h3>
         </div>
-        <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
+        <AlertStatusPill status={alert.status} audience="supplier" />
       </div>
       <p>{alert.message}</p>
-      <p className="ft-muted" style={{ fontSize: 12 }}>
+      <p className="my-risk-from">
         From {customerName}, {date(alert.createdAt)}
         {alert.expectedShortfallDate && <> · Stock could run short on {date(alert.expectedShortfallDate)}</>}
       </p>
@@ -50,7 +43,7 @@ function AlertCard({ alert, customerName }: { alert: Alert; customerName: string
       {unanswered && (
         <div className="my-risk-form">
           <label className="my-risk-lbl" htmlFor={`msg-${alert.id}`}>Message to {customerName}</label>
-          <textarea id={`msg-${alert.id}`} value={message} onChange={(e) => setMessage(e.target.value)}
+          <textarea className="ft-control" id={`msg-${alert.id}`} value={message} onChange={(e) => setMessage(e.target.value)}
             placeholder="Tell them what you can do, for example an earlier truck or extra stock." />
           <label className="my-risk-check">
             <input type="checkbox" checked={capacity} onChange={(e) => setCapacity(e.target.checked)} />
@@ -74,7 +67,7 @@ function improvements(r: RiskAssessment | undefined): { icon: IconName; text: st
       : "Connect your data. Right now the score relies on public information, so it is cautious about you." });
   }
   if (!r.flex.canAbsorb) out.push({ icon: "gear", text: `Confirm press capacity. Today ${r.flex.bottleneck} limits an extra ${Math.round(r.flex.demandIncrease * 100)}% of orders.` });
-  if (r.drivers.some((d) => d.kind === "road" || d.kind === "weather" || d.kind === "port" || d.kind === "blockade")) {
+  if (r.drivers.some((d) => d.kind === "road" || d.kind === "weather" || d.kind === "port" || d.kind === "customs" || d.kind === "blockade")) {
     out.push({ icon: "truck", text: "Add a daytime departure window and a backup route, so trucks can avoid the affected highways." });
   }
   if (r.drivers.some((d) => d.kind === "theft")) out.push({ icon: "lock", text: "Move night departures to daytime windows where you can. Fewer night trips lowers theft risk." });
@@ -89,13 +82,13 @@ export default function MyRiskPage() {
   const [picked, setPicked] = useState<string | null>(null);
   const supplierId = db.viewer.companyId;
 
-  const read = useMemo(() => {
-    try { return { risks: db.risks().filter((r) => r.supplierId === supplierId), alerts: db.alerts().filter((a) => a.supplierId === supplierId) }; }
-    catch (e) { if (e instanceof AccessDeniedError) return { error: e.message }; throw e; }
-  }, [db, supplierId]);
+  const read = useScoped(() => ({
+    risks: db.risks().filter((r) => r.supplierId === supplierId),
+    alerts: db.alerts().filter((a) => a.supplierId === supplierId),
+  }), [db, supplierId]);
 
-  if ("error" in read) return <><PageHeader title="What your customers see" /><NotShared message={read.error ?? ""} /></>;
-  const { risks, alerts } = read;
+  if (!read.ok) return <ScopedError title="What your customers see" error={read.error} />;
+  const { risks, alerts } = read.data;
   const customerIds = Array.from(new Set(risks.map((r) => r.customerId)));
   const customerId = picked && customerIds.includes(picked) ? picked : customerIds[0];
   const nameOf = (id: string) => db.company(id)?.name ?? id;
@@ -114,8 +107,8 @@ export default function MyRiskPage() {
       )}
       <Card title="Alerts about you">
         {shownAlerts.length === 0
-          ? <p className="ft-muted" style={{ margin: 0 }}>No alerts about you right now.</p>
-          : <div className="my-risk-stack" style={{ gap: "var(--space-4)" }}>
+          ? <p className="my-risk-note">No alerts about you right now.</p>
+          : <div className="my-risk-alerts">
               {shownAlerts.map((a) => <AlertCard key={a.id} alert={a} customerName={nameOf(a.customerId)} />)}
             </div>}
       </Card>
@@ -129,9 +122,13 @@ export default function MyRiskPage() {
           <ul className="my-risk-actions">
             {improvements(risk).map((a, i) => <li key={i}><Icon name={a.icon} />{a.text}</li>)}
           </ul>
-          <p className="ft-muted" style={{ margin: 0, fontSize: 12 }}>
+          <p className="my-risk-note my-risk-score">
             Score {risk.score} of 100, higher means riskier. Updated {date(risk.updatedAt)}.
           </p>
+          <FormulaSource
+            formula="Score (0–100) = sum of the driver points shown under Why this colour. Red (Act now) if your customer's line could stop within 3 days or the score is 65 or more."
+            data="Active signals on your lanes, your transit history, your customer's stock of your parts, the demand-swing test and your weekly delivery records."
+            provenance={risk.dataStatus === "connected" ? "measured" : "estimated"} />
         </Card>
       )}
     </div>

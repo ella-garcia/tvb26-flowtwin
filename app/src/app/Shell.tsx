@@ -2,7 +2,6 @@
 import { Breadcrumb, Icon, IconButton, NavRail, SubNav, UserChip, type RailItem } from "../keystone";
 import { PACKS } from "../packs";
 import type { PlanId, RoleId } from "../lib/types";
-import { SyncBadge } from "../components/shared";
 import { date } from "../lib/format";
 import { useApp, type ModuleId } from "./AppContext";
 import { MODULES } from "./routes";
@@ -11,7 +10,7 @@ const ROLE_LABEL: Record<RoleId, string> = { customer: "Key customer", owner: "S
 
 // "supplier" is reached from the risk board (#supplier/<id>), so it is not on the rail.
 const RAIL: Record<RoleId, ModuleId[]> = {
-  customer: ["risk", "alerts", "invite", "tier1-data"],
+  customer: ["risk", "parts", "alerts", "invite", "tier1-data"],
   owner: ["my-risk", "data"],
   ops: ["data", "my-risk"],
   admin: ["signals", "companies"],
@@ -28,25 +27,25 @@ function TestingBar() {
       <span className="ft-testbar-tag" title={mode === "live" ? "Reading from Supabase" : "Reading the bundled demo data"}
         data-mode={mode}>{mode === "live" ? "Live data" : "Demo data"}</span>
       <label>Industry
-        <select id="tg-pack" value={toggles.packId} onChange={(e) => setToggles({ packId: e.target.value })}>
+        <select id="tg-pack" className="ft-control" value={toggles.packId} onChange={(e) => setToggles({ packId: e.target.value })}>
           {PACKS.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </label>
       <label>Role
-        <select id="tg-role" value={toggles.role} onChange={(e) => setToggles({ role: e.target.value as RoleId })}>
+        <select id="tg-role" className="ft-control" value={toggles.role} onChange={(e) => setToggles({ role: e.target.value as RoleId })}>
           {(Object.keys(ROLE_LABEL) as RoleId[]).map((r) =>
             <option key={r} value={r}>{r === "customer" ? `Key customer (${pack.labels.keyCustomer})` : ROLE_LABEL[r]}</option>)}
         </select>
       </label>
       <label>Company
-        <select id="tg-company" value={toggles.companyId} disabled={toggles.role === "admin"}
+        <select id="tg-company" className="ft-control" value={toggles.companyId} disabled={toggles.role === "admin"}
           onChange={(e) => setToggles({ companyId: e.target.value })}>
           {toggles.role === "admin" && <option value="platform">FlowTwin platform</option>}
           {companies.map((c) => <option key={c.id} value={c.id}>{c.name}{c.synthetic ? " (synthetic)" : ""}</option>)}
         </select>
       </label>
       <label>Plan
-        <select id="tg-plan" value={toggles.plan} onChange={(e) => setToggles({ plan: e.target.value as PlanId })}>
+        <select id="tg-plan" className="ft-control" value={toggles.plan} onChange={(e) => setToggles({ plan: e.target.value as PlanId })}>
           <option value="free">Free</option><option value="paid">Paid</option><option value="sponsored">Sponsored</option>
         </select>
       </label>
@@ -61,9 +60,6 @@ export function Shell() {
   const allowed = REACHABLE[toggles.role].includes(route.module);
   const items: RailItem[] = RAIL[toggles.role].map((id) => ({ id, label: MODULES[id].label, icon: MODULES[id].icon }));
   const company = db.company(toggles.companyId);
-  const supplierRole = toggles.role === "owner" || toggles.role === "ops";
-  let twin;
-  try { twin = supplierRole ? db.twin(toggles.companyId) : undefined; } catch { twin = undefined; }
   const Page = allowed ? mod.Page : MODULES[RAIL[toggles.role][0]].Page;
   const sub = mod.subnav?.();
   const person = company?.contact;
@@ -81,8 +77,7 @@ export function Shell() {
           <div className="ft-head">
             <Breadcrumb icon={mod.icon} items={[{ label: company?.name ?? "FlowTwin platform" }, { label: mod.label }]} />
             <div className="ft-head-right">
-              {twin ? <SyncBadge syncedThrough={twin.syncedThrough} accuracy={twin.overallAccuracy} />
-                : <span className="ft-sync"><Icon name="sync" size={16} />Risk updated {date(db.asOf)}</span>}
+              <span className="ft-sync"><Icon name="sync" size={16} />Risk updated {date(db.asOf)}</span>
               <IconButton icon="bell" label="Notifications" />
               <UserChip name={person?.name ?? ROLE_LABEL[toggles.role]} email={person ? `${ROLE_LABEL[toggles.role]} · ${person.email}` : ROLE_LABEL[toggles.role]} />
             </div>

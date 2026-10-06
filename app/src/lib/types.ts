@@ -98,125 +98,6 @@ export interface Certification {
   validUntil: string;         // ISO date
 }
 
-/** One indicator value. `customerId` set for per-customer scorecard values. */
-export interface KpiValue {
-  companyId: string;
-  kpiId: string;              // id from the pack's kpi list
-  customerId?: string;
-  value: number;
-  provenance: Provenance;
-  asOf: string;               // ISO date
-}
-
-export interface EnergyMonth {
-  companyId: string;
-  month: string;              // "2025-01"
-  electricityKwh: number;
-  dieselLitres: number;       // own fleet and forklifts
-  naturalGasM3: number;
-  source: string;             // e.g. "CFE bill 2025-01"
-}
-
-export interface MaterialPurchase {
-  companyId: string;
-  material: string;           // pack material id
-  tonnes: number;
-  year: number;
-  source: string;
-}
-
-export interface Shipment {
-  companyId: string;
-  customerId: string;
-  year: number;
-  tonnes: number;             // used to split the footprint by customer
-}
-
-export interface EmissionFactor {
-  id: string;
-  name: string;
-  value: number;
-  unit: string;               // e.g. "kg CO2e/kWh"
-  scope: 1 | 2 | 3;
-  source: string;
-  year: number;
-  version: number;
-}
-
-/** The twin of one company's network, rebuilt from its data. v0: produced by the seed generator. */
-export interface Twin {
-  companyId: string;
-  syncedThrough: string;      // ISO date of the latest data in the twin
-  builtAt: string;
-  counts: { items: number; sites: number; partners: number; lanes: number };
-  accuracy: TwinAccuracy[];   // replay vs actual over the last 90 days
-  overallAccuracy: number;    // 0..1
-  days: TwinDay[];            // 90 days, oldest first
-}
-
-export interface TwinAccuracy {
-  kpiId: string;
-  actual: number;
-  simulated: number;
-  score: number;              // 0..1, 1 = identical
-}
-
-export interface TwinDay {
-  date: string;
-  otifActual: number;
-  otifTwin: number;
-  /** Units on hand per Site/Partner id. */
-  stock: Record<string, { actual: number; twin: number }>;
-  /** Trucks dispatched and average fill per lane that day. */
-  lanes: Record<string, { trucks: number; fill: number }>;
-  stockouts: string[];        // node ids with a stockout that day
-}
-
-/** A key customer's request to a supplier. */
-export type ShareItem = "scorecard" | "carbon";
-export interface DataRequest {
-  id: string;
-  fromCompanyId: string;      // the key customer
-  toCompanyId: string;        // the supplier
-  items: ShareItem[];
-  fiscalYear: number;
-  sentAt: string;
-  dueDate: string;
-  status: "open" | "in-review" | "answered";
-  note?: string;
-}
-
-/** What a supplier has explicitly shared with one customer. Payloads are frozen at approval. */
-export interface Share {
-  id: string;
-  supplierId: string;
-  customerId: string;
-  requestId?: string;
-  items: ShareItem[];
-  approvedBy: string;
-  approvedAt: string;
-  version: number;
-  revoked?: boolean;
-  scorecard?: ScorecardPayload;
-  carbon?: CarbonPayload;
-}
-
-export interface ScorecardPayload {
-  period: string;             // e.g. "Jul–Sep 2026"
-  rows: { kpiId: string; label: string; value: number; target: number; unit: string; status: "on-track" | "watch" | "below" }[];
-  certifications: { name: string; validUntil: string; required: boolean }[];
-}
-
-export interface CarbonPayload {
-  fiscalYear: number;
-  allocationMethod: "tonnes-shipped";
-  allocationShare: number;    // share of the supplier's footprint allocated to this customer
-  totalTco2e: number;         // supplier total
-  allocatedTco2e: number;     // allocated to this customer
-  byScope: { scope: 1 | 2 | 3; label: string; tco2e: number }[];
-  lines: { label: string; scope: 1 | 2 | 3; activity: number; activityUnit: string; factorId: string; factorVersion: number; tco2e: number; source: string }[];
-}
-
 /** Raw uploads, as recorded by the intake flow. */
 export type UploadKind = "sales-orders" | "purchase-orders" | "inventory" | "item-master" | "quality" | "freight" | "energy" | "fuel";
 export interface UploadRecord {
@@ -246,18 +127,11 @@ export interface Seed {
   lanes: Lane[];
   machines: Machine[];
   certifications: Certification[];
-  kpis: KpiValue[];
-  energy: EnergyMonth[];
-  materials: MaterialPurchase[];
-  shipments: Shipment[];
-  emissionFactors: EmissionFactor[];
-  twins: Twin[];
-  requests: DataRequest[];
-  shares: Share[];
   uploads: UploadRecord[];
   // ---- Early warning (v0 core) ----
   settings: Settings;
   parts: Part[];
+  programs: VehicleProgram[];
   signals: Signal[];
   risks: RiskAssessment[];
   alerts: Alert[];
@@ -287,12 +161,30 @@ export interface Part {
   dailyUsage: number;          // units per production day at the key customer
   onHand: number;              // key customer's stock, units
   daysOfCover: number;         // onHand / dailyUsage
+  /** Units shipped by the supplier and not yet received (from ASNs or the stock upload). Absent = unknown. */
+  inTransit?: number;
+  /** Finished goods for this part at the supplier, units. Only when the supplier shares its data. Absent = not shared. */
+  supplierFgOnHand?: number;
+  /** Arrival date of the next delivery, when known (ASN / supplier confirmation). Absent = estimate from expected transit. */
+  nextDeliveryDate?: string;
+  /** Vehicle programmes (models) this part goes into. Absent or empty = not mapped yet. */
+  programIds?: string[];
   singleSource: boolean;
   /** Line-stopper = no substitute and the OEM line stops without it (a screw can be one). */
   criticality: "line-stopper" | "high" | "normal";
 }
 
-export type SignalKind = "weather" | "road" | "theft" | "port" | "blockade" | "supplier";
+/** A vehicle model the key customer builds for, at one OEM plant. A Tier 1 plant usually serves several at once. */
+export interface VehicleProgram {
+  id: string;
+  customerId: string;          // the key customer (Tier 1) that supplies this programme
+  oem: string;                 // "OEM A"
+  model: string;               // "K3 compact SUV"
+  oemPlant: string;            // where the OEM assembles it, e.g. "Silao, Guanajuato"
+  dailyVehicles: number;       // planned vehicles per day
+}
+
+export type SignalKind = "weather" | "road" | "theft" | "port" | "blockade" | "supplier" | "customs";
 /** An external or supplier event that can delay deliveries. */
 export interface Signal {
   id: string;
@@ -317,6 +209,15 @@ export interface Signal {
 }
 
 export type RiskLevel = "green" | "amber" | "red";
+
+/** One leg of a supplier's route to the key customer, with its normal and expected (median, next 14 days) time. */
+export interface TransitLeg {
+  kind: "road" | "border" | "customs" | "port" | "sea";
+  label: string;               // "Mexican customs clearance"
+  place: string;               // "Nuevo Laredo"
+  normalDays: number;
+  expectedDays: number;
+}
 
 /** Forward projection for one supplier's main lane, from the twin. */
 export interface ProjectionDay {
@@ -357,6 +258,10 @@ export interface RiskAssessment {
   minCoverDays: number;        // lowest days of cover among this supplier's parts
   /** Days until the key customer's line stops if nothing is done; null = no stop expected in 14 days. */
   daysToLineStop: number | null;
+  /** Stop day per part (line-stopper and high parts that run out within 14 days). Lets the app say which model stops. */
+  partStopDays?: Record<string, number>;
+  /** Transit split by route leg (road, border, customs, port). One road leg for a domestic supplier. */
+  legs?: TransitLeg[];
   lineStopExposureEur: number; // expected cost if it stops (minutes × cost per minute × probability)
   drivers: RiskDriver[];
   flex: FlexResult;

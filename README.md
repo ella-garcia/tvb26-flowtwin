@@ -9,12 +9,18 @@ cd app && npm install && npm run dev
 Open http://localhost:5173. The yellow **Testing** bar switches role (Key customer / Supplier owner / Supplier ops / Admin), company and plan.
 
 ## Demo path (about 5 minutes)
-1. **Key customer → Risk board**: one supplier at "Act now", soonest line stop in 2 days.
-2. Click **Hules y Mangueras de Orizaba**: rainy season pushes transit from 2 to 5 days; 3 days of cover on a line-stopper part; fails the +15% flex test.
-3. **Alerts**: choose "Pull the next order forward" → Acknowledge.
-4. **Invite**: invite another supplier (sponsored, free for them).
-5. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
-6. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
+1. **Key customer → Risk board**: one supplier at "Act now", soonest line stop in 2 days. Switch **Vehicle model** to
+   "K3 compact SUV": its line stops in 2 days (Orizaba lumbar air line); "M5 midsize sedan" has no stop expected.
+2. **Parts & stock**: every part number with stock here, on the road and at the supplier; 7 run out before their next delivery.
+   From the board, "Parts below cover" opens this page filtered to one supplier.
+3. Click **Hules y Mangueras de Orizaba**: rainy season pushes transit from 2 to 5 days; 3 days of cover on a line-stopper part; fails the +15% flex test.
+4. Click **Polímeros Frontera** (Laredo, Texas): imported PP pellets cross at Nuevo Laredo; a customs system outage
+   triples clearance time, so transit goes from 4 to about 7 days. "Route and transit by leg" shows the days piling up
+   at the border and customs, not on the road.
+5. **Alerts**: choose "Pull the next order forward" → Acknowledge.
+6. **Invite**: invite another supplier (sponsored, free for them).
+7. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
+8. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
 
 "Reset demo data" in the Testing bar restores the seed.
 

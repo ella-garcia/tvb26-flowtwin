@@ -49,11 +49,12 @@ async function fetchTable(table: string, order?: string): Promise<Record<string,
 /** Load every table the current identity can read (RLS filters rows) and assemble the Seed shape. */
 export async function loadAll(): Promise<Seed> {
   const t = async (name: string, order?: string) => fetchTable(name, order);
-  const [companies, relationships, signals, factors, sites, partners, lanes, machines, certs, kpis, energy, materials,
-    shipments, twins, uploads, parts, risks, alerts, invites, requests, shares, settings] = await Promise.all([
-    t("companies"), t("relationships"), t("signals"), t("emission_factors"), t("sites"), t("partners"), t("lanes"),
-    t("machines"), t("certifications"), t("kpis", "id"), t("energy"), t("materials", "id"), t("shipments", "id"),
-    t("twins"), t("uploads"), t("parts"), t("risks"), t("alerts"), t("invites"), t("requests"), t("shares"), t("app_settings"),
+  const [companies, relationships, signals, sites, partners, lanes, machines, certs,
+    uploads, parts, risks, alerts, invites, settings, programs] = await Promise.all([
+    t("companies"), t("relationships"), t("signals"), t("sites"), t("partners"), t("lanes"),
+    t("machines"), t("certifications"), t("uploads"), t("parts"), t("risks"), t("alerts"), t("invites"), t("app_settings"),
+    // Added after the first live release: a database without the table still loads (no models shown).
+    t("vehicle_programs").catch(() => [] as Record<string, unknown>[]),
   ]);
   const s = settings[0] as Record<string, unknown> | undefined;
   return {
@@ -66,15 +67,6 @@ export async function loadAll(): Promise<Seed> {
     lanes: rowsToApp(lanes),
     machines: rowsToApp(machines),
     certifications: rowsToApp(certs),
-    // kpis/materials/shipments have a surrogate `id` column that the app types do not carry.
-    kpis: rowsToApp<Record<string, unknown>>(kpis).map(({ id: _i, ...r }) => r) as unknown as Seed["kpis"],
-    energy: rowsToApp(energy),
-    materials: rowsToApp<Record<string, unknown>>(materials).map(({ id: _i, ...r }) => r) as unknown as Seed["materials"],
-    shipments: rowsToApp<Record<string, unknown>>(shipments).map(({ id: _i, ...r }) => r) as unknown as Seed["shipments"],
-    emissionFactors: rowsToApp(factors),
-    twins: rowsToApp(twins),
-    requests: rowsToApp(requests),
-    shares: rowsToApp(shares),
     uploads: rowsToApp(uploads),
     settings: {
       lineStopCostEurPerMinute: Number(s?.line_stop_cost_eur_per_minute ?? 15000),
@@ -82,6 +74,7 @@ export async function loadAll(): Promise<Seed> {
       lineHoursPerDay: Number(s?.line_hours_per_day ?? 16),
     } satisfies Settings,
     parts: rowsToApp(parts),
+    programs: rowsToApp(programs),
     signals: rowsToApp(signals),
     risks: rowsToApp(risks),
     alerts: rowsToApp(alerts),
