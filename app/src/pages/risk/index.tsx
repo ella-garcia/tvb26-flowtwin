@@ -10,7 +10,9 @@ import { ALL_PROGRAMS, modelLabel, partsOn, stopDaysFor } from "../../lib/progra
 import { scoped, useScoped } from "../../lib/useScoped";
 import type { Part, RiskAssessment, RiskLevel } from "../../lib/types";
 import { RiskMap } from "./RiskMap";
-import { LeverBars, ScoreGauge, UptimeChart } from "../../components/optimization/Charts";
+import { LeverBars, UptimeChart } from "../../components/optimization/Charts";
+import { ScoreSection } from "../../components/optimization/ScoreSection";
+import type { SupplierContext } from "../../lib/industry";
 import { ScenarioControls } from "../../components/optimization/Controls";
 import { everyone, optimizationView, scenarioChoice } from "../../lib/scenarios";
 import { OUTLOOK_FORMULA, OutlookGrid, OutlookLegend } from "../../components/outlook/Outlook";
@@ -60,7 +62,10 @@ export default function RiskPage() {
       return a.critRank - b.critRank || b.risk.score - a.risk.score;
     });
     const programs = program ? [program] : db.programs().filter((g) => g.customerId === toggles.companyId);
-    return { rows, program, programs, parts: parts.filter((p) => p.customerId === toggles.companyId), signals: db.signals(), plant: db.company(toggles.companyId) };
+    const own = parts.filter((p) => p.customerId === toggles.companyId);
+    const shares = new Map(rel.ok ? rel.data.map((x) => [x.company.id, x.shareOfSales]) : []);
+    const ctx = new Map<string, SupplierContext>(rows.map((r) => [r.id, { parts: own.filter((p) => p.supplierId === r.id), shareOfSales: shares.get(r.id), otifTarget: targets.get(r.id) }]));
+    return { rows, program, programs, parts: own, ctx, signals: db.signals(), plant: db.company(toggles.companyId) };
   }, [db, toggles.companyId, programId]);
 
   const optRows = loaded.ok ? loaded.data.rows : NO_ROWS;
@@ -126,8 +131,7 @@ export default function RiskPage() {
         <Card title="Optimization score" actions={<button type="button" className="ft-linkbtn" onClick={() => go("what-if")}>Costs and revenue in What-if</button>}>
           <ScenarioControls onAll={(all) => setScenario({ overrides: everyone(rows, scenario.weeks, all) })} />
           <p className="risk-opt-note">{opt.actingNow} of {opt.acting} suppliers with a risk in the next {scenario.weeks} weeks adopt their recommended optimizations (draw {scenario.seed}).</p>
-          <ScoreGauge before={opt.scoreBefore} after={opt.scoreAfter} />
-          <FormulaSource formula="Score = 100 × (1 − (2 × High supplier-weeks + Watch supplier-weeks) ÷ (2 × at-risk suppliers × weeks)), over the chosen horizon, for the suppliers that have a risk in it; 100 means all their weeks are OK. Weekly levels come from the 12-week outlook; with optimizations, from the engine's result for the actions each supplier adopts. Randomize draws which suppliers adopt (each with the chosen probability)." data="Seasonal and announced signals, route legs, your stock cover, and each supplier's recommended optimizations." provenance="estimated" />
+          <ScoreSection rows={optRows} choice={choice} weeks={scenario.weeks} ctx={loaded.data.ctx} />
           <h3 className="risk-opt-heading">Benefit by optimization lever</h3>
           <LeverBars levers={opt.levers} />
           <h3 className="risk-opt-heading">Line uptime</h3>

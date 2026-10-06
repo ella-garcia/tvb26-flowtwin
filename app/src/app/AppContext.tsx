@@ -14,8 +14,12 @@ const PROGRAM_KEY = "flowtwin-v0-program";
 const SCENARIO_KEY = "flowtwin-v0-scenario";
 
 /** What-if / optimization scenario, shared by the risk board and the What-if page. */
-export interface ScenarioState { weeks: number; share: number; seed: number; overrides: Record<string, string> }
-const DEFAULT_SCENARIO: ScenarioState = { weeks: 12, share: 0.5, seed: 1, overrides: {} };
+export interface ScenarioState {
+  weeks: number; share: number; seed: number; overrides: Record<string, string>;
+  /** Which score to show: the operational one, or the stricter industry view (automaker / bank lens). */
+  view: "operational" | "industry";
+}
+const DEFAULT_SCENARIO: ScenarioState = { weeks: 12, share: 0.5, seed: 1, overrides: {}, view: "operational" };
 
 export type ModuleId =
   | "risk" | "parts" | "what-if" | "alerts" | "supplier" | "invite" | "tier1-data" // key customer (Tier 1): the v0 lead journey

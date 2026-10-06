@@ -55,7 +55,7 @@ export function scope(data: AppData, viewer: Viewer) {
     suppliersOf: (customerId: string) => {
       if (viewer.role !== "customer" || viewer.companyId !== customerId) throw new AccessDeniedError("supplier list");
       return data.relationships.filter((r) => r.customerId === customerId)
-        .map((r) => ({ company: data.companies.find((c) => c.id === r.supplierId)!, chainPosition: r.chainPosition, requirements: r.requirements }))
+        .map((r) => ({ company: data.companies.find((c) => c.id === r.supplierId)!, chainPosition: r.chainPosition, requirements: r.requirements, shareOfSales: r.shareOfSales }))
         .filter((x) => x.company);
     },
 
