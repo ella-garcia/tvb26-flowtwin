@@ -10,11 +10,11 @@ DEFAULT_ACTIONS = [
 # Scripted actions per supplier id (from the v0 demo); other suppliers get DEFAULT_ACTIONS.
 ACTIONS = {
     "hmo": [("Pull the next order forward", "Ask Hules y Mangueras de Orizaba to ship the next two orders before the rain peaks, adding about 1.5 days of cover."),
-            ("Add 2 days of safety stock", "Raise the lumbar air line safety stock to 5 days until the rainy season ends (about MX$38k of inventory)."),
+            ("Add 2 days of safety stock", "Raise the lumbar air line safety stock from 3 to 5 days until the rainy season ends (about 3,600 more units)."),
             ("Use the alternative route via Tehuacán", "Route trucks through Tehuacán and Cuacnopalan (MEX-150 free road) to avoid the landslide-prone Orizaba–Puebla toll stretch."),
             ("Qualify the second source", "Start a second-source qualification for the lumbar air hose; PPAP level 3 takes about 10 weeks.")],
     "tsr": [("Pull the next order forward", "Ask Tornillos y Sujetadores to ship Thursday's flange screw order on Tuesday."),
-            ("Add 3 days of safety stock", "Buy a one-off buffer of M6 flange screws; at MX$0.62 each this is under MX$30k for 3 days."),
+            ("Add 3 days of safety stock", "Buy a one-off buffer of 3 days of M6 flange screws (about 43,200 screws)."),
             ("Qualify the second source", "Flange screws are single-source. Qualify a second heading shop in the Bajío.")],
     "edl": [("Ask for a confirmed ship plan", "Ask Estampados del Laja for a daily ship plan until Press 4 is stable."),
             ("Move departures to daytime", "Agree that loads for QSS leave between 06:00 and 18:00 to avoid the MEX-45D night theft risk."),

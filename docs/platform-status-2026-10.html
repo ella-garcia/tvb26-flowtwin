@@ -104,7 +104,7 @@ a { color: var(--primary); }
         <div class="stat"><b class="num">11</b><span>pages across 4 roles</span></div>
         <div class="stat"><b class="num">13</b><span>demo suppliers, 31 parts</span></div>
         <div class="stat"><b class="num">4</b><span>vehicle models (3 at QRO Seating)</span></div>
-        <div class="stat"><b class="num">90</b><span>worker tests passing</span></div>
+        <div class="stat"><b class="num">91</b><span>worker tests passing</span></div>
       </div>
 
       <div class="sub">
@@ -112,11 +112,11 @@ a { color: var(--primary); }
         <div class="scroll"><table>
           <thead><tr><th>Role</th><th>Module</th><th>What it does</th></tr></thead>
           <tbody>
-            <tr><td rowspan="7"><b>Key customer</b><br><span style="color:var(--subtle)">Tier 1, e.g. QRO Seating Systems</span></td><td>Risk board</td><td>Risk light per supplier, days to line stop, parts below safe cover, OTIF and delivery grade, map of suppliers and active signals, and a 12-week outlook grid. Filter by vehicle model.</td></tr>
+            <tr><td rowspan="7"><b>Key customer</b><br><span style="color:var(--subtle)">Tier 1, e.g. QRO Seating Systems</span></td><td>Risk board</td><td>Risk light per supplier, days to line stop, parts below safe cover, OTIF and delivery grade, map of suppliers and active signals, a 12-week outlook grid, and an optimization score (0–100, before → after) with benefit by lever and line uptime %. Filter by vehicle model.</td></tr>
             <tr><td>Parts &amp; stock <span class="pill new">New</span></td><td>Every part number with stock here, on the road and at the supplier, the date stock runs out and the next delivery. Filters by status, supplier, criticality and model.</td></tr>
-            <tr><td>What-if <span class="pill new">New</span></td><td>Pick a horizon (2, 4 or 12 weeks) and the share of suppliers that act on their recommended actions; randomize who acts or choose by hand, and see before and after per week, the range over 500 random draws, and which supplier-weeks improve.</td></tr>
+            <tr><td>What-if <span class="pill new">New</span></td><td>Pick a horizon (2, 4 or 12 weeks) and the share of suppliers that act on their recommended actions; randomize who acts or choose by hand, and see before and after per week, the range over 500 random draws, which supplier-weeks improve, and in MXN (estimated): revenue at risk by week, revenue protected per model, return on each optimization, revenue gained if the OEM raises volume 15%, and the stock each action adds. Opens filtered to one supplier from an alert.</td></tr>
             <tr><td>Supplier detail</td><td>Why the light has its colour, 14-day transit and cover projection, transit by route leg (border, customs, road) for imports, +15% demand test, parts, delivery history, related alerts.</td></tr>
-            <tr><td>Alerts</td><td>What happens if nothing is done, parts and models affected, expected shortfall, actions to choose, supplier replies, email log.</td></tr>
+            <tr><td>Alerts</td><td>What happens if nothing is done, parts and models affected, expected shortfall, actions to choose, supplier replies, email log, and a link to the value at risk in What-if.</td></tr>
             <tr><td>Invite</td><td>Invite suppliers for free (sponsored by the Tier 1) and see what is shared with them.</td></tr>
             <tr><td>Data</td><td>Upload suppliers, parts, stock (with in-transit and ETA), demand releases and goods receipts; Spanish ERP headers recognised.</td></tr>
             <tr><td rowspan="2"><b>Supplier owner / ops</b><br><span style="color:var(--subtle)">Tier 2, e.g. Estampados del Laja</span></td><td>My risk</td><td>Exactly what the customer sees about them, alerts that need an answer, how to improve the score.</td></tr>
@@ -228,6 +228,7 @@ a { color: var(--primary); }
         <div class="decision"><h3>The Nuevo Laredo case is fictional but modelled on real reports</h3><p>Polímeros Frontera (Laredo, Texas) and the outage signal are demo data, sourced to press reports of ANAM system outages in the evidence brief.</p></div>
         <div class="decision"><h3>Two horizons: 14 days for alerts, 12 weeks for planning</h3><p>Following BCG’s example of flagging risks about 12 weeks ahead, FlowTwin adds a weekly 12-week outlook built only from signals known in advance (rainy and hurricane season, year-end border peaks, holiday traffic). Alerts and line stops still come from the 14-day daily projection.</p><p class="why">Why: weather, road and customs events can only be forecast about two weeks out; beyond that, only seasonal and announced risks are known, and the page says so.</p></div>
         <div class="decision"><h3>What-if results come from the engine, not the browser</h3><p>The engine computes every combination of each supplier’s recommended actions (at most 8) with the outlook rule; the page only picks and counts them. The “no action” result equals the outlook exactly.</p><p class="why">Why: one risk engine, so the before and after a Tier 1 sees are always consistent with the rest of the product.</p></div>
+        <div class="decision"><h3>Money only on What-if, never on the risk board</h3><p>The risk board shows an optimization score, the benefit of each lever and line uptime %. Revenue lost or protected and the cost of added stock appear only on What-if, in MXN, from the Tier 1’s own unit costs and content value per vehicle, marked estimated.</p><p class="why">Why: the professor asked for impact without money on the board; the Tier 1 still needs a business view when it plans actions.</p></div>
         <div class="decision"><h3>Refactor before ports and customs</h3><p>The risk engine existed twice (seed generator and worker). D changes the engine, so it was unified first.</p></div>
       </div>
     </section>

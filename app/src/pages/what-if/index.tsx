@@ -1,17 +1,18 @@
 // What-if for the key customer: pick a horizon, let some suppliers act on their recommended actions (at random or by
 // hand) and see the change against doing nothing. All weekly levels come from the engine (risk.scenarios).
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useApp } from "../../app/AppContext";
-import { Card, CompanyMark, FormulaSource, ModelSelect, PageHeader, RiskLight, ScopedError } from "../../components/shared";
-import { Button, FilterChip, StatCard } from "../../keystone";
-import { date, num } from "../../lib/format";
+import { Card, CompanyMark, FormulaSource, ModelSelect, PageHeader, ProvenanceTag, RiskLight, ScopedError } from "../../components/shared";
+import { StatCard } from "../../keystone";
+import { date, mxn, num } from "../../lib/format";
 import { ALL_PROGRAMS, modelLabel, partsOn } from "../../lib/programs";
-import { actionable, drawStats, levelsFor, noneKey, randomChoice, rng, totals, type Choice, type ScenarioRow } from "../../lib/scenarios";
+import { actionReturns, actionable, downDays, drawStats, everyone, flexUpside, weeklyRevenueLost, levelsFor, noneKey, optimizationView, scenarioChoice, totals, type Choice, type ScenarioRow } from "../../lib/scenarios";
+import { CostBars, ReturnsTable, RevenueChart, ScoreGauge, UpsideChart, UptimeChart, WeeklyMoneyChart } from "../../components/optimization/Charts";
+import { ScenarioControls } from "../../components/optimization/Controls";
 import { useScoped } from "../../lib/useScoped";
 import type { RiskLevel } from "../../lib/types";
 import "./what-if.css";
 
-const HORIZONS = [2, 4, 12] as const;
 const NO_ROWS: ScenarioRow[] = [];
 const SYMBOL: Record<RiskLevel, string> = { red: "▲", amber: "◆", green: "●" };
 const WORD: Record<RiskLevel, string> = { red: "High", amber: "Watch", green: "OK" };
@@ -71,24 +72,36 @@ function RangeBar({ label, base, now, p10, p50, p90 }: { label: string; base: nu
 }
 
 export default function WhatIfPage() {
-  const { db, go, toggles, programId } = useApp();
-  const [weeks, setWeeks] = useState<number>(12);
-  const [share, setShare] = useState(0.5);
-  const [seed, setSeed] = useState(1);
-  const [overrides, setOverrides] = useState<Choice>({});
+  const { db, go, route, toggles, programId, scenario, setScenario } = useApp();
+  const focus = route.sub;  // #what-if/<supplierId>: opened from an alert, one supplier only
+  const { weeks, share, seed } = scenario;
 
   const loaded = useScoped(() => {
     const customerId = toggles.companyId;
     const program = db.programs().find((g) => g.id === programId);
     const parts = partsOn(db.parts().filter((p) => p.customerId === customerId), program ? program.id : ALL_PROGRAMS);
-    const rows: ScenarioRow[] = db.risks().filter((r) => r.customerId === customerId && parts.some((p) => p.supplierId === r.supplierId))
+    const rows: ScenarioRow[] = db.risks().filter((r) => r.customerId === customerId && parts.some((p) => p.supplierId === r.supplierId)
+      && (!focus || r.supplierId === focus))
       .map((risk) => ({ id: risk.supplierId, name: db.company(risk.supplierId)?.name ?? risk.supplierId, risk }));
-    return { rows, program, plant: db.company(customerId) };
-  }, [db, toggles.companyId, programId]);
+    const programs = program ? [program] : db.programs().filter((g) => g.customerId === customerId);
+    return { rows, program, programs, parts, plant: db.company(customerId), swing: db.settings()?.contractDemandSwing ?? 0.15 };
+  }, [db, toggles.companyId, programId, focus]);
 
   const rows = loaded.ok ? loaded.data.rows : NO_ROWS;
-  const choice = useMemo<Choice>(() => ({ ...randomChoice(rows, share, weeks, rng(seed)), ...overrides }), [rows, share, weeks, seed, overrides]);
+  const choice = useMemo<Choice>(() => scenarioChoice(rows, scenario), [rows, scenario]);
   const stats = useMemo(() => drawStats(rows, share, weeks), [rows, share, weeks]);
+  const opt = useMemo(() => loaded.ok ? optimizationView(rows, choice, weeks, loaded.data.programs, loaded.data.parts) : null, [loaded, rows, choice, weeks]);
+  const money = useMemo(() => {
+    if (!loaded.ok) return null;
+    const { programs, parts, swing } = loaded.data;
+    return {
+      weeklyBefore: weeklyRevenueLost(downDays(rows, {}, weeks, programs, parts), programs, weeks),
+      weeklyAfter: weeklyRevenueLost(downDays(rows, choice, weeks, programs, parts), programs, weeks),
+      returns: actionReturns(rows, weeks, programs, parts),
+      upside: flexUpside(rows, weeks, programs, parts, swing),
+      swing,
+    };
+  }, [loaded, rows, choice, weeks]);
   if (!loaded.ok) return <ScopedError title="What-if" error={loaded.error} />;
   const { program, plant } = loaded.data;
 
@@ -99,47 +112,36 @@ export default function WhatIfPage() {
   const sorted = [...rows].sort((a, b) => Math.max(...levelsFor(b.risk, undefined, weeks).map((l) => RANK[l]))
     - Math.max(...levelsFor(a.risk, undefined, weeks).map((l) => RANK[l])) || a.name.localeCompare(b.name));
 
-  const reroll = (next: { share?: number; seed?: number }) => {
-    if (next.share != null) setShare(next.share);
-    setSeed(next.seed ?? seed);
-    setOverrides({});
-  };
-  const setAll = (all: boolean) => {
-    const o: Choice = {};
-    for (const r of rows) o[r.id] = all && actionable(r.risk, weeks) ? "1".repeat(r.risk.scenarios?.actions.length ?? 0) : noneKey(r.risk);
-    setOverrides(o);
-  };
   const toggle = (r: ScenarioRow, i: number) => {
     const key = (choice[r.id] ?? noneKey(r.risk)).split("");
     key[i] = key[i] === "1" ? "0" : "1";
-    setOverrides({ ...overrides, [r.id]: key.join("") });
+    setScenario({ overrides: { ...scenario.overrides, [r.id]: key.join("") } });
   };
+  const protectedMxn = opt ? opt.revenue.reduce((a, r) => a + r.before - r.after, 0) : 0;
+  const stockMxn = opt ? opt.cost.lines.reduce((a, l) => a + l.mxn, 0) : 0;
 
   return (
     <>
       <PageHeader title="What-if" logo={plant && <CompanyMark name={plant.name} />} actions={<ModelSelect />}
         caption={`${program ? `${modelLabel(program)} · ` : ""}What changes in the next ${weeks} weeks if suppliers act on their recommendations`} />
 
-      <Card title="Scenario">
-        <div className="what-if-controls">
-          <div className="ft-toolbar" role="group" aria-label="Time horizon">
-            <span className="what-if-label">Horizon</span>
-            {HORIZONS.map((h) => <FilterChip key={h} pressed={weeks === h} onClick={() => { setWeeks(h); setOverrides({}); }}>{`${h} weeks`}</FilterChip>)}
-          </div>
-          <label className="what-if-slider" htmlFor="what-if-share">
-            <span className="what-if-label">Suppliers that act on their recommendations</span>
-            <input id="what-if-share" type="range" min={0} max={100} step={10} value={Math.round(share * 100)}
-              onChange={(e) => reroll({ share: Number(e.target.value) / 100 })} />
-            <b className="ks-num">{Math.round(share * 100)}%</b>
-          </label>
-          <div className="ft-toolbar">
-            <Button variant="primary" icon="sync" onClick={() => reroll({ seed: seed + 1 })}>Randomize who acts</Button>
-            <Button variant="secondary" onClick={() => setAll(true)}>All act</Button>
-            <Button variant="secondary" onClick={() => setAll(false)}>No one acts</Button>
-          </div>
-          <p className="what-if-note">{actingNow.length} of {acting.length} suppliers with a risk in this horizon are acting (draw {seed}). Change any action below by hand.</p>
+      {focus && (
+        <div className="what-if-focus" role="status">
+          Showing only <b>{rows[0]?.name ?? focus}</b>: the value at risk from this supplier and what its optimizations protect.
+          <button type="button" className="ft-linkbtn" onClick={() => go("what-if")}>Show all suppliers</button>
         </div>
+      )}
+
+      <Card title="Scenario">
+        <ScenarioControls onAll={(all) => setScenario({ overrides: everyone(rows, weeks, all) })} />
+        <p className="what-if-note">{actingNow.length} of {acting.length} suppliers with a risk in this horizon adopt their recommended optimizations (draw {seed}). Change any action below by hand. The risk board shows the same scenario.</p>
       </Card>
+
+      {opt && (
+        <Card title="Optimization score">
+          <ScoreGauge before={opt.scoreBefore} after={opt.scoreAfter} />
+        </Card>
+      )}
 
       <div className="ft-stats">
         <StatCard label="Supplier-weeks at High" value={<Change before={base.high} after={now.high} />} icon="bell" tone="accent"
@@ -163,6 +165,48 @@ export default function WhatIfPage() {
           </>
         )}
       </Card>
+
+      {opt && (
+        <Card title="Line uptime">
+          <UptimeChart before={opt.uptimeBefore} after={opt.uptimeAfter} labels={labels} models={opt.models} />
+        </Card>
+      )}
+
+      {opt && (
+        <Card title="Revenue lost and protected (MXN, estimated)" actions={<ProvenanceTag provenance="estimated" />}>
+          <p className="what-if-net ks-num">Revenue protected <b>{mxn(protectedMxn)}</b> · extra stock held <b>{mxn(stockMxn)}</b>. Stock is working capital you hold, not an expense.</p>
+          <RevenueChart rows={opt.revenue} />
+          <FormulaSource formula="Vehicles not built = line-down days × planned vehicles per day, per model. Revenue lost = vehicles not built × your content value per vehicle (seat set or trim you sell for that model). Protected = lost with no action − lost with the chosen optimizations." data={`Your content value per vehicle: ${opt.revenue.map((r) => `${r.program.model} ${mxn(r.program.revenuePerVehicleMxn ?? 0)}`).join(", ")} (estimated); planned vehicles per day per model.`} provenance="estimated" />
+        </Card>
+      )}
+
+      {money && (
+        <Card title="Revenue at risk by week (MXN, estimated)">
+          <WeeklyMoneyChart before={money.weeklyBefore} after={money.weeklyAfter} labels={labels} />
+          <FormulaSource formula="Per week: line-down days × planned vehicles per day × your content value per vehicle, summed over models; no action vs the chosen optimizations." data="Engine results per supplier and action, vehicle models, your content value per vehicle (estimated)." provenance="estimated" />
+        </Card>
+      )}
+
+      {money && (
+        <Card title="Return on each optimization (MXN, estimated)">
+          <ReturnsTable rows={money.returns} />
+          <FormulaSource formula="Each optimization on its own, one supplier at a time, against no action: revenue protected over the horizon, and the stock it adds (added days × daily usage × your unit cost). Protected per peso of stock = revenue protected ÷ stock added. Route, customs, security and second-source optimizations are not costed: there are no freight, broker or qualification costs in your data." data="Engine results per supplier and action, your unit costs and daily usage, your content value per vehicle (estimated)." provenance="estimated" />
+        </Card>
+      )}
+
+      {money && (
+        <Card title={`Revenue gained if the OEM raises volume ${Math.round(money.swing * 100)}% (MXN, estimated)`}>
+          <UpsideChart rows={money.upside} swing={money.swing} />
+          <FormulaSource formula={`Extra volume = ${Math.round(money.swing * 100)}% × planned vehicles per day × days in the horizon × your content value per vehicle. A supplier delivers (service level under the surge × (1 + ${Math.round(money.swing * 100)}%) − 1) ÷ ${Math.round(money.swing * 100)}% of the extra; a model can take the share of its weakest supplier of critical parts.`} data="The +15% demand test of each supplier (service level and bottleneck), vehicle models, your content value per vehicle (estimated)." provenance="estimated" />
+        </Card>
+      )}
+
+      {opt && (
+        <Card title="Unit costs: stock added by the chosen optimizations (MXN)">
+          <CostBars lines={opt.cost.lines} notCosted={opt.cost.notCosted} />
+          <FormulaSource formula="Per critical part (line-stopper or high) of each supplier that adopts a stock action: added days × daily usage × your unit cost. Safety stock adds 2 days; pulling orders forward adds 1.5 days for two weeks." data="Your parts list: unit cost and daily usage." provenance="measured" />
+        </Card>
+      )}
 
       <Card title={`If ${Math.round(share * 100)}% of suppliers act: 500 random draws`}>
         <RangeBar label="High supplier-weeks" base={base.high} now={now.high} {...stats.high} />

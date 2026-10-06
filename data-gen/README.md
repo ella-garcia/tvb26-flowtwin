@@ -38,6 +38,10 @@ Everything is synthetic. Signals are hand-seeded ("seeded for demo"); v0 calls n
     that reach it in 12 weeks (priority customs release, alternative route, daytime departures, daily ship plan) and its parts
     (safety stock, second source from week 11, pulled-forward orders). Every combination (<= 8) is computed with the outlook rule
     and stored in `risks.scenarios`; the app only combines them. The "no action" combination equals the outlook.
-15. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
+15. **Optimization views**: each scenario week also carries `shortDays` (days the delay outruns the critical cover, 0-7; line
+    down days). Vehicle programmes carry `revenuePerVehicleMxn` (the Tier 1's content value per vehicle: K3 MX$21,000,
+    M5 MX$17,500, T1 MX$24,000, C2 MX$9,000; estimated). The app derives score, lever benefit, uptime %, revenue lost and
+    stock cost from these (app/src/lib/scenarios.ts); money only on What-if.
+16. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
 
 Edit the tables at the top of the script (suppliers, parts, signals) to change the story, then re-run.

@@ -1,8 +1,3 @@
-.what-if-controls { display: flex; flex-direction: column; gap: var(--space-4); }
-.what-if-label { font: 600 13px/18px var(--font-sans); color: var(--ink-muted); }
-.what-if-slider { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
-.what-if-slider input { flex: 1 1 220px; max-width: 360px; accent-color: var(--primary); }
-.what-if-slider b { font: 600 15px/20px var(--font-sans); color: var(--ink); min-width: 44px; }
 .what-if-note { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); margin: 0; }
 .what-if-chart { width: 100%; height: auto; }
 .what-if-grid { stroke: var(--border); stroke-width: 1; }
@@ -39,3 +34,7 @@ rect.what-if-after { stroke: var(--ink); }
 .what-if-action input { margin: 2px 0 0; accent-color: var(--primary); }
 .what-if-action span { display: flex; flex-direction: column; font: 400 13px/18px var(--font-sans); color: var(--ink); }
 .what-if-action small { color: var(--ink-muted); font-size: 12px; }
+.what-if-net { font: 400 14px/20px var(--font-sans); color: var(--ink-muted); margin: 0; }
+.what-if-net b { color: var(--ink); font-weight: 600; }
+.what-if-focus { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); background: var(--surface-raised); font: 400 14px/20px var(--font-sans); color: var(--ink-muted); }
+.what-if-focus b { color: var(--ink); font-weight: 600; }
