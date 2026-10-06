@@ -85,6 +85,7 @@ a { color: var(--primary); }
     <a href="#feedback">Professor feedback</a>
     <a href="#decisions">Decisions</a>
     <a href="#refactor">Refactoring</a>
+    <a href="#releases">Releases</a>
     <a href="#open">Open items</a>
   </nav>
 
@@ -93,7 +94,7 @@ a { color: var(--primary); }
       <div class="brand"><span class="mark" aria-hidden="true">F</span><span class="eyebrow">FlowTwin v0 · TVB26</span></div>
       <h1>FlowTwin platform status</h1>
       <p class="lede">Early warning for automotive supply chains in Mexico. A Tier 1 plant (the key customer) sees a risk light for each of its Tier 2 suppliers, the stock it holds of every part, and how many days remain before a vehicle line would stop.</p>
-      <div class="meta"><span>As of 6 Oct 2026</span><span>Branch <code>professor-feedback</code></span><span>Head <code>e23d9b9</code></span><span>Demo data date 5 Oct 2026</span></div>
+      <div class="meta"><span>As of 6 Oct 2026</span><span>Branch <code>main</code></span><span>Head <code>980cfd7</code></span><span>Demo data date 5 Oct 2026</span></div>
     </header>
 
     <section id="platform" aria-labelledby="h-platform">
@@ -104,7 +105,7 @@ a { color: var(--primary); }
         <div class="stat"><b class="num">11</b><span>pages across 4 roles</span></div>
         <div class="stat"><b class="num">13</b><span>demo suppliers, 31 parts</span></div>
         <div class="stat"><b class="num">4</b><span>vehicle models (3 at QRO Seating)</span></div>
-        <div class="stat"><b class="num">91</b><span>worker tests passing</span></div>
+        <div class="stat"><b class="num">95</b><span>tests passing (91 worker, 4 app)</span></div>
       </div>
 
       <div class="sub">
@@ -256,14 +257,31 @@ a { color: var(--primary); }
       <div class="callout" id="review"><b>Independent review:</b> a fresh agent reviewed the merged result and found no security holes and no data or logic regressions; the seed output is reproducible and identical to before. It returned “ship with fixes”. Fixed since: the model selector lost its label style, and a part uploaded without stock could raise a false “line stops today”. Every page was then checked in the browser for all four roles with no errors.</div>
     </section>
 
+    <section id="releases" aria-labelledby="h-releases">
+      <h2 id="h-releases">Releases</h2>
+      <p>All work is merged into <code>main</code>. The cloud database has every migration applied and the current demo data loaded.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>Pull request</th><th>What it shipped</th><th>Database</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://github.com/ella-garcia/tvb26-flowtwin/pull/1">#1</a></td><td>Professor feedback A–D (no € on screen, delivery grade, Parts &amp; stock, vehicle models, ports and customs) and the refactor</td><td>4 migrations, demo data loaded</td></tr>
+          <tr><td><a href="https://github.com/ella-garcia/tvb26-flowtwin/pull/2">#2</a></td><td>12-week outlook and the What-if page</td><td>2 migrations, demo data loaded</td></tr>
+          <tr><td><a href="https://github.com/ella-garcia/tvb26-flowtwin/pull/3">#3</a></td><td>Optimization score on the risk board, MXN views on What-if, scoring criteria, money rule fixes</td><td>1 migration, demo data loaded</td></tr>
+          <tr><td><a href="https://github.com/ella-garcia/tvb26-flowtwin/pull/4">#4</a></td><td>Industry view of the score (automaker / bank lens)</td><td>No change</td></tr>
+        </tbody>
+      </table></div>
+      <p style="color:var(--muted);font-size:14px">Reference documents in the repo: <code>docs/scoring-criteria.md</code>, <code>docs/business-case-references.md</code>, <code>docs/evidence-brief-professor-feedback.md</code>, <code>docs/refactor-plan-2026-10.md</code>.</p>
+    </section>
+
     <section id="open" aria-labelledby="h-open">
       <h2 id="h-open">Open items</h2>
       <ul class="plain">
         <li><b>After D:</b> let the engine use in-transit stock and confirmed delivery dates; add a sea-freight import (e.g. via Manzanillo); let suppliers or the Tier 1 edit routes in the app.</li>
-        <li><b>Decision:</b> the supplier page shows unit cost while the copy says prices are never shared.</li>
         <li><b>Decision:</b> customers can see a supplier’s utilisation and bottleneck even when it shares public data only.</li>
         <li><b>Before real data:</b> switch testing mode off (today any visitor can take any role).</li>
-        <li><b>Cloud database:</b> needs the four new migrations (part pipeline, vehicle models, job tenancy and full reset, routes and customs) and a reseed (<code>supabase db push</code>).</li>
+        <li><b>Calibrate the scores:</b> the High/Watch weights, the Good/Fair/Poor bands, and the Industry view parameters (75% execution, 0.5-day cap at 59, 85% capacity and 40% of sales thresholds) against a real automaker or bank scorecard.</li>
+        <li><b>Decision:</b> the Industry view shows each supplier’s share of sales to the customer; confirm suppliers agree to share it.</li>
+        <li><b>Not yet scored:</b> financial health (needs supplier consent and financial data), quality (defect rate, certification status), and a base rate for unannounced disruptions.</li>
+        <li><b>Costs not in the data:</b> freight per route, customs broker fees and second-source qualification, so those optimizations show as “not costed” on What-if.</li>
         <li><b>Demo reset:</b> any signed-in user can reset while testing mode is on, and upload records are not cleared by a reset.</li>
         <li><b>Later:</b> generate database types from one source; a few components still read data directly instead of taking props.</li>
       </ul>
