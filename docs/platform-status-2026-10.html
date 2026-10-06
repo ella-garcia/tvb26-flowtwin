@@ -104,7 +104,7 @@ a { color: var(--primary); }
         <div class="stat"><b class="num">10</b><span>pages across 4 roles</span></div>
         <div class="stat"><b class="num">13</b><span>demo suppliers, 31 parts</span></div>
         <div class="stat"><b class="num">4</b><span>vehicle models (3 at QRO Seating)</span></div>
-        <div class="stat"><b class="num">84</b><span>worker tests passing</span></div>
+        <div class="stat"><b class="num">86</b><span>worker tests passing</span></div>
       </div>
 
       <div class="sub">
@@ -112,7 +112,7 @@ a { color: var(--primary); }
         <div class="scroll"><table>
           <thead><tr><th>Role</th><th>Module</th><th>What it does</th></tr></thead>
           <tbody>
-            <tr><td rowspan="6"><b>Key customer</b><br><span style="color:var(--subtle)">Tier 1, e.g. QRO Seating Systems</span></td><td>Risk board</td><td>Risk light per supplier, days to line stop, parts below safe cover, OTIF and delivery grade, map of suppliers and active signals. Filter by vehicle model.</td></tr>
+            <tr><td rowspan="6"><b>Key customer</b><br><span style="color:var(--subtle)">Tier 1, e.g. QRO Seating Systems</span></td><td>Risk board</td><td>Risk light per supplier, days to line stop, parts below safe cover, OTIF and delivery grade, map of suppliers and active signals, and a 12-week outlook grid. Filter by vehicle model.</td></tr>
             <tr><td>Parts &amp; stock <span class="pill new">New</span></td><td>Every part number with stock here, on the road and at the supplier, the date stock runs out and the next delivery. Filters by status, supplier, criticality and model.</td></tr>
             <tr><td>Supplier detail</td><td>Why the light has its colour, 14-day transit and cover projection, transit by route leg (border, customs, road) for imports, +15% demand test, parts, delivery history, related alerts.</td></tr>
             <tr><td>Alerts</td><td>What happens if nothing is done, parts and models affected, expected shortfall, actions to choose, supplier replies, email log.</td></tr>
@@ -173,6 +173,7 @@ a { color: var(--primary); }
       <div class="grid2">
         <div class="box"><h3>Risk engine</h3><ul>
           <li><b>14-day projection:</b> Monte Carlo of transit time with active signals applied.</li>
+          <li><b>12-week outlook:</b> weekly High / Watch / OK from seasonal and announced signals (estimated).</li>
           <li><b>Line stop:</b> first day a line-stopper or high part runs out, per part and per model.</li>
           <li><b>Route legs for imports:</b> border, customs and port times; each signal slows only the legs it reaches.</li>
           <li><b>+15% flex test:</b> can the supplier absorb the contract demand swing.</li>
@@ -224,6 +225,7 @@ a { color: var(--primary); }
         <div class="decision"><h3>Each step is its own commit on a feature branch</h3><p>A, B and C, the refactor plan and each refactor package are separate commits on <code>professor-feedback</code>, not on <code>main</code>.</p></div>
         <div class="decision"><h3>Imports are modelled as route legs; domestic suppliers are untouched</h3><p>A supplier’s route is a list of legs with normal times. A customs outage slows only border and customs legs; a road closure only road legs. Suppliers without a route keep the single road leg, and their numbers did not change.</p><p class="why">Why: customs is a control point for imported material, and the delay has to show where it happens, not as a vague “transit is longer”.</p></div>
         <div class="decision"><h3>The Nuevo Laredo case is fictional but modelled on real reports</h3><p>Polímeros Frontera (Laredo, Texas) and the outage signal are demo data, sourced to press reports of ANAM system outages in the evidence brief.</p></div>
+        <div class="decision"><h3>Two horizons: 14 days for alerts, 12 weeks for planning</h3><p>Following BCG’s example of flagging risks about 12 weeks ahead, FlowTwin adds a weekly 12-week outlook built only from signals known in advance (rainy and hurricane season, year-end border peaks, holiday traffic). Alerts and line stops still come from the 14-day daily projection.</p><p class="why">Why: weather, road and customs events can only be forecast about two weeks out; beyond that, only seasonal and announced risks are known, and the page says so.</p></div>
         <div class="decision"><h3>Refactor before ports and customs</h3><p>The risk engine existed twice (seed generator and worker). D changes the engine, so it was unified first.</p></div>
       </div>
     </section>

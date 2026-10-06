@@ -210,6 +210,15 @@ export interface Signal {
 
 export type RiskLevel = "green" | "amber" | "red";
 
+/** One week of the 12-week outlook. */
+export interface OutlookWeek {
+  weekStart: string;           // ISO date
+  expectedTransitDays: number;
+  extraDays: number;           // largest expected delay that week vs normal transit
+  level: RiskLevel;
+  signals: string[];           // short labels of the signals active that week
+}
+
 /** One leg of a supplier's route to the key customer, with its normal and expected (median, next 14 days) time. */
 export interface TransitLeg {
   kind: "road" | "border" | "customs" | "port" | "sea";
@@ -262,6 +271,8 @@ export interface RiskAssessment {
   partStopDays?: Record<string, number>;
   /** Transit split by route leg (road, border, customs, port). One road leg for a domestic supplier. */
   legs?: TransitLeg[];
+  /** 12-week outlook from signals known in advance (estimated; alerts still come from the 14-day projection). */
+  outlook?: OutlookWeek[];
   lineStopExposureEur: number; // expected cost if it stops (minutes × cost per minute × probability)
   drivers: RiskDriver[];
   flex: FlexResult;

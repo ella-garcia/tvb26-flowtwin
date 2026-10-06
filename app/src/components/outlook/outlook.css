@@ -1,0 +1,20 @@
+.outlook-scroll { overflow-x: auto; min-width: 0; }
+.outlook-grid { border-collapse: collapse; font: 400 13px/18px var(--font-sans); width: 100%; }
+.outlook-grid th, .outlook-grid td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: center; white-space: nowrap; }
+.outlook-grid thead th { font: 600 11px/16px var(--font-sans); color: var(--ink-subtle); }
+.outlook-grid th[scope="row"] { text-align: left; font-weight: 500; }
+.outlook-grid th:first-child { text-align: left; }
+.outlook-cell { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; font-size: 11px; line-height: 1; }
+.outlook-red { background: var(--risk-red-soft); color: var(--risk-red); }
+.outlook-amber { background: var(--risk-amber-soft); color: var(--risk-amber); }
+.outlook-green { background: var(--risk-green-soft); color: var(--risk-green); }
+.outlook-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); font: 500 12px/18px var(--font-sans); color: var(--ink-muted); }
+.outlook-legend li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.outlook-note { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); margin: 0; }
+.outlook-detail { display: flex; flex-direction: column; gap: var(--space-4); }
+.outlook-strip { display: grid; grid-template-columns: repeat(12, minmax(36px, 1fr)); gap: var(--space-2); overflow-x: auto; }
+.outlook-week { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.outlook-week small { font: 500 11px/14px var(--font-sans); color: var(--ink-subtle); white-space: nowrap; }
+.outlook-reasons { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: var(--space-1); font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.outlook-reasons b { color: var(--ink); font-weight: 600; }
+.outlook-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }

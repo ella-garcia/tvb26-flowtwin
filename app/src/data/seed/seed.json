@@ -1724,6 +1724,65 @@
    "transitMultiplier": 3.0,
    "source": "Press reports of ANAM system outages (seeded for demo)",
    "provenance": "estimated"
+  },
+  {
+   "id": "sig-season-hurricane-gulf",
+   "kind": "weather",
+   "short": "Late hurricane season on the Gulf",
+   "title": "Late hurricane season, Gulf of Mexico coast",
+   "description": "Hurricane season runs to 30 November. Storms on the Gulf coast close stretches of MEX-150D and MEX-180D for a day or two at a time.",
+   "state": "Veracruz",
+   "lat": 19.2,
+   "lon": -96.4,
+   "radiusKm": 200,
+   "highways": [
+    "MEX-150D",
+    "MEX-180D"
+   ],
+   "startsAt": "2026-10-21",
+   "endsAt": "2026-11-30",
+   "severity": "medium",
+   "transitMultiplier": 1.6,
+   "source": "Historical SMN hurricane season pattern (seeded for demo)",
+   "provenance": "estimated"
+  },
+  {
+   "id": "sig-season-nld-yearend",
+   "kind": "customs",
+   "short": "Year-end cargo peak at Nuevo Laredo",
+   "title": "Year-end cargo peak, Nuevo Laredo customs",
+   "description": "Cross-border volume peaks from late November to Christmas; customs release at Nuevo Laredo usually takes longer.",
+   "state": "Tamaulipas",
+   "lat": 27.5,
+   "lon": -99.52,
+   "radiusKm": 25,
+   "highways": [],
+   "startsAt": "2026-11-23",
+   "endsAt": "2026-12-23",
+   "severity": "medium",
+   "transitMultiplier": 1.8,
+   "source": "Historical border crossing volumes (seeded for demo)",
+   "provenance": "estimated"
+  },
+  {
+   "id": "sig-season-holidays-57d",
+   "kind": "road",
+   "short": "Holiday traffic on MEX-57D",
+   "title": "Holiday traffic and reduced carrier capacity, MEX-57D",
+   "description": "From 19 December carriers run fewer trucks and traffic on MEX-57D rises; loads take longer to book and to arrive.",
+   "state": "Querétaro",
+   "lat": 20.59,
+   "lon": -100.39,
+   "radiusKm": 30,
+   "highways": [
+    "MEX-57D"
+   ],
+   "startsAt": "2026-12-19",
+   "endsAt": "2027-01-04",
+   "severity": "low",
+   "transitMultiplier": 1.3,
+   "source": "Historical holiday freight pattern (seeded for demo)",
+   "provenance": "estimated"
   }
  ],
  "risks": [
@@ -1908,6 +1967,106 @@
      "transitP50": 1.0,
      "transitP90": 1.4,
      "coverDays": 1.1
+    }
+   ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 1.4,
+     "extraDays": 0.4,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Press 4 unplanned stop at Estampados del Laja"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 1.4,
+     "extraDays": 0.4,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Press 4 unplanned stop at Estampados del Laja"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
     }
    ],
    "dataStatus": "connected",
@@ -2098,6 +2257,113 @@
      "coverDays": 0.0
     }
    ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 6.8,
+     "extraDays": 4.8,
+     "level": "red",
+     "signals": [
+      "Rainy season",
+      "Hurricane watch"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 6.8,
+     "extraDays": 4.8,
+     "level": "red",
+     "signals": [
+      "Rainy season",
+      "Hurricane watch"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 5.2,
+     "extraDays": 3.2,
+     "level": "red",
+     "signals": [
+      "Rainy season",
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 3.2,
+     "extraDays": 1.2,
+     "level": "amber",
+     "signals": [
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 3.2,
+     "extraDays": 1.2,
+     "level": "amber",
+     "signals": [
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 3.2,
+     "extraDays": 1.2,
+     "level": "amber",
+     "signals": [
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 3.2,
+     "extraDays": 1.2,
+     "level": "amber",
+     "signals": [
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 3.2,
+     "extraDays": 1.2,
+     "level": "amber",
+     "signals": [
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 3.2,
+     "extraDays": 1.2,
+     "level": "amber",
+     "signals": [
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    }
+   ],
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
   },
@@ -2277,6 +2543,109 @@
      "transitP50": 2.1,
      "transitP90": 2.7,
      "coverDays": 1.4
+    }
+   ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 2.8,
+     "extraDays": 0.8,
+     "level": "amber",
+     "signals": [
+      "Partial closure on MEX-57D",
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 2.6,
+     "extraDays": 0.6,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 2.6,
+     "extraDays": 0.6,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
     }
    ],
    "dataStatus": "connected",
@@ -2466,6 +2835,120 @@
      "coverDays": 1.4
     }
    ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 2.3,
+     "extraDays": 1.3,
+     "level": "amber",
+     "signals": [
+      "Partial closure on MEX-57D",
+      "Highway blockade near Puebla and Tlaxcala",
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 1.7,
+     "extraDays": 0.7,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 1.7,
+     "extraDays": 0.7,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 1.7,
+     "extraDays": 0.7,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 1.7,
+     "extraDays": 0.7,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 1.6,
+     "extraDays": 0.6,
+     "level": "green",
+     "signals": [
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 1.6,
+     "extraDays": 0.6,
+     "level": "green",
+     "signals": [
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 1.6,
+     "extraDays": 0.6,
+     "level": "green",
+     "signals": [
+      "Late hurricane season on the Gulf"
+     ]
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 1.3,
+     "extraDays": 0.3,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 1.3,
+     "extraDays": 0.3,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    }
+   ],
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
   },
@@ -2641,6 +3124,96 @@
      "coverDays": 1.0
     }
    ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 3.0,
+     "extraDays": 1.0,
+     "level": "amber",
+     "signals": [
+      "Port congestion at Manzanillo"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 3.0,
+     "extraDays": 1.0,
+     "level": "amber",
+     "signals": [
+      "Port congestion at Manzanillo"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    }
+   ],
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
   },
@@ -2809,6 +3382,104 @@
      "transitP50": 1.1,
      "transitP90": 1.2,
      "coverDays": 3.9
+    }
+   ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
     }
    ],
    "dataStatus": "connected",
@@ -2986,6 +3657,104 @@
      "coverDays": 4.9
     }
    ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    }
+   ],
    "dataStatus": "invited",
    "updatedAt": "2026-10-05"
   },
@@ -3145,6 +3914,104 @@
      "coverDays": 7.9
     }
    ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    }
+   ],
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
   },
@@ -3302,6 +4169,104 @@
      "transitP50": 1.1,
      "transitP90": 1.1,
      "coverDays": 8.9
+    }
+   ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
     }
    ],
    "dataStatus": "connected",
@@ -3480,6 +4445,111 @@
      "coverDays": 8.9
     }
    ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 1.5,
+     "extraDays": 0.5,
+     "level": "green",
+     "signals": [
+      "Partial closure on MEX-57D",
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Heavy rain in the Toluca valley"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 1.2,
+     "extraDays": 0.2,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Heavy rain in the Toluca valley"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 1.3,
+     "extraDays": 0.3,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 1.3,
+     "extraDays": 0.3,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    }
+   ],
    "dataStatus": "invited",
    "updatedAt": "2026-10-05"
   },
@@ -3645,6 +4715,109 @@
      "coverDays": 8.9
     }
    ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 1.4,
+     "extraDays": 0.4,
+     "level": "green",
+     "signals": [
+      "Partial closure on MEX-57D",
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 1.3,
+     "extraDays": 0.3,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 1.3,
+     "extraDays": 0.3,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    }
+   ],
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
   },
@@ -3808,6 +4981,109 @@
      "transitP50": 1.1,
      "transitP90": 1.2,
      "coverDays": 9.9
+    }
+   ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 1.4,
+     "extraDays": 0.4,
+     "level": "green",
+     "signals": [
+      "Partial closure on MEX-57D",
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 1.3,
+     "extraDays": 0.3,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 1.3,
+     "extraDays": 0.3,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
     }
    ],
    "dataStatus": "connected",
@@ -3978,6 +5254,109 @@
      "transitP50": 2.1,
      "transitP90": 2.5,
      "coverDays": 7.9
+    }
+   ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 2.8,
+     "extraDays": 0.8,
+     "level": "green",
+     "signals": [
+      "Partial closure on MEX-57D",
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 2.6,
+     "extraDays": 0.6,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 2.6,
+     "extraDays": 0.6,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
     }
    ],
    "dataStatus": "public-only",
@@ -4156,6 +5535,109 @@
      "coverDays": 5.9
     }
    ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 2.8,
+     "extraDays": 0.8,
+     "level": "green",
+     "signals": [
+      "Partial closure on MEX-57D",
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 2.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 2.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 2.6,
+     "extraDays": 0.6,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 2.6,
+     "extraDays": 0.6,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    }
+   ],
    "dataStatus": "public-only",
    "updatedAt": "2026-10-05"
   },
@@ -4330,6 +5812,109 @@
      "transitP50": 1.1,
      "transitP90": 1.2,
      "coverDays": 3.9
+    }
+   ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 1.4,
+     "extraDays": 0.4,
+     "level": "green",
+     "signals": [
+      "Partial closure on MEX-57D",
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 1.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 1.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 1.3,
+     "extraDays": 0.3,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 1.3,
+     "extraDays": 0.3,
+     "level": "green",
+     "signals": [
+      "Holiday traffic on MEX-57D"
+     ]
     }
    ],
    "dataStatus": "connected",
@@ -4528,6 +6113,120 @@
      "transitP50": 7.1,
      "transitP90": 8.0,
      "coverDays": 1.9
+    }
+   ],
+   "outlook": [
+    {
+     "weekStart": "2026-10-05",
+     "expectedTransitDays": 7.8,
+     "extraDays": 3.8,
+     "level": "amber",
+     "signals": [
+      "Partial closure on MEX-57D",
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Customs system outage at Nuevo Laredo"
+     ]
+    },
+    {
+     "weekStart": "2026-10-12",
+     "expectedTransitDays": 7.1,
+     "extraDays": 3.1,
+     "level": "amber",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Customs system outage at Nuevo Laredo"
+     ]
+    },
+    {
+     "weekStart": "2026-10-19",
+     "expectedTransitDays": 7.1,
+     "extraDays": 3.1,
+     "level": "amber",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D",
+      "Customs system outage at Nuevo Laredo"
+     ]
+    },
+    {
+     "weekStart": "2026-10-26",
+     "expectedTransitDays": 4.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-02",
+     "expectedTransitDays": 4.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-09",
+     "expectedTransitDays": 4.1,
+     "extraDays": 0.1,
+     "level": "green",
+     "signals": [
+      "Night cargo theft on MEX-45D / MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-11-16",
+     "expectedTransitDays": 4.0,
+     "extraDays": 0.0,
+     "level": "green",
+     "signals": []
+    },
+    {
+     "weekStart": "2026-11-23",
+     "expectedTransitDays": 5.2,
+     "extraDays": 1.2,
+     "level": "amber",
+     "signals": [
+      "Year-end cargo peak at Nuevo Laredo"
+     ]
+    },
+    {
+     "weekStart": "2026-11-30",
+     "expectedTransitDays": 5.2,
+     "extraDays": 1.2,
+     "level": "amber",
+     "signals": [
+      "Year-end cargo peak at Nuevo Laredo"
+     ]
+    },
+    {
+     "weekStart": "2026-12-07",
+     "expectedTransitDays": 5.2,
+     "extraDays": 1.2,
+     "level": "amber",
+     "signals": [
+      "Year-end cargo peak at Nuevo Laredo"
+     ]
+    },
+    {
+     "weekStart": "2026-12-14",
+     "expectedTransitDays": 5.8,
+     "extraDays": 1.8,
+     "level": "amber",
+     "signals": [
+      "Year-end cargo peak at Nuevo Laredo",
+      "Holiday traffic on MEX-57D"
+     ]
+    },
+    {
+     "weekStart": "2026-12-21",
+     "expectedTransitDays": 5.8,
+     "extraDays": 1.8,
+     "level": "amber",
+     "signals": [
+      "Year-end cargo peak at Nuevo Laredo",
+      "Holiday traffic on MEX-57D"
+     ]
     }
    ],
    "dataStatus": "connected",

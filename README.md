@@ -17,10 +17,12 @@ Open http://localhost:5173. The yellow **Testing** bar switches role (Key custom
 4. Click **Polímeros Frontera** (Laredo, Texas): imported PP pellets cross at Nuevo Laredo; a customs system outage
    triples clearance time, so transit goes from 4 to about 7 days. "Route and transit by leg" shows the days piling up
    at the border and customs, not on the road.
-5. **Alerts**: choose "Pull the next order forward" → Acknowledge.
-6. **Invite**: invite another supplier (sponsored, free for them).
-7. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
-8. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
+5. Back on the **Risk board**, "Next 12 weeks": Orizaba stays High until the rain ends, then Watch through hurricane season;
+   Polímeros Frontera turns Watch again for the year-end cargo peak at Nuevo Laredo.
+6. **Alerts**: choose "Pull the next order forward" → Acknowledge.
+7. **Invite**: invite another supplier (sponsored, free for them).
+8. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
+9. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
 
 "Reset demo data" in the Testing bar restores the seed.
 

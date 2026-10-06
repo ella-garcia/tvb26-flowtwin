@@ -15,6 +15,7 @@ import { PartsCard } from "./PartsCard";
 import { ProjectionChart, ProjectionLegend } from "./ProjectionChart";
 import { RelatedAlerts } from "./RelatedAlerts";
 import { RouteCard } from "./RouteCard";
+import { OUTLOOK_FORMULA, OutlookDetail } from "../outlook/Outlook";
 import "./supplier-risk.css";
 
 export interface SupplierRiskViewProps { customerId: string; supplierId: string; audience: "customer" | "supplier" }
@@ -108,6 +109,13 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
       </Card>
 
       {risk.legs && risk.legs.length > 1 && <RouteCard legs={risk.legs} provenance={prov} />}
+
+      {risk.outlook && risk.outlook.length > 0 && (
+        <Card title="Next 12 weeks" actions={<ProvenanceTag provenance="estimated" />}>
+          <OutlookDetail weeks={risk.outlook} />
+          <FormulaSource formula={OUTLOOK_FORMULA} data="Seasonal and announced signals, route legs, and the cover of this supplier's critical parts." provenance="estimated" />
+        </Card>
+      )}
 
       <FlexCard flex={risk.flex} />
       <PartsCard parts={parts} programs={programs} risk={risk} supplierId={supplierId} audience={audience} />

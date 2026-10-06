@@ -226,6 +226,22 @@ SIGNALS = [
          description="Repeated failures of the customs system slowed the release of cargo at the Nuevo Laredo commercial bridge. Trucks queue for kilometres and the backlog clears slowly; release takes about three times longer. Modelled on press reports of ANAM outages.",
          state="Tamaulipas", lat=27.50, lon=-99.52, radiusKm=25, highways=[], startsAt="2026-10-03", endsAt="2026-10-20",
          severity="high", transitMultiplier=3.0, source="Press reports of ANAM system outages (seeded for demo)"),
+    # Known in advance, beyond the 14-day window: they feed the 12-week outlook only (all start after 18 Oct).
+    dict(id="sig-season-hurricane-gulf", kind="weather", short="Late hurricane season on the Gulf",
+         title="Late hurricane season, Gulf of Mexico coast",
+         description="Hurricane season runs to 30 November. Storms on the Gulf coast close stretches of MEX-150D and MEX-180D for a day or two at a time.",
+         state="Veracruz", lat=19.20, lon=-96.40, radiusKm=200, highways=["MEX-150D", "MEX-180D"], startsAt="2026-10-21", endsAt="2026-11-30",
+         severity="medium", transitMultiplier=1.6, source="Historical SMN hurricane season pattern (seeded for demo)"),
+    dict(id="sig-season-nld-yearend", kind="customs", short="Year-end cargo peak at Nuevo Laredo",
+         title="Year-end cargo peak, Nuevo Laredo customs",
+         description="Cross-border volume peaks from late November to Christmas; customs release at Nuevo Laredo usually takes longer.",
+         state="Tamaulipas", lat=27.50, lon=-99.52, radiusKm=25, highways=[], startsAt="2026-11-23", endsAt="2026-12-23",
+         severity="medium", transitMultiplier=1.8, source="Historical border crossing volumes (seeded for demo)"),
+    dict(id="sig-season-holidays-57d", kind="road", short="Holiday traffic on MEX-57D",
+         title="Holiday traffic and reduced carrier capacity, MEX-57D",
+         description="From 19 December carriers run fewer trucks and traffic on MEX-57D rises; loads take longer to book and to arrive.",
+         state="Querétaro", lat=20.59, lon=-100.39, radiusKm=30, highways=["MEX-57D"], startsAt="2026-12-19", endsAt="2027-01-04",
+         severity="low", transitMultiplier=1.3, source="Historical holiday freight pattern (seeded for demo)"),
 ]
 for s in SIGNALS: s["provenance"] = "estimated"
 
