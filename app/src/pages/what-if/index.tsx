@@ -7,9 +7,11 @@ import { StatCard } from "../../keystone";
 import { date, mxn, num } from "../../lib/format";
 import { ALL_PROGRAMS, modelLabel, partsOn } from "../../lib/programs";
 import { actionReturns, actionable, downDays, drawStats, everyone, flexUpside, weeklyRevenueLost, levelsFor, noneKey, optimizationView, scenarioChoice, totals, type Choice, type ScenarioRow } from "../../lib/scenarios";
-import { CostBars, ReturnsTable, RevenueChart, ScoreGauge, UpsideChart, UptimeChart, WeeklyMoneyChart } from "../../components/optimization/Charts";
+import { CostBars, ReturnsTable, RevenueChart, UpsideChart, UptimeChart, WeeklyMoneyChart } from "../../components/optimization/Charts";
+import { ScoreSection } from "../../components/optimization/ScoreSection";
+import type { SupplierContext } from "../../lib/industry";
 import { ScenarioControls } from "../../components/optimization/Controls";
-import { useScoped } from "../../lib/useScoped";
+import { scoped, useScoped } from "../../lib/useScoped";
 import type { RiskLevel } from "../../lib/types";
 import "./what-if.css";
 
@@ -84,7 +86,11 @@ export default function WhatIfPage() {
       && (!focus || r.supplierId === focus))
       .map((risk) => ({ id: risk.supplierId, name: db.company(risk.supplierId)?.name ?? risk.supplierId, risk }));
     const programs = program ? [program] : db.programs().filter((g) => g.customerId === customerId);
-    return { rows, program, programs, parts, plant: db.company(customerId), swing: db.settings()?.contractDemandSwing ?? 0.15 };
+    const rel = scoped(() => db.suppliersOf(customerId));
+    const relOf = new Map(rel.ok ? rel.data.map((x) => [x.company.id, x]) : []);
+    const ctx = new Map<string, SupplierContext>(rows.map((r) => [r.id, {
+      parts: parts.filter((p) => p.supplierId === r.id), shareOfSales: relOf.get(r.id)?.shareOfSales, otifTarget: relOf.get(r.id)?.requirements.otifTarget }]));
+    return { rows, program, programs, parts, ctx, plant: db.company(customerId), swing: db.settings()?.contractDemandSwing ?? 0.15 };
   }, [db, toggles.companyId, programId, focus]);
 
   const rows = loaded.ok ? loaded.data.rows : NO_ROWS;
@@ -139,7 +145,7 @@ export default function WhatIfPage() {
 
       {opt && (
         <Card title="Optimization score">
-          <ScoreGauge before={opt.scoreBefore} after={opt.scoreAfter} />
+          <ScoreSection rows={rows} choice={choice} weeks={weeks} ctx={loaded.data.ctx} />
         </Card>
       )}
 

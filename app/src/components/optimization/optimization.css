@@ -67,3 +67,8 @@
 .opt-money-after-key { background: var(--risk-red); }
 .opt-up-potential { display: block; height: 12px; background: color-mix(in srgb, var(--success) 30%, var(--surface-raised)); border: 1px dashed var(--success); border-radius: 3px; }
 .opt-up-captured { display: block; height: 12px; background: var(--success); border-radius: 3px; }
+.opt-score-section { display: flex; flex-direction: column; gap: var(--space-3); }
+.opt-industry-notes { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: var(--space-1); font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.opt-industry-notes b { color: var(--ink); font-weight: 600; }
+.opt-flags { text-align: left !important; white-space: normal; color: var(--ink-muted); }
+.opt-table-flags th, .opt-table-flags td { text-align: left; }

@@ -67,6 +67,34 @@ score = 100 × (1 − (2 × High weeks + Watch weeks) ÷ (2 × at-risk suppliers
 - **By hand:** "All adopt", "None adopt", or ticking individual actions on What-if.
 - **Spread:** What-if also runs 500 random draws at the chosen share and shows the middle 80% range and the median.
 
+### 1.7 Industry view (automaker / bank lens)
+A toggle next to the score (**Operational / Industry view**, shared by the risk board and What-if) shows how an automaker or a bank would read the same supplier base. It changes four rules (`app/src/lib/industry.ts`).
+
+| Rule | Operational | Industry view |
+|---|---|---|
+| Who counts | At-risk suppliers only | **Every supplier** |
+| Structural weaknesses | Not counted | Set a **floor** on every week: 1–2 flags = 0.5 points, 3 or more = 1 point (Watch) |
+| Optimizations | Work fully, at once | Work with **75% probability**. "With optimizations" is the expected score, with a range from none working (= no action) to all working. |
+| Line stops | Averaged in | **Weakest link:** while any week still expects ≥ 0.5 days of line stop, the score is **capped at 59 (Poor)** |
+
+**Structural flags**, all from data FlowTwin already holds:
+- single-source critical (line-stopper or high) part
+- near capacity: 85% or more used (headroom ≤ 15%)
+- more than 40% of the supplier's sales go to this customer
+- imported inputs: a border, customs or port leg, or customs exposure
+- shares no data (invited, or not on FlowTwin)
+- delivery grade C
+- cannot absorb +15% demand
+
+**Demo result** (12 weeks, all at-risk suppliers adopt):
+
+| | Operational | Industry view |
+|---|---|---|
+| No action | 80 (Fair) | **59 (Poor)**, capped: a line stop is still expected at Hules y Mangueras de Orizaba |
+| With optimizations | 95 (Good) | **76 (Fair)**, range 59–77; the cap lifts because the expected stop falls below 0.5 days a week |
+
+9 of 12 suppliers have structural flags. Estampados del Laja and Orizaba each have 4 or more, so they count as Watch every week, even though Estampados' outlook is all OK.
+
 ---
 
 ## 2. Weekly outlook level (High / Watch / OK)
@@ -169,3 +197,6 @@ The grade looks back and the risk light looks forward. They are shown side by si
 4. **Optimization effects:** the percentages in section 3 are assumptions. Ideally they would be measured after real actions, for example customs release times before and after using a priority broker.
 5. **Score direction:** the risk score (higher = worse) and the optimization score (higher = better) run in opposite directions. Keep the labels explicit in every view.
 6. **Money:** revenue per vehicle and unit costs are the Tier 1's own data in the product. The demo values are fictional.
+7. **Industry view parameters:** 75% execution, the 0.5-day cap, the 59 cap, and the flag thresholds (85% capacity, 40% of sales) are assumptions to calibrate with an automaker or bank scorecard.
+8. **Not yet in the industry view:** financial health (needs supplier consent and financial data), a base rate for unannounced disruptions (e.g. McKinsey's one disruption of a month or more every 3.7 years), and quality (defect rate, certification status).
+9. **Sensitivity:** each supplier's share of sales to the customer is visible to that customer in the industry view. Confirm suppliers agree to share it.
