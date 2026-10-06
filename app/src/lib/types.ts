@@ -210,6 +210,20 @@ export interface Signal {
 
 export type RiskLevel = "green" | "amber" | "red";
 
+/** A recommended action for one supplier in the what-if view. */
+export interface ScenarioAction { id: string; label: string; detail: string }
+/** combos: key = one "0"/"1" per action, in `actions` order -> 12 weekly results with those actions in place. */
+export interface Scenarios { actions: ScenarioAction[]; combos: Record<string, { level: RiskLevel; extraDays: number }[]> }
+
+/** One week of the 12-week outlook. */
+export interface OutlookWeek {
+  weekStart: string;           // ISO date
+  expectedTransitDays: number;
+  extraDays: number;           // largest expected delay that week vs normal transit
+  level: RiskLevel;
+  signals: string[];           // short labels of the signals active that week
+}
+
 /** One leg of a supplier's route to the key customer, with its normal and expected (median, next 14 days) time. */
 export interface TransitLeg {
   kind: "road" | "border" | "customs" | "port" | "sea";
@@ -262,6 +276,10 @@ export interface RiskAssessment {
   partStopDays?: Record<string, number>;
   /** Transit split by route leg (road, border, customs, port). One road leg for a domestic supplier. */
   legs?: TransitLeg[];
+  /** 12-week outlook from signals known in advance (estimated; alerts still come from the 14-day projection). */
+  outlook?: OutlookWeek[];
+  /** What-if: recommended actions and the outlook levels for every combination of them (precomputed by the engine). */
+  scenarios?: Scenarios;
   lineStopExposureEur: number; // expected cost if it stops (minutes × cost per minute × probability)
   drivers: RiskDriver[];
   flex: FlexResult;

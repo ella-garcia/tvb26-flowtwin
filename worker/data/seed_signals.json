@@ -172,5 +172,64 @@
   "transitMultiplier": 3.0,
   "source": "Press reports of ANAM system outages (seeded for demo)",
   "provenance": "estimated"
+ },
+ {
+  "id": "sig-season-hurricane-gulf",
+  "kind": "weather",
+  "short": "Late hurricane season on the Gulf",
+  "title": "Late hurricane season, Gulf of Mexico coast",
+  "description": "Hurricane season runs to 30 November. Storms on the Gulf coast close stretches of MEX-150D and MEX-180D for a day or two at a time.",
+  "state": "Veracruz",
+  "lat": 19.2,
+  "lon": -96.4,
+  "radiusKm": 200,
+  "highways": [
+   "MEX-150D",
+   "MEX-180D"
+  ],
+  "startsAt": "2026-10-21",
+  "endsAt": "2026-11-30",
+  "severity": "medium",
+  "transitMultiplier": 1.6,
+  "source": "Historical SMN hurricane season pattern (seeded for demo)",
+  "provenance": "estimated"
+ },
+ {
+  "id": "sig-season-nld-yearend",
+  "kind": "customs",
+  "short": "Year-end cargo peak at Nuevo Laredo",
+  "title": "Year-end cargo peak, Nuevo Laredo customs",
+  "description": "Cross-border volume peaks from late November to Christmas; customs release at Nuevo Laredo usually takes longer.",
+  "state": "Tamaulipas",
+  "lat": 27.5,
+  "lon": -99.52,
+  "radiusKm": 25,
+  "highways": [],
+  "startsAt": "2026-11-23",
+  "endsAt": "2026-12-23",
+  "severity": "medium",
+  "transitMultiplier": 1.8,
+  "source": "Historical border crossing volumes (seeded for demo)",
+  "provenance": "estimated"
+ },
+ {
+  "id": "sig-season-holidays-57d",
+  "kind": "road",
+  "short": "Holiday traffic on MEX-57D",
+  "title": "Holiday traffic and reduced carrier capacity, MEX-57D",
+  "description": "From 19 December carriers run fewer trucks and traffic on MEX-57D rises; loads take longer to book and to arrive.",
+  "state": "Querétaro",
+  "lat": 20.59,
+  "lon": -100.39,
+  "radiusKm": 30,
+  "highways": [
+   "MEX-57D"
+  ],
+  "startsAt": "2026-12-19",
+  "endsAt": "2027-01-04",
+  "severity": "low",
+  "transitMultiplier": 1.3,
+  "source": "Historical holiday freight pattern (seeded for demo)",
+  "provenance": "estimated"
  }
 ]

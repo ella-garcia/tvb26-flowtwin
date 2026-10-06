@@ -10,6 +10,7 @@ import { ALL_PROGRAMS, modelLabel, partsOn, stopDaysFor } from "../../lib/progra
 import { scoped, useScoped } from "../../lib/useScoped";
 import type { Part, RiskAssessment, RiskLevel } from "../../lib/types";
 import { RiskMap } from "./RiskMap";
+import { OUTLOOK_FORMULA, OutlookGrid, OutlookLegend } from "../../components/outlook/Outlook";
 import "./risk.css";
 
 type Filter = "all" | RiskLevel;
@@ -125,6 +126,14 @@ export default function RiskPage() {
           <DataTable caption="Suppliers sorted by days to line stop" columns={columns} rows={shown} />
           {shown.length === 0 && <div className="ft-nodata">No suppliers match this filter.</div>}
         </>
+      )}
+
+      {rows.length > 0 && (
+        <Card title="Next 12 weeks">
+          <OutlookLegend />
+          <OutlookGrid rows={shown.map((r) => ({ id: r.id, name: r.name, outlook: r.risk.outlook ?? [] }))} onOpen={(id) => go("supplier", id)} />
+          <FormulaSource formula={OUTLOOK_FORMULA} data="Seasonal and announced signals (Signals page), route legs, and your stock cover of each supplier's critical parts." provenance="estimated" />
+        </Card>
       )}
 
       <FormulaSource
