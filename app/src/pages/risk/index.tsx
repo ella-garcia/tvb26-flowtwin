@@ -9,6 +9,8 @@ import { CRIT_RANK, partStock } from "../../lib/stock";
 import { ALL_PROGRAMS, modelLabel, partsOn, stopDaysFor } from "../../lib/programs";
 import { scoped, useScoped } from "../../lib/useScoped";
 import type { Part, RiskAssessment, RiskLevel } from "../../lib/types";
+import { visibilityIndex, type Visibility } from "../../lib/visibility";
+import { footprintRows, footprintTotals, toTonnes } from "../../lib/sustainability";
 import { RiskMap } from "./RiskMap";
 import { LeverBars, UptimeChart } from "../../components/optimization/Charts";
 import { ScoreSection } from "../../components/optimization/ScoreSection";
@@ -29,6 +31,7 @@ interface Row {
   /** Best (lowest) criticality rank among belowCover; 3 when none. */
   critRank: number;
   otif: OtifSummary | null;
+  vis: Visibility;
 }
 
 const NO_ROWS: Row[] = [];
@@ -43,6 +46,7 @@ export default function RiskPage() {
     const parts = partsOn(db.parts(), program ? program.id : ALL_PROGRAMS);
     const rel = scoped(() => db.suppliersOf(toggles.companyId));
     const targets = new Map(rel.ok ? rel.data.map((x) => [x.company.id, x.requirements.otifTarget]) : []); // else the default target
+    const alerts = db.alerts(), allParts = db.parts(); // visibility looks at all of a supplier's parts, whatever model is selected
     const rows: Row[] = db.risks().flatMap((risk) => {
       const c = db.company(risk.supplierId);
       const own = parts.filter((p) => p.supplierId === risk.supplierId && p.customerId === risk.customerId);
@@ -53,6 +57,7 @@ export default function RiskPage() {
         stopDays: program ? stopDaysFor(risk, own) : risk.daysToLineStop,
         belowCover, partCount: own.length, critRank: Math.min(3, ...belowCover.map((p) => CRIT_RANK[p.criticality])),
         otif: otifSummary(risk.otifTrend, targets.get(risk.supplierId) ?? DEFAULT_OTIF_TARGET),
+        vis: visibilityIndex(risk, allParts, alerts),
       }];
     });
     // Time to line stop first, then how critical the parts at risk are, then score. Never by money.
@@ -65,7 +70,8 @@ export default function RiskPage() {
     const own = parts.filter((p) => p.customerId === toggles.companyId);
     const shares = new Map(rel.ok ? rel.data.map((x) => [x.company.id, x.shareOfSales]) : []);
     const ctx = new Map<string, SupplierContext>(rows.map((r) => [r.id, { parts: own.filter((p) => p.supplierId === r.id), shareOfSales: shares.get(r.id), otifTarget: targets.get(r.id) }]));
-    return { rows, program, programs, parts: own, ctx, signals: db.signals(), plant: db.company(toggles.companyId) };
+    const fp = footprintRows(rows.map((r) => r.risk), db.companies());
+    return { rows, fp, program, programs, parts: own, ctx, signals: db.signals(), plant: db.company(toggles.companyId) };
   }, [db, toggles.companyId, programId]);
 
   const optRows = loaded.ok ? loaded.data.rows : NO_ROWS;
@@ -73,7 +79,8 @@ export default function RiskPage() {
   const opt = useMemo(() => loaded.ok ? optimizationView(optRows, choice, scenario.weeks, loaded.data.programs, loaded.data.parts) : null,
     [loaded, optRows, choice, scenario.weeks]);
   if (!loaded.ok) return <ScopedError title="Supplier risk" error={loaded.error} />;
-  const { rows, program, signals, plant } = loaded.data;
+  const { rows, fp, program, signals, plant } = loaded.data;
+  const footprint = footprintTotals(fp);
   const weekLabels = (rows.find((r) => r.risk.outlook?.length)?.risk.outlook ?? []).slice(0, scenario.weeks)
     .map((w) => date(w.weekStart).replace(/ \d{4}$/, ""));
 
@@ -104,6 +111,9 @@ export default function RiskPage() {
       <span className="risk-otif">{pct(r.otif.average)}<OtifDelta change={r.otif.change} /></span>
     ) },
     { key: "grade", label: "Delivery record", render: (r) => r.otif == null ? "No data" : <GradePill grade={r.otif.grade} /> },
+    { key: "vis", label: "Visibility", numeric: true, render: (r) => (
+      <span title="Sensing, learning and coordinating, 0 to 100">{num(r.vis.index)} · {r.vis.word}</span>
+    ) },
     { key: "data", label: "Data", render: (r) => <DataStatusPill status={r.risk.dataStatus} /> },
     { key: "act", label: "", render: (r) => <IconButton icon="eye" label={`View supplier ${r.name}`} onClick={() => go("supplier", r.id)} /> },
   ];
@@ -119,12 +129,13 @@ export default function RiskPage() {
           ? `${plant ? `${plant.name} · ` : ""}For ${modelLabel(program)}, built at ${program.oemPlant} (${num(program.dailyVehicles)} vehicles a day) · 14-day outlook · updated ${date(asOf)}`
           : `${plant ? `${plant.name} · ${plant.city} plant · ` : ""}All models · 14-day outlook · updated ${date(asOf)}`} />
 
-      <div className="ft-stats">
+      <div className="ft-stats risk-stats">
         <StatCard label="Suppliers at Act now" value={count("red")} icon="bell" tone="accent" />
         <StatCard label="Suppliers at Watch" value={count("amber")} icon="pulse" />
         <StatCard label={program ? `Soonest ${program.model} line stop` : "Soonest line stop"} value={soonest == null ? "None" : days(soonest)} icon="truck" />
         <StatCard label={lineStoppersBelow ? `Parts below safe cover (${lineStoppersBelow} line stopper${lineStoppersBelow === 1 ? "" : "s"})` : "Parts below safe cover"}
           value={partsBelow} icon="chart" />
+        <StatCard label="Truck CO₂e this week (estimated)" value={fp.length ? `${num(toTonnes(footprint.co2eKgPerWeek), 1)} t` : "Not calculated yet"} icon="leaf" />
       </div>
 
       {opt && (

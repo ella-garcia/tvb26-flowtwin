@@ -9,13 +9,16 @@ from datetime import date, timedelta
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "worker"))
 from engine.alerts import make_alert as eng_alert  # noqa: E402
+from engine.circular import DEFAULT_FACTOR  # noqa: E402
+from engine.milkrun import plan_consolidation  # noqa: E402
 from engine.risk import compute_pair  # noqa: E402
 from naming import to_camel, to_snake  # noqa: E402
 
 ASOF = date(2026, 10, 5)
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app", "src", "data", "seed", "seed.json")
 
-SETTINGS = {"lineStopCostEurPerMinute": 15000, "contractDemandSwing": 0.15, "lineHoursPerDay": 16}
+SETTINGS = {"lineStopCostEurPerMinute": 15000, "contractDemandSwing": 0.15, "lineHoursPerDay": 16,
+            "palletsPerTruck": 24, "expediteTripsPerShortDay": 1, "expediteFillRate": 0.3, "milkrunRadiusKm": 120}
 
 
 def iso(d): return d.isoformat()
@@ -58,6 +61,23 @@ PART_PROGRAMS = {
 
 def program_ids(cid, number):
     return PART_PROGRAMS.get(number) or [g["id"] for g in PROGRAMS if g["customerId"] == cid]
+
+# Units per pallet (the key customer's logistics data) for a subset of parts; parts not listed use the engine default
+# (200, marked estimated). Small fasteners and springs: thousands; foam and trim covers: tens to hundreds.
+UNITS_PER_PALLET = {
+    "QSS-4471-BRK": 1200, "QSS-4480-RCP": 900, "QSS-4492-XMB": 900,
+    "QSS-6120-LMB": 1500, "QSS-6133-GRM": 10000, "QSS-6140-CLH": 2000,
+    "QSS-9011-FLS": 40000, "QSS-9027-CLP": 12000, "QSS-9033-WSH": 30000,
+    "QSS-7205-TRM": 400, "QSS-7218-HDL": 1000,
+    "QSS-5310-PAB": 1000,                                        # kg, 1 t per pallet of bags (QSS-5322-PPC, QSS-5401-PPH: default)
+    "QSS-3101-FMC": 250, "QSS-3108-LTH": 600,
+    "QSS-8401-HRN": 400, "QSS-8409-SNS": 1500,
+    "QSS-2210-PVT": 6000, "QSS-2215-SPC": 8000,
+    "QSS-2301-FRG": 600, "QSS-2306-HNG": 800,
+    "QSS-2401-SPR": 4000, "QSS-2407-ZSP": 3000,
+    "QSS-1101-TUB": 350, "QSS-1108-PRF": 300,
+    "SLP-2210-PVT": 6000, "SLP-2401-SPR": 4000, "SLP-1101-TUB": 250, "SLP-5110-CPT": 600,
+}
 
 # ----------------------------------------------------------------- suppliers
 # part tuple: (number, name, unitCostMxn, dailyUsage, coverDays, singleSource, criticality)
@@ -254,7 +274,8 @@ ENG_SIGNALS = [to_snake(s) for s in SIGNALS]  # radius_km, starts_at, ...; `shor
 
 def eng_part(p):
     num, name, _ucost, _usage, c0, single, crit = p
-    return dict(id=f"part-{num.lower()}", number=num, name=name, days_of_cover=c0, criticality=crit, single_source=single)
+    return dict(id=f"part-{num.lower()}", number=num, name=name, days_of_cover=c0, criticality=crit, single_source=single,
+                daily_usage=p[3], **({"units_per_pallet": UNITS_PER_PALLET[num]} if num in UNITS_PER_PALLET else {}))
 
 
 def assess(cid, sp, cinfo):
@@ -294,7 +315,7 @@ def build():
             risks_out.append(a["risk"])
             for (num, name, ucost, usage, c0, single, crit) in ci["parts"]:
                 parts_out.append(dict(id=f"part-{num.lower()}", number=num, name=name, supplierId=sp["id"], customerId=cid, unitCostMxn=ucost,
-                                      dailyUsage=usage, onHand=int(round(usage * c0)), daysOfCover=round(c0, 2), singleSource=single, criticality=crit,
+                                      dailyUsage=usage, **({"unitsPerPallet": UNITS_PER_PALLET[num]} if num in UNITS_PER_PALLET else {}), onHand=int(round(usage * c0)), daysOfCover=round(c0, 2), singleSource=single, criticality=crit,
                                       **pipeline(sp, usage, a["risk"]), programIds=program_ids(cid, num)))
     return companies, rels, parts_out, risks_out, assessments
 
@@ -353,6 +374,40 @@ def edl_operating():
     return sites, partners, lanes, machines, certs, uploads
 
 
+def consolidation_plans(ass):
+    """One load-consolidation plan per key customer, from the engine (worker/engine/milkrun.py)."""
+    plans = []
+    for c in CUSTOMERS:
+        sids = sorted(sid for (cid, sid) in ass if cid == c["id"])
+        plan = plan_consolidation(CUST[c["id"]], {sid: eng_supplier(SUP[sid]) for sid in sids},
+                                  {sid: ass[(c["id"], sid)]["raw"]["circular"] for sid in sids},
+                                  {sid: ass[(c["id"], sid)]["raw"] for sid in sids}, ENG_SETTINGS, DEFAULT_FACTOR)
+        plans.append(dict(customerId=c["id"], generatedAt="2026-10-05T07:00:00Z", **plan))
+    return plans
+
+
+def circular_demo():
+    """Self-reported circular profiles (estimated), one frozen share edl -> qss and one open request qss -> hmo."""
+    profiles = [
+        dict(companyId="edl", year=2026, scrapRate=0.046, scrapTonnes=300, scrapRoute="recycler", recycledContentPct=0.25,
+             returnablePackagingPct=0.6, renewableElectricityPct=0.1, iso14001=True,
+             notes="Steel offcuts sold to a scrap recycler in Celaya. Figures from our 2026 production records.",
+             provenance="estimated", updatedAt="2026-10-02T09:00:00Z"),
+        dict(companyId="etb", year=2026, scrapRate=0.072, scrapTonnes=85, scrapRoute="recycler", recycledContentPct=0.08,
+             returnablePackagingPct=0.35, renewableElectricityPct=0.0, iso14001=False,
+             notes="Foam trimmings go to a bonded-foam recycler; leather offcuts are still landfilled.",
+             provenance="estimated", updatedAt="2026-10-01T09:00:00Z"),
+    ]
+    e = profiles[0]
+    summary = {k: e[k] for k in ("year", "scrapRate", "scrapTonnes", "scrapRoute", "recycledContentPct", "returnablePackagingPct",
+                                 "renewableElectricityPct", "iso14001", "provenance")}
+    shares = [dict(id="share-circ-edl-qss-v1", supplierId="edl", customerId="qss", items=["circular"], approvedBy="Roberto Laja",
+                   approvedAt=iso(ASOF), version=1, revoked=False, circular=summary)]
+    requests = [dict(id="req-circ-qss-hmo-1", fromCompanyId="qss", toCompanyId="hmo", items=["circular"], fiscalYear=2026,
+                     sentAt=iso(ASOF), dueDate=iso(ASOF + timedelta(days=30)), status="open")]
+    return profiles, shares, requests
+
+
 def main():
     companies, rels, parts, risks, ass = build()
     sites, partners, lanes, machines, certs, uploads = edl_operating()
@@ -378,16 +433,24 @@ def main():
     invites = [dict(id=f"inv-{s}", customerId="qss", supplierId=s, supplierName=SUP[s]["name"], contactEmail=SUP[s]["contact"]["email"],
                     sentAt=d, status="sent", plan="sponsored") for s, d in (("cha", "2026-09-29"), ("fdt", "2026-10-01"))]
 
+    plans = consolidation_plans(ass)
+    profiles, shares, requests = circular_demo()
+
     seed = dict(generatedAt="2026-10-05T07:00:00Z", asOf=iso(ASOF), companies=companies, relationships=rels, sites=sites, partners=partners,
-                lanes=lanes, machines=machines, certifications=certs, kpis=[], energy=[], materials=[], shipments=[], emissionFactors=[],
-                twins=[], requests=[], shares=[], uploads=uploads, settings=SETTINGS, parts=parts, programs=PROGRAMS, signals=SIGNALS, risks=risks,
-                alerts=alerts, invites=invites)
+                lanes=lanes, machines=machines, certifications=certs, kpis=[], energy=[], materials=[], shipments=[], emissionFactors=[DEFAULT_FACTOR],
+                twins=[], requests=requests, shares=shares, uploads=uploads, settings=SETTINGS, parts=parts, programs=PROGRAMS, signals=SIGNALS, risks=risks,
+                alerts=alerts, invites=invites, consolidationPlans=plans, circularProfiles=profiles)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(seed, f, ensure_ascii=False, indent=1, allow_nan=False)
         f.write("\n")
 
     print(f"wrote {os.path.relpath(OUT)}  ({os.path.getsize(OUT)/1024:.0f} KB)")
+    for pl in plans:
+        t = pl["totals"]
+        print(f"consolidation {pl['customerId']}: {len(pl['loops'])} loops, saved {t['trucksSaved']} trucks, {t['kmSaved']} km, {t['co2eSavedKg']} kg CO2e/week")
+        for l in pl["loops"]: print("  ", l["id"], l["members"], f"trucks {l['trucksBefore']}->{l['trucksAfter']} km {l['kmBefore']}->{l['kmAfter']} fill {l['fillBefore']}->{l['fillAfter']}")
+        for x in t["excluded"]: print("   excluded", x)
     print(f"{'cust':14}{'id':5}{'city':17}{'lvl':6}{'score':>6}{'dtls':>5}{'exposure':>12}  status  flex")
     for (cid, sid), a in sorted(ass.items(), key=lambda kv: (kv[0][0], -kv[1]["risk"]["score"])):
         r = a["risk"]

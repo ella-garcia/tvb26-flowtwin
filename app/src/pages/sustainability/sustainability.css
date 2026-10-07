@@ -1,0 +1,31 @@
+.sus-note { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); margin: 0; }
+.sus-lead { font: 500 15px/22px var(--font-sans); color: var(--ink); margin: 0; }
+.sus-sub { font: 600 15px/20px var(--font-sans); color: var(--ink); margin: var(--space-2) 0 0; }
+.sus-muted { color: var(--ink-subtle); }
+.sus-stats3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 700px) { .sus-stats3 { grid-template-columns: minmax(0, 1fr); } }
+.sus-members { display: block; min-width: 220px; }
+.sus-src { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.sus-src small { font: 400 12px/16px var(--font-sans); color: var(--ink-subtle); }
+.sus-tradeoff { font: 400 14px/22px var(--font-sans); color: var(--ink-muted); margin: 0; }
+.sus-tradeoff b { color: var(--ink); font-weight: 600; }
+.sus-excluded { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.sus-excluded li { display: grid; grid-template-columns: minmax(160px, 260px) minmax(0, 1fr); gap: var(--space-3); font: 400 14px/20px var(--font-sans); color: var(--ink-muted); }
+.sus-excluded b { color: var(--ink); font-weight: 600; }
+.sus-map-wrap { display: flex; flex-direction: column; gap: var(--space-3); }
+.sus-map { width: 100%; height: auto; max-height: 460px; background: var(--surface-sunken); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.sus-state { fill: var(--surface-raised); stroke: var(--border-strong); stroke-width: .6; vector-effect: non-scaling-stroke; }
+.sus-loop polyline, .sus-loop line { fill: none; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.sus-loop-0 { stroke: var(--primary); } .sus-loop-1 { stroke: var(--chart-2); } .sus-loop-2 { stroke: var(--chart-3); }
+.sus-loop-3 { stroke: var(--ink); } .sus-loop-4 { stroke: var(--ink-muted); }
+.sus-stop { fill: var(--surface-raised); stroke: currentColor; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.sus-loop-0 .sus-stop { stroke: var(--primary); } .sus-loop-1 .sus-stop { stroke: var(--chart-2); } .sus-loop-2 .sus-stop { stroke: var(--chart-3); }
+.sus-loop-3 .sus-stop { stroke: var(--ink); } .sus-loop-4 .sus-stop { stroke: var(--ink-muted); }
+.sus-stop-no { fill: var(--ink); font-family: var(--font-sans); font-weight: 700; stroke: none; }
+.sus-other { fill: none; stroke: var(--ink-subtle); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.sus-plant { fill: var(--ink); stroke: var(--surface-raised); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.sus-label { font-family: var(--font-sans); font-weight: 600; fill: var(--ink); paint-order: stroke; stroke: var(--surface-sunken); stroke-width: 3px; stroke-linejoin: round; }
+.sus-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); font: 500 12px/18px var(--font-sans); color: var(--ink-muted); }
+.sus-legend li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.sus-legend svg { width: 34px; height: 12px; flex: none; }
+.sus-legend svg[viewBox="0 0 12 12"] { width: 12px; }

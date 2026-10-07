@@ -230,6 +230,100 @@ select public.t_assert('p2 admin: 0 profiles, receipts, releases',
   (select count(*) = 0 from supplier_profiles) and (select count(*) = 0 from receipts) and (select count(*) = 0 from demand_releases));
 reset role;
 
+-- ---- Circular layer: circular_profiles, consent sharing (request_circular / share_circular / revoke_share), consolidation_plans
+reset role;
+insert into consolidation_plans (customer_id, loops, totals) values ('qss', '[]', '{}'), ('slp-interiors', '[]', '{}')
+  on conflict (customer_id) do update set loops = excluded.loops;
+delete from circular_profiles where year = 2090;
+
+set local role authenticated;
+select public.switch_test_identity('customer', 'qss');
+select public.t_assert('circ customer qss: sees 0 circular_profiles', (select count(*) = 0 from circular_profiles));
+select public.t_throws('circ customer qss: cannot insert a circular_profile',
+  $$insert into circular_profiles (company_id, year, scrap_route) values ('qss', 2090, 'unknown')$$);
+select public.t_works('circ customer qss: can ask edl for circular data', $$select request_circular('edl')$$);
+select public.t_assert('circ customer qss: sees its open circular request to edl',
+  (select count(*) = 1 from requests where from_company_id = 'qss' and to_company_id = 'edl' and 'circular' = any(items) and status = 'open'));
+select public.t_assert('circ customer qss: asking twice keeps one open request', (select request_circular('edl')) = (select request_circular('edl')));
+select public.t_throws('circ customer qss: cannot ask a company that is not its supplier', $$select request_circular('slp-interiors')$$);
+select public.t_throws('circ customer qss: cannot share_circular',
+  $$select share_circular('qss', '{"year":2090,"scrapRoute":"recycler","iso14001":true,"provenance":"estimated"}'::jsonb)$$);
+select public.t_assert('circ customer qss: sees only its own consolidation plan',
+  (select count(*) = 1 and bool_and(customer_id = 'qss') from consolidation_plans));
+
+select public.switch_test_identity('owner', 'edl');
+select public.t_works('circ owner edl: can insert own circular_profile',
+  $$insert into circular_profiles (company_id, year, scrap_rate, scrap_route, iso14001) values ('edl', 2090, 0.05, 'recycler', true)$$);
+select public.t_works('circ owner edl: can upsert own circular_profile',
+  $$insert into circular_profiles (company_id, year, scrap_rate, scrap_route, iso14001) values ('edl', 2090, 0.04, 'mill-return', true)
+    on conflict (company_id, year) do update set scrap_rate = excluded.scrap_rate, scrap_route = excluded.scrap_route$$);
+select public.t_assert('circ owner edl: upsert took effect',
+  (select scrap_rate = 0.04 and scrap_route = 'mill-return' and provenance = 'estimated' from circular_profiles where company_id = 'edl' and year = 2090));
+select public.t_throws('circ owner edl: cannot insert a circular_profile for another company',
+  $$insert into circular_profiles (company_id, year, scrap_route) values ('hmo', 2090, 'unknown')$$);
+select public.t_assert('circ owner edl: sees only its own circular_profiles', (select count(*) > 0 and bool_and(company_id = 'edl') from circular_profiles));
+select public.t_assert('circ owner edl: cannot read consolidation_plans', (select count(*) = 0 from consolidation_plans));
+select public.t_assert('circ owner edl: sees the qss request',
+  (select count(*) >= 1 from requests where from_company_id = 'qss' and to_company_id = 'edl' and 'circular' = any(items)));
+select public.t_throws('circ owner edl: summary with unitCostMxn is rejected',
+  $$select share_circular('qss', '{"year":2090,"scrapRoute":"recycler","iso14001":true,"unitCostMxn":12}'::jsonb)$$);
+select public.t_throws('circ owner edl: summary with margins is rejected',
+  $$select share_circular('qss', '{"year":2090,"margins":0.2}'::jsonb)$$);
+select public.t_throws('circ owner edl: cannot share with a company that is not its customer',
+  $$select share_circular('slp-interiors', '{"year":2090,"scrapRoute":"recycler","iso14001":true,"provenance":"estimated"}'::jsonb)$$);
+select public.t_assert('circ owner edl: share_circular to qss returns an id',
+  (select share_circular('qss', '{"year":2090,"scrapRate":0.04,"scrapRoute":"mill-return","iso14001":true,"provenance":"estimated"}'::jsonb) like 'share-circ-edl-qss-v%'));
+select public.t_assert('circ owner edl: exactly one active circular share to qss after re-sharing',
+  (select count(*) = 1 from shares where supplier_id = 'edl' and customer_id = 'qss' and 'circular' = any(items)));
+
+select public.switch_test_identity('customer', 'qss');
+select public.t_assert('circ customer qss: sees the active edl share with the summary',
+  (select count(*) = 1 and bool_and(circular->>'scrapRoute' = 'mill-return' and not (circular ? 'notes')) from shares where supplier_id = 'edl' and customer_id = 'qss' and 'circular' = any(items)));
+select public.t_assert('circ customer qss: shares only for itself', (select bool_and(customer_id = 'qss') from shares));
+
+select public.switch_test_identity('customer', 'slp-interiors');
+select public.t_assert('circ customer slp: cannot see qss shares', (select count(*) = 0 from shares where customer_id = 'qss'));
+select public.t_assert('circ customer slp: sees only its own consolidation plan',
+  (select count(*) = 1 and bool_and(customer_id = 'slp-interiors') from consolidation_plans));
+select public.t_assert('circ customer slp: cannot see qss requests', (select count(*) = 0 from requests where from_company_id = 'qss'));
+
+select public.switch_test_identity('ops', 'edl');
+select public.t_assert('circ ops edl: sees its shares read-only',
+  (select count(*) = 1 from shares where supplier_id = 'edl' and customer_id = 'qss' and 'circular' = any(items)));
+select public.t_works('circ ops edl: can upsert own circular_profile',
+  $$insert into circular_profiles (company_id, year, scrap_route) values ('edl', 2090, 'recycler') on conflict (company_id, year) do update set scrap_route = excluded.scrap_route$$);
+select public.t_throws('circ ops edl: share_circular is rejected',
+  $$select share_circular('qss', '{"year":2090,"scrapRoute":"recycler","iso14001":true,"provenance":"estimated"}'::jsonb)$$);
+select public.t_throws('circ ops edl: revoke_share is rejected',
+  $$select revoke_share((select id from shares where supplier_id = 'edl' and customer_id = 'qss' and not revoked and 'circular' = any(items) limit 1))$$);
+
+select public.switch_test_identity('owner', 'edl');
+select public.t_works('circ owner edl: revoke_share works',
+  $$select revoke_share((select id from shares where supplier_id = 'edl' and customer_id = 'qss' and not revoked and 'circular' = any(items) limit 1))$$);
+select public.t_throws('circ owner edl: cannot revoke a share that is not its own',
+  $$select revoke_share('share-does-not-exist')$$);
+select public.switch_test_identity('customer', 'qss');
+select public.t_assert('circ customer qss: sees 0 edl shares after revoke',
+  (select count(*) = 0 from shares where supplier_id = 'edl' and customer_id = 'qss' and 'circular' = any(items)));
+
+-- reset_demo restores the circular tables from the snapshot
+reset role;
+delete from circular_profiles;
+delete from shares;
+delete from requests;
+delete from consolidation_plans;
+set local role authenticated;
+select public.t_works('circ reset_demo runs', $$select reset_demo()$$);
+reset role;
+select public.t_assert('circ reset_demo restores circular_profiles from the snapshot',
+  (select count(*) from circular_profiles) = coalesce((select jsonb_array_length(rows) from demo_snapshot where name = 'circular_profiles'), 0));
+select public.t_assert('circ reset_demo restores shares from the snapshot',
+  (select count(*) from shares) = coalesce((select jsonb_array_length(rows) from demo_snapshot where name = 'shares'), 0));
+select public.t_assert('circ reset_demo restores requests from the snapshot',
+  (select count(*) from requests) = coalesce((select jsonb_array_length(rows) from demo_snapshot where name = 'requests'), 0));
+select public.t_assert('circ reset_demo restores consolidation_plans from the snapshot',
+  (select count(*) from consolidation_plans) = coalesce((select jsonb_array_length(rows) from demo_snapshot where name = 'consolidation_plans'), 0));
+
 -- ---- report
 select (case when ok then 'PASS' else 'FAIL' end) || '  ' || name from public.t_results order by n;
 select count(*) filter (where not ok) > 0 as failed, count(*) filter (where not ok) as nfail from public.t_results \gset

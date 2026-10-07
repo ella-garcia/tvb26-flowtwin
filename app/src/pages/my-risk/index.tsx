@@ -1,4 +1,5 @@
 // My risk: what the supplier's customers see about it, plus alerts and ways to improve the score.
+import { visibilityIndex, type Visibility } from "../../lib/visibility";
 import { useState } from "react";
 import { useApp } from "../../app/AppContext";
 import { useScoped } from "../../lib/useScoped";
@@ -7,6 +8,7 @@ import { Button, FilterChip, Icon, StatusPill, type IconName } from "../../keyst
 import { AlertStatusPill, Card, Empty, FormulaSource, PageHeader, RiskLight, ScopedError } from "../../components/shared";
 import { date } from "../../lib/format";
 import { SupplierRiskView } from "../../components/supplier-risk";
+import { CircularCard } from "./CircularCard";
 import "./my-risk.css";
 
 function AlertCard({ alert, customerName }: { alert: Alert; customerName: string }) {
@@ -58,7 +60,7 @@ function AlertCard({ alert, customerName }: { alert: Alert; customerName: string
   );
 }
 
-function improvements(r: RiskAssessment | undefined): { icon: IconName; text: string }[] {
+function improvements(r: RiskAssessment | undefined, vis?: Visibility): { icon: IconName; text: string }[] {
   if (!r) return [];
   const out: { icon: IconName; text: string }[] = [];
   if (r.dataStatus !== "connected") {
@@ -73,6 +75,11 @@ function improvements(r: RiskAssessment | undefined): { icon: IconName; text: st
   if (r.drivers.some((d) => d.kind === "theft")) out.push({ icon: "lock", text: "Move night departures to daytime windows where you can. Fewer night trips lowers theft risk." });
   if (r.minCoverDays < 5) out.push({ icon: "cube", text: `Raise stock at your customer. The lowest cover is ${r.minCoverDays.toFixed(1)} days; a few extra pallets help.` });
   if (r.drivers.some((d) => d.kind === "history")) out.push({ icon: "check", text: "Recover on-time delivery. A few clean weeks bring the score down quickly." });
+  // Visibility (sensing / learning / coordinating): what your customer can see coming.
+  if (vis && vis.sensing < 0.7 && r.dataStatus === "connected") {
+    out.push({ icon: "truck", text: "Send shipment notices with the next delivery date. Your customer then sees stock on the road, not just stock on hand." });
+  }
+  if (vis && vis.coordinating < 0.5) out.push({ icon: "inbox", text: "Answer alerts about you. A quick reply helps your customer plan and raises your visibility." });
   if (!out.length) out.push({ icon: "check", text: "Keep your data up to date. Nothing else is needed right now." });
   return out;
 }
@@ -117,10 +124,11 @@ export default function MyRiskPage() {
         : <Empty title="No customer sees you yet" action={<Button variant="secondary" onClick={() => go("data")}>Open your data</Button>}>
             When a customer adds you to FlowTwin, the risk view they see appears here.
           </Empty>}
+      <CircularCard />
       {risk && (
         <Card title="Improve your score">
           <ul className="my-risk-actions">
-            {improvements(risk).map((a, i) => <li key={i}><Icon name={a.icon} />{a.text}</li>)}
+            {improvements(risk, risk ? visibilityIndex(risk, db.parts(), alerts) : undefined).map((a, i) => <li key={i}><Icon name={a.icon} />{a.text}</li>)}
           </ul>
           <p className="my-risk-note my-risk-score">
             Score {risk.score} of 100, higher means riskier. Updated {date(risk.updatedAt)}.

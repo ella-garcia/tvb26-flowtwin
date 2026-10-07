@@ -12,6 +12,7 @@ import { DriversCard } from "./DriversCard";
 import { FlexCard } from "./FlexCard";
 import { OtifCard } from "./OtifCard";
 import { PartsCard } from "./PartsCard";
+import { VisibilityCard } from "./VisibilityCard";
 import { ProjectionChart, ProjectionLegend } from "./ProjectionChart";
 import { RelatedAlerts } from "./RelatedAlerts";
 import { RouteCard } from "./RouteCard";
@@ -93,6 +94,7 @@ export function SupplierRiskView({ customerId, supplierId, audience }: SupplierR
       </div>
 
       <DriversCard risk={risk} signals={signals} />
+      <VisibilityCard risk={risk} parts={parts} alerts={alerts} />
 
       <Card title="Twin projection, next 14 days" actions={<ProvenanceTag provenance={prov} />}>
         {risk.projection.length > 1 ? (

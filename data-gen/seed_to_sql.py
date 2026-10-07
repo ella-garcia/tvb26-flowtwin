@@ -36,11 +36,13 @@ TABLES = [
     ("uploads", "uploads", {}),
     ("programs", "vehicle_programs", {}),
     ("parts", "parts", {"program_ids": A}),
-    ("risks", "risks", {"drivers": J, "flex": J, "otif_trend": J, "projection": J, "part_stop_days": J, "legs": J, "outlook": J, "scenarios": J}),
+    ("risks", "risks", {"drivers": J, "flex": J, "otif_trend": J, "projection": J, "part_stop_days": J, "legs": J, "outlook": J, "scenarios": J, "circular": J}),
     ("alerts", "alerts", {"part_ids": A, "actions": J, "supplier_response": J}),
     ("invites", "invites", {}),
     ("requests", "requests", {"items": A}),
-    ("shares", "shares", {"items": A, "scorecard": J, "carbon": J}),
+    ("shares", "shares", {"items": A, "scorecard": J, "carbon": J, "circular": J}),
+    ("consolidationPlans", "consolidation_plans", {"loops": J, "totals": J}),
+    ("circularProfiles", "circular_profiles", {}),
 ]
 # Columns each table accepts (excluding generated identity ids). Anything else in the seed is ignored.
 COLUMNS = {
@@ -59,13 +61,15 @@ COLUMNS = {
     "shipments": "company_id customer_id year tonnes",
     "twins": "company_id synced_through built_at counts accuracy overall_accuracy days",
     "uploads": "company_id kind file_name rows source status uploaded_at storage_path",
-    "parts": "id number name supplier_id customer_id unit_cost_mxn daily_usage on_hand days_of_cover single_source criticality in_transit supplier_fg_on_hand next_delivery_date program_ids",
+    "parts": "id number name supplier_id customer_id unit_cost_mxn daily_usage on_hand days_of_cover single_source criticality in_transit supplier_fg_on_hand next_delivery_date program_ids units_per_pallet",
     "vehicle_programs": "id customer_id oem model oem_plant daily_vehicles revenue_per_vehicle_mxn",
-    "risks": "customer_id supplier_id level score normal_transit_days expected_transit_days worst_case_transit_days min_cover_days days_to_line_stop part_stop_days legs line_stop_exposure_eur drivers flex otif_trend projection outlook scenarios data_status updated_at",
+    "risks": "customer_id supplier_id level score normal_transit_days expected_transit_days worst_case_transit_days min_cover_days days_to_line_stop part_stop_days legs line_stop_exposure_eur drivers flex otif_trend projection outlook scenarios circular data_status updated_at",
     "alerts": "id customer_id supplier_id part_ids signal_id level title message created_at expected_shortfall_date line_stop_exposure_eur status actions chosen_action_id supplier_response",
     "invites": "id customer_id supplier_id supplier_name contact_email sent_at status plan",
     "requests": "id from_company_id to_company_id items fiscal_year sent_at due_date status note",
-    "shares": "id supplier_id customer_id request_id items approved_by approved_at version revoked scorecard carbon",
+    "shares": "id supplier_id customer_id request_id items approved_by approved_at version revoked scorecard carbon circular",
+    "consolidation_plans": "customer_id generated_at loops totals",
+    "circular_profiles": "company_id year scrap_rate scrap_tonnes scrap_route recycled_content_pct returnable_packaging_pct renewable_electricity_pct iso14001 notes provenance updated_at",
 }
 
 # column -> seed key where it is not just the camelCase of the column
@@ -75,7 +79,8 @@ def seed_key(c):
     return SEED_KEY.get(c) or camel(c)
 
 # Tables reset_demo() restores from demo_snapshot (plus supplier_profiles, built below).
-SNAPSHOT_TABLES = ("companies", "relationships", "vehicle_programs", "parts", "risks", "alerts", "invites")
+SNAPSHOT_TABLES = ("companies", "relationships", "vehicle_programs", "parts", "risks", "alerts", "invites",
+                   "consolidation_plans", "circular_profiles", "requests", "shares")
 
 def q(s):
     return "'" + str(s).replace("'", "''") + "'"
@@ -138,6 +143,10 @@ def main():
         f"line_stop_cost_eur_per_minute = {s['lineStopCostEurPerMinute']}, "
         f"contract_demand_swing = {s['contractDemandSwing']}, "
         f"line_hours_per_day = {s['lineHoursPerDay']}, "
+        f"pallets_per_truck = {s.get('palletsPerTruck', 24)}, "
+        f"expedite_trips_per_short_day = {s.get('expediteTripsPerShortDay', 1)}, "
+        f"expedite_fill_rate = {s.get('expediteFillRate', 0.3)}, "
+        f"milkrun_radius_km = {s.get('milkrunRadiusKm', 120)}, "
         f"as_of = {q(seed['asOf'])}::date where id = 1;\n")
     out.append("-- reset_demo() restores these (table column shape, snake_case)")
     out.append("insert into public.demo_snapshot (name, rows) values")

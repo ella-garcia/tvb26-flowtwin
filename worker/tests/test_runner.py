@@ -38,6 +38,9 @@ def test_recompute_customer_writes_risks_and_alerts(db_rows, seed):
     res = risk_runner.recompute_customer(db, "qss")
     assert res["levels"]["hmo"] == "red" and res["risks"] == 12
     assert len(db.upserts["risks"]) == 12
+    assert all(r["circular"]["factorId"] == "ef-road-artic" for r in db.upserts["risks"])
+    plan = db.upserts["consolidation_plans"][0]
+    assert plan["customer_id"] == "qss" and plan["loops"] and plan["totals"]["kmSaved"] > 0
     assert res["alerts_updated"] == 1 and res["alerts_created"] >= 4
     # an existing alert is only updated in engine-owned fields
     _, match, values = db.updates[0]

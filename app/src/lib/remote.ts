@@ -1,7 +1,7 @@
 // Live mode: Supabase client, session, identity switch, data load and write-through calls.
 // Seed mode never imports anything from here at runtime beyond `isLive`.
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { Alert, AlertNotification, Invite, RoleId, Seed, Settings, UploadRecord } from "./types";
+import type { Alert, AlertNotification, CircularProfile, CircularSummary, Invite, RoleId, Seed, Settings, UploadRecord } from "./types";
 import { rowsToApp, rowToDb } from "./caseMap";
 
 const URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
@@ -56,6 +56,11 @@ export async function loadAll(): Promise<Seed> {
     // Added after the first live release: a database without the table still loads (no models shown).
     t("vehicle_programs").catch(() => [] as Record<string, unknown>[]),
   ]);
+  // Circular layer (a database without these tables still loads; the pages show empty states).
+  const opt = (name: string) => t(name).catch(() => [] as Record<string, unknown>[]);
+  const [factors, plans, circular, requests, shares] = await Promise.all([
+    opt("emission_factors"), opt("consolidation_plans"), opt("circular_profiles"), opt("requests"), opt("shares"),
+  ]);
   const s = settings[0] as Record<string, unknown> | undefined;
   return {
     generatedAt: new Date().toISOString(),
@@ -72,6 +77,10 @@ export async function loadAll(): Promise<Seed> {
       lineStopCostEurPerMinute: Number(s?.line_stop_cost_eur_per_minute ?? 15000),
       contractDemandSwing: Number(s?.contract_demand_swing ?? 0.15),
       lineHoursPerDay: Number(s?.line_hours_per_day ?? 16),
+      palletsPerTruck: Number(s?.pallets_per_truck ?? 24),
+      expediteTripsPerShortDay: Number(s?.expedite_trips_per_short_day ?? 1),
+      expediteFillRate: Number(s?.expedite_fill_rate ?? 0.3),
+      milkrunRadiusKm: Number(s?.milkrun_radius_km ?? 120),
     } satisfies Settings,
     parts: rowsToApp(parts),
     programs: rowsToApp(programs),
@@ -79,6 +88,11 @@ export async function loadAll(): Promise<Seed> {
     risks: rowsToApp(risks),
     alerts: rowsToApp(alerts),
     invites: rowsToApp(invites),
+    emissionFactors: rowsToApp(factors),
+    consolidationPlans: rowsToApp(plans),
+    circularProfiles: rowsToApp(circular),
+    requests: rowsToApp(requests),
+    shares: rowsToApp(shares),
   };
 }
 
@@ -94,6 +108,15 @@ export const sendInvite = async (invite: Invite) => must(await supabase().from("
 export const recordUpload = async (u: UploadRecord) =>
   must(await supabase().from("uploads").upsert(rowToDb(u), { onConflict: "company_id,kind" }));
 export const resetRemoteDemo = async () => must(await supabase().rpc("reset_demo"));
+
+// ---- Circular layer ----
+export const saveCircularProfile = async (p: CircularProfile) =>
+  must(await supabase().from("circular_profiles").upsert(rowToDb({ ...p, updatedAt: new Date().toISOString() }), { onConflict: "company_id,year" }));
+export const requestCircular = async (supplierId: string, note?: string) =>
+  must(await supabase().rpc("request_circular", { supplier: supplierId, note: note ?? null }));
+export const shareCircular = async (customerId: string, summary: CircularSummary, requestId?: string) =>
+  must(await supabase().rpc("share_circular", { customer: customerId, summary, request: requestId ?? null }));
+export const revokeShare = async (shareId: string) => must(await supabase().rpc("revoke_share", { share_id: shareId }));
 
 // ---- Tier 1 uploads and notifications ----
 /** Upload a file to the private 'uploads' bucket at <company>/<kind>/<timestamp>-<name>. Returns the storage path. */

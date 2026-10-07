@@ -6,6 +6,7 @@ import type { Machine, Partner, UploadKind, UploadRecord } from "../../lib/types
 import { Button, DataTable, Icon, StatusPill, type Column } from "../../keystone";
 import { Card, Empty, PageHeader, ScopedError } from "../../components/shared";
 import { date, num } from "../../lib/format";
+import { CircularityForm } from "./CircularityForm";
 import "./data.css";
 
 const KIND_LABEL: Record<UploadKind, string> = {
@@ -39,6 +40,7 @@ export default function DataPage() {
     suppliers: db.partners(companyId).filter((p) => p.role === "supplier"),
     uploads: db.uploads(companyId),
     parts: db.parts().filter((p) => p.supplierId === companyId),
+    circular: db.circularProfiles(companyId),
   }), [db, companyId]);
 
   const [machineEdits, setMachineEdits] = useState<Record<string, Partial<Machine>>>({});
@@ -48,7 +50,8 @@ export default function DataPage() {
   const mark = (k: string) => setSaved((s) => ({ ...s, [k]: true }));
 
   if (!read.ok) return <ScopedError title="Your data" error={read.error} />;
-  const { machines, suppliers, uploads, parts } = read.data;
+  const { machines, suppliers, uploads, parts, circular } = read.data;
+  const year = Number(db.asOf.slice(0, 4));
 
   const m = (r: Machine): Machine => ({ ...r, ...machineEdits[r.id] });
   const setM = (id: string, patch: Partial<Machine>) => { setMachineEdits((e) => ({ ...e, [id]: { ...e[id], ...patch } })); mark("machines"); };
@@ -124,6 +127,8 @@ export default function DataPage() {
       ]} /> : <Empty title="No parts listed">When a customer shares its part list with you, it appears here.</Empty> },
     { key: "uploads", title: "Upload files", sub: `CSV or Excel. ${done} of ${KINDS.length} files uploaded. Not sure? Use a sample file to see how it works.`, body:
       <DataTable columns={uploadCols} rows={uploadRows.map((u) => ({ ...u, id: u.kind }))} caption="Files" /> },
+    { key: "circular", title: "Circularity", sub: "How you handle scrap, packaging and energy. Fill in what you know; an estimate is fine.", body:
+      <CircularityForm key={year} companyId={companyId} year={year} existing={circular.find((c) => c.year === year)} /> },
   ];
 
   return (
@@ -137,7 +142,7 @@ export default function DataPage() {
               <Card title={`Step ${i + 1}: ${s.title}`}>
                 <p className="data-step-sub">{s.sub}</p>
                 {s.body}
-                {s.key !== "uploads" && <Saved show={!!saved[s.key]} />}
+                {s.key !== "uploads" && s.key !== "circular" && <Saved show={!!saved[s.key]} />}
               </Card>
             </div>
           </li>

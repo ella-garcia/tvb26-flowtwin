@@ -8,6 +8,7 @@ Action effects (deliberately simple and stated in the app):
   kinds/keep : signals of these kinds keep only `keep` of their extra transit (m -> 1 + (m - 1) * keep)
   cover      : more days of cover on critical parts (in `weeks` only, if given)
   from_week  : the action only counts from that week (e.g. second-source qualification)
+  kmFactor   : transport co-effect, truck-km multiplier while the action is in place (alternative route = 1.15; shown, not scored)
   clears     : from then on a delay at this supplier no longer threatens the line (level OK)
 Each week also carries shortDays: the days the delay outruns the cover (0-7), i.e. days the line would be down.
 """
@@ -20,7 +21,7 @@ MAX_ACTIONS = 3
 CATALOG = {
     "customs_priority": dict(label="Priority customs release", kinds={"customs", "port"}, keep=0.5,
                              detail="The customs broker files the pedimento early and asks for priority release: customs and port delays are halved."),
-    "alt_route": dict(label="Use an alternative route", kinds={"road", "blockade", "weather"}, keep=0.4,
+    "alt_route": dict(label="Use an alternative route", kinds={"road", "blockade", "weather"}, keep=0.4, kmFactor=1.15,
                       detail="Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."),
     "daytime": dict(label="Move departures to daytime", kinds={"theft"}, keep=0.0,
                     detail="Loads leave between 06:00 and 18:00, so night-theft escorts and holds are not needed."),
@@ -80,4 +81,5 @@ def scenarios(supplier, parts, signals, as_of, normal):
     for bits in product("01", repeat=len(ids)):
         key = "".join(bits)
         combos[key] = weeks_with(supplier, parts, signals, as_of, normal, [a for a, b in zip(ids, bits) if b == "1"])
-    return dict(actions=[dict(id=a, label=CATALOG[a]["label"], detail=CATALOG[a]["detail"]) for a in ids], combos=combos)
+    return dict(actions=[dict(id=a, label=CATALOG[a]["label"], detail=CATALOG[a]["detail"],
+                              **({"kmFactor": CATALOG[a]["kmFactor"]} if "kmFactor" in CATALOG[a] else {})) for a in ids], combos=combos)

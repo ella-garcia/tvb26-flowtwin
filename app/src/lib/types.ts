@@ -137,6 +137,12 @@ export interface Seed {
   alerts: Alert[];
   invites: Invite[];
   alertNotifications?: AlertNotification[];
+  // ---- Circular and sustainability layer ----
+  emissionFactors?: EmissionFactor[];
+  consolidationPlans?: ConsolidationPlan[];
+  circularProfiles?: CircularProfile[];
+  requests?: DataRequest[];
+  shares?: Share[];
 }
 
 // ======================= Early warning (v0 core) =======================
@@ -148,6 +154,11 @@ export interface Settings {
   contractDemandSwing: number;           // 0.15
   /** Hours per day the OEM line runs, used to turn days into minutes of stoppage. */
   lineHoursPerDay: number;
+  /** Transport footprint and consolidation (engine inputs; shown in formula panels). */
+  palletsPerTruck?: number;              // 24
+  expediteTripsPerShortDay?: number;     // expedited trips per line-down day avoided
+  expediteFillRate?: number;             // expedites run mostly empty
+  milkrunRadiusKm?: number;              // suppliers this close can share a loop
 }
 
 /** A part a supplier delivers to a key customer, with the key customer's stock of it. */
@@ -169,6 +180,8 @@ export interface Part {
   nextDeliveryDate?: string;
   /** Vehicle programmes (models) this part goes into. Absent or empty = not mapped yet. */
   programIds?: string[];
+  /** Units per pallet (key customer's logistics data). Absent = engine default, marked estimated. */
+  unitsPerPallet?: number;
   singleSource: boolean;
   /** Line-stopper = no substitute and the OEM line stops without it (a screw can be one). */
   criticality: "line-stopper" | "high" | "normal";
@@ -213,7 +226,11 @@ export interface Signal {
 export type RiskLevel = "green" | "amber" | "red";
 
 /** A recommended action for one supplier in the what-if view. */
-export interface ScenarioAction { id: string; label: string; detail: string }
+export interface ScenarioAction {
+  id: string; label: string; detail: string;
+  /** Transport co-effect: truck-km multiplier while the action is in place (e.g. 1.15 for a longer alternative route). */
+  kmFactor?: number;
+}
 /** combos: key = one "0"/"1" per action, in `actions` order -> 12 weekly results with those actions in place. */
 export interface Scenarios { actions: ScenarioAction[]; combos: Record<string, { level: RiskLevel; extraDays: number; shortDays?: number }[]> }
 
@@ -282,6 +299,8 @@ export interface RiskAssessment {
   outlook?: OutlookWeek[];
   /** What-if: recommended actions and the outlook levels for every combination of them (precomputed by the engine). */
   scenarios?: Scenarios;
+  /** Transport footprint of this supplier's deliveries to the key customer (engine, estimated). */
+  circular?: TransportFootprint;
   lineStopExposureEur: number; // expected cost if it stops (minutes × cost per minute × probability)
   drivers: RiskDriver[];
   flex: FlexResult;
@@ -332,4 +351,110 @@ export interface Invite {
   sentAt: string;
   status: "sent" | "joined";
   plan: "sponsored";
+}
+
+// ======================= Circular and sustainability layer =======================
+// Physical units only (km, trucks, pallets, kg CO2e, tonnes). No money here.
+
+/** Emission factor from the versioned library (readable by everyone). */
+export interface EmissionFactor {
+  id: string;                  // "ef-road-artic"
+  version: number;
+  name: string;
+  value: number;
+  unit: string;                // "kg CO2e/vehicle-km"
+  scope: 1 | 2 | 3;
+  source: string;
+  year: number;
+}
+
+/** Transport footprint of one (key customer, supplier) pair, computed by worker/engine/circular.py. */
+export interface TransportFootprint {
+  roadKm: number;                      // one-way road distance (route legs when known)
+  trucksPerWeek: number;
+  palletsPerWeek: number;
+  fillRate: number;                    // pallets ÷ (trucks × pallets per truck), 0..1
+  truckKmPerWeek: number;              // trucks × road km × 2 (round trip)
+  co2ePerWeekKg: number;
+  expediteKmPerShortDay: number;       // truck-km of expedited freight per line-down day
+  expediteCo2ePerShortDayKg: number;
+  factorId: string;
+  factorVersion: number;
+  provenance: Provenance;              // estimated when any part uses the default units per pallet
+}
+
+/** One proposed milk run: several suppliers on one truck loop to the key customer. */
+export interface ConsolidationLoop {
+  id: string;
+  members: string[];                   // supplier ids, in pickup order
+  trucksBefore: number;                // per week
+  trucksAfter: number;
+  kmBefore: number;                    // truck-km per week
+  kmAfter: number;
+  fillBefore: number;                  // average, 0..1
+  fillAfter: number;
+  co2eBeforeKg: number;                // per week
+  co2eAfterKg: number;
+  deliveriesPerWeek: number;           // never below any member's current frequency (resilience guard)
+  provenance: Provenance;
+}
+
+/** Load-consolidation plan for one key customer, from its own demand and supplier locations only. */
+export interface ConsolidationPlan {
+  customerId: string;
+  generatedAt: string;
+  loops: ConsolidationLoop[];
+  totals: {
+    trucksSaved: number; kmSaved: number; co2eSavedKg: number; suppliersInLoops: number;
+    excluded: { supplierId: string; reason: string }[];
+  };
+}
+
+export type ScrapRoute = "recycler" | "mill-return" | "internal-remelt" | "landfill" | "unknown";
+
+/** A supplier's self-reported circular practices for one year. Private to the supplier until shared. */
+export interface CircularProfile {
+  companyId: string;
+  year: number;
+  scrapRate?: number;                  // 0..1
+  scrapTonnes?: number;
+  scrapRoute: ScrapRoute;
+  recycledContentPct?: number;         // 0..1
+  returnablePackagingPct?: number;     // 0..1
+  renewableElectricityPct?: number;    // 0..1
+  iso14001: boolean;
+  notes?: string;
+  provenance: Provenance;              // self-reported = estimated
+  updatedAt?: string;
+}
+
+/** The frozen summary a supplier shares with one key customer. Never contains costs, prices or margins. */
+export type CircularSummary = Omit<CircularProfile, "companyId" | "notes" | "updatedAt">;
+
+export type ShareItem = "circular";
+/** A key customer's request to a supplier. */
+export interface DataRequest {
+  id: string;
+  fromCompanyId: string;               // the key customer
+  toCompanyId: string;                 // the supplier
+  items: ShareItem[];
+  fiscalYear: number;
+  sentAt: string;
+  dueDate: string;
+  status: "open" | "in-review" | "answered";
+  note?: string;
+}
+
+/** What a supplier has explicitly shared with one key customer. Payload frozen at approval; revocable. */
+export interface Share {
+  id: string;
+  supplierId: string;
+  customerId: string;
+  requestId?: string;
+  items: ShareItem[];
+  approvedBy: string;
+  approvedAt: string;
+  version: number;
+  revoked?: boolean;
+  circular?: CircularSummary;
 }

@@ -31,7 +31,14 @@ Open http://localhost:5173. The yellow **Testing** bar switches role (Key custom
 8. **Alerts**: choose "Pull the next order forward" → Acknowledge.
 9. **Invite**: invite another supplier (sponsored, free for them).
 10. Switch role to **Supplier owner** (Estampados del Laja) → **My risk**: the same view the customer sees, and its response to an alert.
-11. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files).
+11. **Supplier ops → My data**: light onboarding (capacity, lead times, stock, files), plus a private **Circularity** step
+    (scrap, recycled content, returnable packaging, renewable electricity).
+12. **Key customer → Sustainability**: transport footprint (about 19.4 t CO₂e a week, estimated); two milk-run loops save
+    2 trucks and about 1,400 truck-km a week without reducing any delivery frequency (Orizaba is excluded: at risk now);
+    "Resilience pays twice" shows the expedited freight avoided by the What-if optimizations; supplier circularity shows
+    Estampados del Laja's shared summary and **Ask for it** for the others. The risk board shows each supplier's
+    **Visibility** (sensing, learning, coordinating). Evidence: `docs/evidence-brief-circular-economy.md`.
+13. **Supplier owner → My risk**: answer the customer's circular request, preview exactly what is shared, share or revoke.
 
 "Reset demo data" in the Testing bar restores the seed.
 

@@ -1,10 +1,12 @@
 """Glue between the DB and the pure engine: load rows, compute, write risks and alerts."""
 import json
 import os
-from datetime import date
+from datetime import date, datetime, timezone
 
 from db import DB
 from engine import DEFAULT_SETTINGS, compute_customer
+from engine.circular import DEFAULT_FACTOR
+from engine.milkrun import plan_consolidation
 from engine.profiles import build_supplier
 
 # Engine-owned alert fields; status, chosen_action_id, supplier_response and actions belong to people and are never overwritten.
@@ -16,6 +18,15 @@ def load_settings(db: DB) -> tuple[dict, date]:
     r = rows[0] if rows else {}
     s = {k: float(r.get(k, v)) for k, v in DEFAULT_SETTINGS.items()}
     return s, date.fromisoformat(r["as_of"]) if r.get("as_of") else date.today()
+
+
+FACTOR_ID = "ef-road-artic"
+
+
+def load_factor(db: DB) -> dict:
+    """Latest version of the road freight emission factor; the built-in default if the table has none."""
+    rows = [r for r in db.select("emission_factors", {"id": f"eq.{FACTOR_ID}"}) if r.get("id") == FACTOR_ID]
+    return max(rows, key=lambda r: int(r["version"])) if rows else DEFAULT_FACTOR
 
 
 def recompute_customer(db: DB, customer_id: str, as_of=None) -> dict:
@@ -40,8 +51,14 @@ def recompute_customer(db: DB, customer_id: str, as_of=None) -> dict:
             op = {t: db.select(t, {"company_id": f"eq.{c['id']}"}) for t in ("lanes", "partners", "machines")}
             invited = db.select("invites", {"supplier_id": f"eq.{c['id']}"})
             suppliers[c["id"]] = build_supplier(c, op["lanes"], op["partners"], op["machines"], invited, profiles.get(c["id"]))
-    risks, alerts = compute_customer(customers[0], suppliers, parts, signals, settings, as_of)
+    factor = load_factor(db)
+    risks, alerts = compute_customer(customers[0], suppliers, parts, signals, settings, as_of, factor)
     db.upsert("risks", risks, "customer_id,supplier_id")
+    now = datetime.now(timezone.utc).isoformat()
+    plan = plan_consolidation(customers[0], suppliers, {r["supplier_id"]: r.get("circular") for r in risks},
+                              {r["supplier_id"]: r for r in risks}, settings, factor)
+    db.upsert("consolidation_plans", [dict(customer_id=customer_id, loops=plan["loops"], totals=plan["totals"],
+                                           generated_at=now, updated_at=now)], "customer_id")
     created = updated = 0
     existing = {a["id"]: a for a in db.select("alerts", {"customer_id": f"eq.{customer_id}"})}
     for a in alerts:

@@ -1,0 +1,14 @@
+.vis-head { display: flex; align-items: baseline; gap: var(--space-4); flex-wrap: wrap; }
+.vis-index { font: 600 40px/44px var(--font-sans); color: var(--ink); }
+.vis-index small { font: 500 14px/20px var(--font-sans); color: var(--ink-subtle); }
+.vis-word { font: 600 16px/24px var(--font-sans); color: var(--ink); }
+.vis-word-high { color: var(--success); } .vis-word-medium { color: var(--warning); } .vis-word-low { color: var(--danger); }
+.vis-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-4); }
+.vis-bars > li { display: grid; grid-template-columns: 160px minmax(0, 1fr) 48px; gap: var(--space-1) var(--space-4); align-items: center; }
+.vis-label { display: flex; flex-direction: column; font: 600 14px/20px var(--font-sans); color: var(--ink); }
+.vis-label small { font: 400 12px/16px var(--font-sans); color: var(--ink-subtle); }
+.vis-track { height: 12px; background: var(--surface-sunken); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.vis-track i { display: block; height: 100%; background: var(--primary); }
+.vis-val { font: 600 14px/20px var(--font-sans); color: var(--ink); text-align: right; }
+.vis-why { grid-column: 2 / 4; list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 var(--space-4); font: 400 12px/18px var(--font-sans); color: var(--ink-muted); }
+@media (max-width: 700px) { .vis-bars > li { grid-template-columns: minmax(0, 1fr) 40px; } .vis-label { grid-column: 1 / 3; } .vis-why { grid-column: 1 / 3; } }

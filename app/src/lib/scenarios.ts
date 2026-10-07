@@ -68,7 +68,8 @@ export function drawStats(rows: ScenarioRow[], share: number, weeks: number, dra
 
 // ---------------------------------------------------------------- optimization views (score, levers, uptime, money)
 
-const weekOf = (r: RiskAssessment, key: string | undefined) => {
+/** Weekly results (level, extraDays, shortDays) for a combo key; falls back to "no action". */
+export const weekOf = (r: RiskAssessment, key: string | undefined) => {
   const c = r.scenarios?.combos;
   return c?.[key ?? noneKey(r)] ?? c?.[noneKey(r)];
 };

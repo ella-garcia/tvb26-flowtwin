@@ -7,7 +7,7 @@ Everything is synthetic. Signals are hand-seeded ("seeded for demo"); v0 calls n
 ## World
 - Customers: `qss` (QRO Seating Systems, Querétaro) and `slp-interiors` (San Luis Potosí).
 - 12 suppliers: 11 for qss, 4 for slp-interiors (rpo, tps, mds are shared). 2 are `invited`, 1 is `public-only`, the rest `connected`.
-- Full operating data (sites, partners, lanes, machines, certifications, uploads) only for `edl`. kpis, energy, materials, shipments, twins, requests, shares are empty.
+- Full operating data (sites, partners, lanes, machines, certifications, uploads) only for `edl`. kpis, energy, materials, shipments, twins are empty (requests, shares and circularProfiles carry the circular demo).
 
 ## Risk engine (per customer and supplier)
 1. **Normal transit** = ceil(road km / 400), min 1, with road km = 1.3 x straight-line distance (about 1 day per 400 km incl. loading).
@@ -42,6 +42,17 @@ Everything is synthetic. Signals are hand-seeded ("seeded for demo"); v0 calls n
     down days). Vehicle programmes carry `revenuePerVehicleMxn` (the Tier 1's content value per vehicle: K3 MX$21,000,
     M5 MX$17,500, T1 MX$24,000, C2 MX$9,000; estimated). The app derives score, lever benefit, uptime %, revenue lost and
     stock cost from these (app/src/lib/scenarios.ts); money only on What-if.
-16. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
+16. **Transport footprint** (`worker/engine/circular.py`, stored in `risks.circular`, estimated, never part of the score): pallets per
+    week = sum of daily usage x 5 / `unitsPerPallet` (default 200 when a part has none, which marks the footprint estimated);
+    trucks = ceil(pallets / 24); fill = pallets / (trucks x 24); truck-km = trucks x road km x 2; kg CO2e = truck-km x factor
+    `ef-road-artic` (1.05 kg CO2e/vehicle-km, in `emissionFactors`, to confirm against GLEC v3). Road km = route legs x 1.15 when a
+    supplier has a route (pfl), else straight line x 1.3. Expedite per line-down day = 1 trip x 2 x road km. `alt_route` actions carry
+    `kmFactor` 1.15. Settings: `palletsPerTruck`, `expediteTripsPerShortDay`, `expediteFillRate`, `milkrunRadiusKm`.
+17. **Milk runs** (`worker/engine/milkrun.py`, `consolidationPlans`): Clarke-Wright loops of suppliers with fill < 0.8, within 120 km of
+    each other and within 35 degrees of bearing from the plant; red or line-stop suppliers are excluded; a loop never delivers less
+    often than its most frequent member (resilience guard) and is kept only if it saves truck-km. Demo (qss): tsr+tps and etb+mds.
+18. **Circular demo data**: `circularProfiles` for edl and etb (self-reported, estimated), one active circular share edl -> qss
+    (frozen summary, version 1) and one open circular request qss -> hmo.
+19. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
 
 Edit the tables at the top of the script (suppliers, parts, signals) to change the story, then re-run.

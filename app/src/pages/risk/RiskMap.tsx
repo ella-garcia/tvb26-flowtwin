@@ -6,8 +6,9 @@ import type { Company, RiskAssessment, RiskLevel, Signal } from "../../lib/types
 
 // Projection from the geo file: x=(lon+118.6)*cos(23deg)*26, y=(32.9-lat)*26.
 const P = mexico.projection;
-const px = (lon: number) => (lon - P.lon0) * P.cosLat * P.k;
-const py = (lat: number) => (P.lat0 - lat) * P.k;
+/** Map projection shared by every Mexico map (risk board, Sustainability). */
+export const px = (lon: number) => (lon - P.lon0) * P.cosLat * P.k;
+export const py = (lat: number) => (P.lat0 - lat) * P.k;
 const KM_TO_PX = P.k / 111.2;
 // Central and north-east Mexico: Manzanillo to Veracruz, the Nuevo Laredo / Laredo border crossing to Orizaba.
 const VIEWBOX = "318 122 262 270";

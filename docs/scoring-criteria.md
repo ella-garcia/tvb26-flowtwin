@@ -200,3 +200,51 @@ The grade looks back and the risk light looks forward. They are shown side by si
 7. **Industry view parameters:** 75% execution, the 0.5-day cap, the 59 cap, and the flag thresholds (85% capacity, 40% of sales) are assumptions to calibrate with an automaker or bank scorecard.
 8. **Not yet in the industry view:** financial health (needs supplier consent and financial data), a base rate for unannounced disruptions (e.g. McKinsey's one disruption of a month or more every 3.7 years), and quality (defect rate, certification status).
 9. **Sensitivity:** each supplier's share of sales to the customer is visible to that customer in the industry view. Confirm suppliers agree to share it.
+
+## 8. Circular and sustainability layer
+Physical units only (km, trucks, pallets, kg or t CO₂e). No money. Evidence and caveats: `docs/evidence-brief-circular-economy.md`.
+
+### 8.1 Visibility index (0–100, higher = better)
+From Sadiq et al. (2026): visibility loads on sensing (0.86), learning (0.81) and coordinating (0.38). Normalised weights: **sensing 0.42, learning 0.39, coordinating 0.19**.
+- **Sensing:** mean of three parts:
+  - data status (connected 1, invited 0.4, public-only 0.2);
+  - share of the supplier's parts with in-transit and next-delivery data;
+  - route known (several legs, or a connected supplier, = 1; otherwise 0.5).
+- **Learning:** weeks of OTIF history ÷ 12, halved when the supplier is not connected.
+- **Coordinating:** share of the supplier's alerts that have a supplier response. A supplier with no alerts counts as 0.5 (neutral).
+- **Index** = 100 × (0.42 S + 0.39 L + 0.19 C). Labels: High ≥ 70, Medium 40–69, Low < 40.
+
+### 8.2 Transport footprint (estimated)
+- **Pallets per week** = Σ part daily usage × 5 ÷ units per pallet. Parts without units per pallet use a default of 200, which marks the footprint estimated.
+- **Trucks per week** = ceil(pallets ÷ pallets per truck (24)). Fill = pallets ÷ (trucks × 24).
+- **Road km:** the sum of route legs when known; otherwise straight-line distance × 1.3.
+- **Truck-km per week** = trucks × road km × 2 (round trip).
+- **CO₂e** = truck-km × emission factor. The factor is `ef-road-artic` v1, ≈1.05 kg CO₂e per vehicle-km, well-to-wheel, to be confirmed against GLEC v3.
+
+### 8.3 Resilience pays twice
+- **Expedited freight per line-down day** = 1 trip × 2 × road km (expedites usually return empty), with CO₂e at the same factor.
+- **Avoided expedites** for the chosen scenario = Σ line-down days avoided (no action vs chosen actions, per supplier and week) × expedite km, and × expedite CO₂e.
+- **Trade-off:** an alternative route (`kmFactor` 1.15) adds 15% truck-km while it is in place, and this is shown next to the avoided expedites.
+
+### 8.4 Load consolidation (milk runs)
+- **Candidates:** suppliers with fill below 80%.
+- **Excluded:** suppliers at red, or with a line stop expected, listed with the reason.
+- **Grouping:**
+  - suppliers within 120 km of each other and within 35° bearing from the plant;
+  - Clarke–Wright savings with truck capacity in pallets.
+- **Resilience guard:** a loop delivers at least as often as each member does today, so cover never shrinks.
+- A loop is kept only if it lowers truck-km.
+- **Built only from the Tier 1's own demand and supplier locations:** no supplier lanes, costs or private data are used.
+
+### 8.5 Circularity score (0–100, supplier-shared, self-reported)
+- **Scrap route:** landfill 0, unknown 0.2, sold to a recycler 0.7, returned to the mill or remelted in-house 1.
+- **Other parts:** recycled content %, returnable packaging %, renewable electricity %, ISO 14001 (1/0).
+- **Weights:** equal across the fields the supplier provided. Missing fields are listed, not scored as zero.
+- **A first proxy** for the paper's circular-practices construct; not validated.
+
+### 8.6 Limitations
+1. **Footprint:** it covers the supplier → Tier 1 leg only (Scope 3 upstream transport). Production, materials and energy are not included.
+2. **Pallets:** pallets per truck and units per pallet vary by part and packaging. Defaults are estimates.
+3. **Expedite assumptions:** one trip per line-down day and empty returns are simplifications. Air freight, which is far more carbon-intensive, is not modelled.
+4. **Milk runs:** a loop needs agreed pickup windows and carrier contracts. Consolidation is a proposal, not a schedule.
+5. **Circular profiles are self-reported.** Shares are frozen at approval and can be revoked by the supplier owner.

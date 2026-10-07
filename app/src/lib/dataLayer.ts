@@ -4,6 +4,7 @@
 import type {
   Company, CustomerRelationship, Machine, Partner, RoleId, Seed, UploadRecord,
   Alert, Invite, Part, RiskAssessment, Signal, VehicleProgram,
+  CircularProfile, CircularSummary, ConsolidationPlan, DataRequest, EmissionFactor, Share,
 } from "./types";
 
 export class AccessDeniedError extends Error {
@@ -80,6 +81,28 @@ export function scope(data: AppData, viewer: Viewer) {
     },
     signals: (): Signal[] => data.signals,
     settings: () => data.settings,
+
+    // ---- Circular and sustainability ----
+    emissionFactors: (): EmissionFactor[] => data.emissionFactors ?? [],
+    /** Latest version of an emission factor (the library is public). */
+    factor: (id: string): EmissionFactor | undefined =>
+      (data.emissionFactors ?? []).filter((f) => f.id === id).sort((a, b) => b.version - a.version)[0],
+    /** A key customer's load-consolidation plan (its own only: built from its own demand). */
+    consolidationPlan: (customerId: string): ConsolidationPlan | undefined => {
+      if (viewer.role !== "customer" || viewer.companyId !== customerId) throw new AccessDeniedError("load-consolidation plan");
+      return (data.consolidationPlans ?? []).find((p) => p.customerId === customerId);
+    },
+    /** A supplier's own circular profiles (owner / ops only). A customer only ever sees a shared summary. */
+    circularProfiles: (companyId: string): CircularProfile[] =>
+      byCompany(data.circularProfiles ?? [], companyId, "circular practices (shared only as a summary, by consent)"),
+    /** Requests the viewer sent (key customer) or received (supplier). */
+    requests: (): DataRequest[] => (data.requests ?? []).filter((r) =>
+      viewer.role === "customer" ? r.fromCompanyId === viewer.companyId
+        : (viewer.role === "owner" || viewer.role === "ops") && r.toCompanyId === viewer.companyId),
+    /** Active shares: what a supplier shared, or what was shared with a key customer. Revoked ones disappear. */
+    shares: (): Share[] => (data.shares ?? []).filter((x) => !x.revoked && (
+      viewer.role === "customer" ? x.customerId === viewer.companyId
+        : (viewer.role === "owner" || viewer.role === "ops") && x.supplierId === viewer.companyId)),
   };
 }
 
@@ -92,6 +115,12 @@ export type Action =
   | { type: "respond-alert"; id: string; response: NonNullable<Alert["supplierResponse"]> }
   | { type: "resolve-alert"; id: string }
   | { type: "send-invite"; invite: Invite }
+  | { type: "save-circular-profile"; profile: CircularProfile }
+  /** Key customer asks a supplier for its circular summary. */
+  | { type: "request-circular"; request: DataRequest }
+  /** Supplier owner shares a frozen circular summary with one customer (replaces earlier versions). */
+  | { type: "share-circular"; supplierId: string; customerId: string; summary: CircularSummary; approvedBy: string; approvedAt: string; requestId?: string }
+  | { type: "revoke-share"; id: string }
   | { type: "reset"; seed: Seed };
 
 export function reduce(data: AppData, a: Action): AppData {
@@ -106,6 +135,28 @@ export function reduce(data: AppData, a: Action): AppData {
       ? { ...x, status: "supplier-responded", supplierResponse: a.response } : x) };
     case "resolve-alert": return { ...data, alerts: data.alerts.map((x) => x.id === a.id ? { ...x, status: "resolved" } : x) };
     case "send-invite": return { ...data, invites: [...data.invites, a.invite] };
+    case "save-circular-profile": {
+      const rest = (data.circularProfiles ?? []).filter((p) => !(p.companyId === a.profile.companyId && p.year === a.profile.year));
+      return { ...data, circularProfiles: [...rest, a.profile] };
+    }
+    case "request-circular": {
+      const open = (data.requests ?? []).some((r) => r.fromCompanyId === a.request.fromCompanyId
+        && r.toCompanyId === a.request.toCompanyId && r.items.includes("circular") && r.status === "open");
+      return open ? data : { ...data, requests: [...(data.requests ?? []), a.request] };
+    }
+    case "share-circular": {
+      const pair = (x: Share) => x.supplierId === a.supplierId && x.customerId === a.customerId && x.items.includes("circular");
+      const prev = (data.shares ?? []).filter(pair);
+      const version = prev.reduce((m, x) => Math.max(m, x.version), 0) + 1;
+      const shares = (data.shares ?? []).map((x) => (pair(x) ? { ...x, revoked: true } : x));
+      const share: Share = {
+        id: `share-circ-${a.supplierId}-${a.customerId}-v${version}`, supplierId: a.supplierId, customerId: a.customerId,
+        requestId: a.requestId, items: ["circular"], approvedBy: a.approvedBy, approvedAt: a.approvedAt, version, circular: a.summary,
+      };
+      const requests = (data.requests ?? []).map((r) => (r.id === a.requestId ? { ...r, status: "answered" as const } : r));
+      return { ...data, shares: [...shares, share], requests };
+    }
+    case "revoke-share": return { ...data, shares: (data.shares ?? []).map((x) => (x.id === a.id ? { ...x, revoked: true } : x)) };
     case "reset": return { ...a.seed };
   }
 }

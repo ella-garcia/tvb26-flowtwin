@@ -2,6 +2,7 @@
 from datetime import date
 
 from .alerts import make_alert
+from .circular import DEFAULT_FACTOR, transport_footprint
 from .flex import run_flex
 from .otif import otif_series
 from .outlook import outlook
@@ -9,10 +10,11 @@ from .scenarios import scenarios
 from .projection import HORIZON, project
 from .scoring import score_drivers, traffic_light
 
-DEFAULT_SETTINGS = {"line_stop_cost_eur_per_minute": 15000, "contract_demand_swing": 0.15, "line_hours_per_day": 16}
+DEFAULT_SETTINGS = {"line_stop_cost_eur_per_minute": 15000, "contract_demand_swing": 0.15, "line_hours_per_day": 16,
+                    "pallets_per_truck": 24, "expedite_trips_per_short_day": 1, "expedite_fill_rate": 0.3, "milkrun_radius_km": 120}
 
 
-def compute_pair(customer, supplier, parts, signals, settings, as_of):
+def compute_pair(customer, supplier, parts, signals, settings, as_of, factor=None):
     """Risk for one (customer, supplier). Returns (risk_row, ctx).
 
     customer: companies row (id, name, lat, lon).
@@ -34,6 +36,7 @@ def compute_pair(customer, supplier, parts, signals, settings, as_of):
                 drivers=drivers, flex=flex, otif_trend=otif, projection=proj["projection"],
                 outlook=outlook(supplier, parts, signals, as_of, proj["normal"]),
                 scenarios=scenarios(supplier, parts, signals, as_of, proj["normal"]),
+                circular=transport_footprint(customer, supplier, parts, settings, factor or DEFAULT_FACTOR),
                 data_status=supplier["data_status"], updated_at=as_of.isoformat())
     covers = [p["coverDays"] for p in proj["projection"]]
     ctx = dict(exposed_part=proj["exposed"]["part"],
@@ -42,11 +45,11 @@ def compute_pair(customer, supplier, parts, signals, settings, as_of):
     return risk, ctx
 
 
-def compute_customer(customer, suppliers, parts, signals, settings, as_of=None):
+def compute_customer(customer, suppliers, parts, signals, settings, as_of=None, factor=None):
     """All risks (and alerts for every non-green one) of a customer.
 
     suppliers: {supplier_id: supplier dict as in compute_pair} for suppliers that have parts for this customer.
-    parts: all parts rows for the customer. Returns (risk_rows, alert_rows).
+    parts: all parts rows for the customer. factor: road emission factor row (optional). Returns (risk_rows, alert_rows).
     """
     as_of = as_of or date.today()
     if isinstance(as_of, str):
@@ -58,7 +61,7 @@ def compute_customer(customer, suppliers, parts, signals, settings, as_of=None):
         sp_parts = [p for p in parts if p["supplier_id"] == sid and p["customer_id"] == customer["id"]]
         if not sp_parts:
             continue
-        risk, ctx = compute_pair(customer, sp, sp_parts, signals, settings, as_of)
+        risk, ctx = compute_pair(customer, sp, sp_parts, signals, settings, as_of, factor)
         risks.append(risk)
         if risk["level"] != "green":
             alerts.append(make_alert(customer, sp, risk, ctx, as_of, sig_by_id))

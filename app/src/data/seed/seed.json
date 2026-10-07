@@ -825,10 +825,58 @@
  "energy": [],
  "materials": [],
  "shipments": [],
- "emissionFactors": [],
+ "emissionFactors": [
+  {
+   "id": "ef-road-artic",
+   "version": 1,
+   "name": "Road freight, articulated truck (diesel)",
+   "value": 1.05,
+   "unit": "kg CO2e/vehicle-km",
+   "scope": 3,
+   "source": "Estimate: about 33 L diesel per 100 km × 3.17 kg CO2e/L well-to-wheel; confirm against GLEC Framework v3",
+   "year": 2026
+  }
+ ],
  "twins": [],
- "requests": [],
- "shares": [],
+ "requests": [
+  {
+   "id": "req-circ-qss-hmo-1",
+   "fromCompanyId": "qss",
+   "toCompanyId": "hmo",
+   "items": [
+    "circular"
+   ],
+   "fiscalYear": 2026,
+   "sentAt": "2026-10-05",
+   "dueDate": "2026-11-04",
+   "status": "open"
+  }
+ ],
+ "shares": [
+  {
+   "id": "share-circ-edl-qss-v1",
+   "supplierId": "edl",
+   "customerId": "qss",
+   "items": [
+    "circular"
+   ],
+   "approvedBy": "Roberto Laja",
+   "approvedAt": "2026-10-05",
+   "version": 1,
+   "revoked": false,
+   "circular": {
+    "year": 2026,
+    "scrapRate": 0.046,
+    "scrapTonnes": 300,
+    "scrapRoute": "recycler",
+    "recycledContentPct": 0.25,
+    "returnablePackagingPct": 0.6,
+    "renewableElectricityPct": 0.1,
+    "iso14001": true,
+    "provenance": "estimated"
+   }
+  }
+ ],
  "uploads": [
   {
    "companyId": "edl",
@@ -904,7 +952,11 @@
  "settings": {
   "lineStopCostEurPerMinute": 15000,
   "contractDemandSwing": 0.15,
-  "lineHoursPerDay": 16
+  "lineHoursPerDay": 16,
+  "palletsPerTruck": 24,
+  "expediteTripsPerShortDay": 1,
+  "expediteFillRate": 0.3,
+  "milkrunRadiusKm": 120
  },
  "parts": [
   {
@@ -915,6 +967,7 @@
    "customerId": "qss",
    "unitCostMxn": 38.5,
    "dailyUsage": 3600,
+   "unitsPerPallet": 1200,
    "onHand": 14400,
    "daysOfCover": 4.0,
    "singleSource": false,
@@ -936,6 +989,7 @@
    "customerId": "qss",
    "unitCostMxn": 52.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 900,
    "onHand": 2160,
    "daysOfCover": 1.2,
    "singleSource": true,
@@ -956,6 +1010,7 @@
    "customerId": "qss",
    "unitCostMxn": 96.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 900,
    "onHand": 9000,
    "daysOfCover": 5.0,
    "singleSource": false,
@@ -976,6 +1031,7 @@
    "customerId": "qss",
    "unitCostMxn": 21.4,
    "dailyUsage": 1800,
+   "unitsPerPallet": 1500,
    "onHand": 5400,
    "daysOfCover": 3.0,
    "singleSource": true,
@@ -995,6 +1051,7 @@
    "customerId": "qss",
    "unitCostMxn": 3.2,
    "dailyUsage": 7200,
+   "unitsPerPallet": 10000,
    "onHand": 57600,
    "daysOfCover": 8.0,
    "singleSource": false,
@@ -1016,6 +1073,7 @@
    "customerId": "qss",
    "unitCostMxn": 9.8,
    "dailyUsage": 1800,
+   "unitsPerPallet": 2000,
    "onHand": 9000,
    "daysOfCover": 5.0,
    "singleSource": false,
@@ -1036,6 +1094,7 @@
    "customerId": "qss",
    "unitCostMxn": 0.62,
    "dailyUsage": 14400,
+   "unitsPerPallet": 40000,
    "onHand": 21600,
    "daysOfCover": 1.5,
    "singleSource": true,
@@ -1057,6 +1116,7 @@
    "customerId": "qss",
    "unitCostMxn": 0.38,
    "dailyUsage": 14400,
+   "unitsPerPallet": 12000,
    "onHand": 86400,
    "daysOfCover": 6.0,
    "singleSource": false,
@@ -1078,6 +1138,7 @@
    "customerId": "qss",
    "unitCostMxn": 0.11,
    "dailyUsage": 14400,
+   "unitsPerPallet": 30000,
    "onHand": 129600,
    "daysOfCover": 9.0,
    "singleSource": false,
@@ -1099,6 +1160,7 @@
    "customerId": "qss",
    "unitCostMxn": 44.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 400,
    "onHand": 2700,
    "daysOfCover": 1.5,
    "singleSource": true,
@@ -1118,6 +1180,7 @@
    "customerId": "qss",
    "unitCostMxn": 18.6,
    "dailyUsage": 1800,
+   "unitsPerPallet": 1000,
    "onHand": 5400,
    "daysOfCover": 3.0,
    "singleSource": false,
@@ -1138,6 +1201,7 @@
    "customerId": "qss",
    "unitCostMxn": 62.0,
    "dailyUsage": 900,
+   "unitsPerPallet": 1000,
    "onHand": 1800,
    "daysOfCover": 2.0,
    "singleSource": true,
@@ -1180,6 +1244,7 @@
    "customerId": "qss",
    "unitCostMxn": 74.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 250,
    "onHand": 7200,
    "daysOfCover": 4.0,
    "singleSource": false,
@@ -1201,6 +1266,7 @@
    "customerId": "qss",
    "unitCostMxn": 410.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 600,
    "onHand": 10800,
    "daysOfCover": 6.0,
    "singleSource": false,
@@ -1220,6 +1286,7 @@
    "customerId": "qss",
    "unitCostMxn": 135.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 400,
    "onHand": 9000,
    "daysOfCover": 5.0,
    "singleSource": false,
@@ -1237,6 +1304,7 @@
    "customerId": "qss",
    "unitCostMxn": 48.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 1500,
    "onHand": 12600,
    "daysOfCover": 7.0,
    "singleSource": false,
@@ -1255,6 +1323,7 @@
    "customerId": "qss",
    "unitCostMxn": 14.5,
    "dailyUsage": 3600,
+   "unitsPerPallet": 6000,
    "onHand": 28800,
    "daysOfCover": 8.0,
    "singleSource": false,
@@ -1276,6 +1345,7 @@
    "customerId": "qss",
    "unitCostMxn": 4.1,
    "dailyUsage": 3600,
+   "unitsPerPallet": 8000,
    "onHand": 36000,
    "daysOfCover": 10.0,
    "singleSource": false,
@@ -1297,6 +1367,7 @@
    "customerId": "slp-interiors",
    "unitCostMxn": 11.9,
    "dailyUsage": 2200,
+   "unitsPerPallet": 6000,
    "onHand": 19800,
    "daysOfCover": 9.0,
    "singleSource": false,
@@ -1316,6 +1387,7 @@
    "customerId": "qss",
    "unitCostMxn": 66.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 600,
    "onHand": 16200,
    "daysOfCover": 9.0,
    "singleSource": false,
@@ -1334,6 +1406,7 @@
    "customerId": "qss",
    "unitCostMxn": 29.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 800,
    "onHand": 19800,
    "daysOfCover": 11.0,
    "singleSource": false,
@@ -1351,6 +1424,7 @@
    "customerId": "qss",
    "unitCostMxn": 8.6,
    "dailyUsage": 3600,
+   "unitsPerPallet": 4000,
    "onHand": 32400,
    "daysOfCover": 9.0,
    "singleSource": false,
@@ -1372,6 +1446,7 @@
    "customerId": "qss",
    "unitCostMxn": 12.2,
    "dailyUsage": 3600,
+   "unitsPerPallet": 3000,
    "onHand": 43200,
    "daysOfCover": 12.0,
    "singleSource": false,
@@ -1393,6 +1468,7 @@
    "customerId": "slp-interiors",
    "unitCostMxn": 5.1,
    "dailyUsage": 2600,
+   "unitsPerPallet": 4000,
    "onHand": 26000,
    "daysOfCover": 10.0,
    "singleSource": false,
@@ -1412,6 +1488,7 @@
    "customerId": "qss",
    "unitCostMxn": 28.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 350,
    "onHand": 14400,
    "daysOfCover": 8.0,
    "singleSource": false,
@@ -1430,6 +1507,7 @@
    "customerId": "qss",
    "unitCostMxn": 41.0,
    "dailyUsage": 1800,
+   "unitsPerPallet": 300,
    "onHand": 18000,
    "daysOfCover": 10.0,
    "singleSource": false,
@@ -1448,6 +1526,7 @@
    "customerId": "slp-interiors",
    "unitCostMxn": 56.0,
    "dailyUsage": 1300,
+   "unitsPerPallet": 250,
    "onHand": 7800,
    "daysOfCover": 6.0,
    "singleSource": true,
@@ -1483,6 +1562,7 @@
    "customerId": "slp-interiors",
    "unitCostMxn": 7.4,
    "dailyUsage": 2600,
+   "unitsPerPallet": 600,
    "onHand": 10400,
    "daysOfCover": 4.0,
    "singleSource": false,
@@ -2590,6 +2670,19 @@
      ]
     }
    },
+   "circular": {
+    "roadKm": 57.7,
+    "trucksPerWeek": 2,
+    "palletsPerWeek": 35.0,
+    "fillRate": 0.729,
+    "truckKmPerWeek": 231.0,
+    "co2ePerWeekKg": 242.5,
+    "expediteKmPerShortDay": 115.5,
+    "expediteCo2ePerShortDayKg": 121.3,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
+   },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
   },
@@ -2890,7 +2983,8 @@
      {
       "id": "alt_route",
       "label": "Use an alternative route",
-      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."
+      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided.",
+      "kmFactor": 1.15
      },
      {
       "id": "safety_stock",
@@ -3402,6 +3496,19 @@
      ]
     }
    },
+   "circular": {
+    "roadKm": 513.5,
+    "trucksPerWeek": 1,
+    "palletsPerWeek": 14.1,
+    "fillRate": 0.588,
+    "truckKmPerWeek": 1027.0,
+    "co2ePerWeekKg": 1078.3,
+    "expediteKmPerShortDay": 1027.0,
+    "expediteCo2ePerShortDayKg": 1078.3,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
+   },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
   },
@@ -3691,7 +3798,8 @@
      {
       "id": "alt_route",
       "label": "Use an alternative route",
-      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."
+      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided.",
+      "kmFactor": 1.15
      },
      {
       "id": "daytime",
@@ -4202,6 +4310,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 734.4,
+    "trucksPerWeek": 1,
+    "palletsPerWeek": 10.2,
+    "fillRate": 0.425,
+    "truckKmPerWeek": 1468.8,
+    "co2ePerWeekKg": 1542.3,
+    "expediteKmPerShortDay": 1468.8,
+    "expediteCo2ePerShortDayKg": 1542.3,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
@@ -4509,7 +4630,8 @@
      {
       "id": "alt_route",
       "label": "Use an alternative route",
-      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."
+      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided.",
+      "kmFactor": 1.15
      },
      {
       "id": "daytime",
@@ -5020,6 +5142,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 372.7,
+    "trucksPerWeek": 2,
+    "palletsPerWeek": 31.5,
+    "fillRate": 0.656,
+    "truckKmPerWeek": 1490.7,
+    "co2ePerWeekKg": 1565.3,
+    "expediteKmPerShortDay": 745.4,
+    "expediteCo2ePerShortDayKg": 782.6,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
@@ -5802,6 +5937,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 578.1,
+    "trucksPerWeek": 2,
+    "palletsPerWeek": 32.0,
+    "fillRate": 0.667,
+    "truckKmPerWeek": 2312.3,
+    "co2ePerWeekKg": 2427.9,
+    "expediteKmPerShortDay": 1156.1,
+    "expediteCo2ePerShortDayKg": 1214.0,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
@@ -6587,6 +6735,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 190.4,
+    "trucksPerWeek": 3,
+    "palletsPerWeek": 51.0,
+    "fillRate": 0.708,
+    "truckKmPerWeek": 1142.1,
+    "co2ePerWeekKg": 1199.2,
+    "expediteKmPerShortDay": 380.7,
+    "expediteCo2ePerShortDayKg": 399.7,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
@@ -7378,6 +7539,19 @@
      ]
     }
    },
+   "circular": {
+    "roadKm": 316.7,
+    "trucksPerWeek": 2,
+    "palletsPerWeek": 28.5,
+    "fillRate": 0.594,
+    "truckKmPerWeek": 1266.8,
+    "co2ePerWeekKg": 1330.2,
+    "expediteKmPerShortDay": 633.4,
+    "expediteCo2ePerShortDayKg": 665.1,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
+   },
    "dataStatus": "invited",
    "updatedAt": "2026-10-05"
   },
@@ -8151,6 +8325,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 149.4,
+    "trucksPerWeek": 1,
+    "palletsPerWeek": 5.2,
+    "fillRate": 0.219,
+    "truckKmPerWeek": 298.8,
+    "co2ePerWeekKg": 313.7,
+    "expediteKmPerShortDay": 298.8,
+    "expediteCo2ePerShortDayKg": 313.7,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
@@ -8926,6 +9113,19 @@
      ]
     }
    },
+   "circular": {
+    "roadKm": 185.1,
+    "trucksPerWeek": 1,
+    "palletsPerWeek": 1.8,
+    "fillRate": 0.076,
+    "truckKmPerWeek": 370.2,
+    "co2ePerWeekKg": 388.7,
+    "expediteKmPerShortDay": 370.2,
+    "expediteCo2ePerShortDayKg": 388.7,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
+   },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
   },
@@ -9212,7 +9412,8 @@
      {
       "id": "alt_route",
       "label": "Use an alternative route",
-      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."
+      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided.",
+      "kmFactor": 1.15
      },
      {
       "id": "daytime",
@@ -9723,6 +9924,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 213.1,
+    "trucksPerWeek": 2,
+    "palletsPerWeek": 26.2,
+    "fillRate": 0.547,
+    "truckKmPerWeek": 852.5,
+    "co2ePerWeekKg": 895.1,
+    "expediteKmPerShortDay": 426.3,
+    "expediteCo2ePerShortDayKg": 447.6,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "invited",
    "updatedAt": "2026-10-05"
@@ -9997,7 +10211,8 @@
      {
       "id": "alt_route",
       "label": "Use an alternative route",
-      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."
+      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided.",
+      "kmFactor": 1.15
      },
      {
       "id": "daytime",
@@ -10508,6 +10723,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 239.7,
+    "trucksPerWeek": 1,
+    "palletsPerWeek": 10.5,
+    "fillRate": 0.438,
+    "truckKmPerWeek": 479.4,
+    "co2ePerWeekKg": 503.3,
+    "expediteKmPerShortDay": 479.4,
+    "expediteCo2ePerShortDayKg": 503.3,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
@@ -10782,7 +11010,8 @@
      {
       "id": "alt_route",
       "label": "Use an alternative route",
-      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."
+      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided.",
+      "kmFactor": 1.15
      },
      {
       "id": "daytime",
@@ -11293,6 +11522,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 7.3,
+    "trucksPerWeek": 1,
+    "palletsPerWeek": 3.2,
+    "fillRate": 0.135,
+    "truckKmPerWeek": 14.6,
+    "co2ePerWeekKg": 15.3,
+    "expediteKmPerShortDay": 14.6,
+    "expediteCo2ePerShortDayKg": 15.3,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
@@ -11572,7 +11814,8 @@
      {
       "id": "alt_route",
       "label": "Use an alternative route",
-      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."
+      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided.",
+      "kmFactor": 1.15
      },
      {
       "id": "daytime",
@@ -12083,6 +12326,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 702.9,
+    "trucksPerWeek": 3,
+    "palletsPerWeek": 55.7,
+    "fillRate": 0.774,
+    "truckKmPerWeek": 4217.3,
+    "co2ePerWeekKg": 4428.2,
+    "expediteKmPerShortDay": 1405.8,
+    "expediteCo2ePerShortDayKg": 1476.1,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "public-only",
    "updatedAt": "2026-10-05"
@@ -12368,7 +12624,8 @@
      {
       "id": "alt_route",
       "label": "Use an alternative route",
-      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."
+      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided.",
+      "kmFactor": 1.15
      },
      {
       "id": "daytime",
@@ -12879,6 +13136,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 472.7,
+    "trucksPerWeek": 2,
+    "palletsPerWeek": 26.0,
+    "fillRate": 0.542,
+    "truckKmPerWeek": 1890.8,
+    "co2ePerWeekKg": 1985.3,
+    "expediteKmPerShortDay": 945.4,
+    "expediteCo2ePerShortDayKg": 992.7,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "public-only",
    "updatedAt": "2026-10-05"
@@ -13164,7 +13434,8 @@
      {
       "id": "alt_route",
       "label": "Use an alternative route",
-      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."
+      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided.",
+      "kmFactor": 1.15
      },
      {
       "id": "daytime",
@@ -13675,6 +13946,19 @@
       }
      ]
     }
+   },
+   "circular": {
+    "roadKm": 6.9,
+    "trucksPerWeek": 2,
+    "palletsPerWeek": 33.7,
+    "fillRate": 0.701,
+    "truckKmPerWeek": 27.6,
+    "co2ePerWeekKg": 28.9,
+    "expediteKmPerShortDay": 13.8,
+    "expediteCo2ePerShortDayKg": 14.5,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
    },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
@@ -13998,7 +14282,8 @@
      {
       "id": "alt_route",
       "label": "Use an alternative route",
-      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided."
+      "detail": "Trucks reroute around closures, blockades and storm-hit stretches: 60% of that delay is avoided.",
+      "kmFactor": 1.15
      },
      {
       "id": "daytime",
@@ -14505,6 +14790,19 @@
      ]
     }
    },
+   "circular": {
+    "roadKm": 924.1,
+    "trucksPerWeek": 2,
+    "palletsPerWeek": 37.5,
+    "fillRate": 0.781,
+    "truckKmPerWeek": 3696.4,
+    "co2ePerWeekKg": 3881.2,
+    "expediteKmPerShortDay": 1848.2,
+    "expediteCo2ePerShortDayKg": 1940.6,
+    "factorId": "ef-road-artic",
+    "factorVersion": 1,
+    "provenance": "estimated"
+   },
    "dataStatus": "connected",
    "updatedAt": "2026-10-05"
   }
@@ -14731,6 +15029,102 @@
    "sentAt": "2026-10-01",
    "status": "sent",
    "plan": "sponsored"
+  }
+ ],
+ "consolidationPlans": [
+  {
+   "customerId": "qss",
+   "generatedAt": "2026-10-05T07:00:00Z",
+   "loops": [
+    {
+     "id": "loop-1",
+     "members": [
+      "tsr",
+      "tps"
+     ],
+     "trucksBefore": 4,
+     "trucksAfter": 3,
+     "kmBefore": 5686.1,
+     "kmAfter": 4602.8,
+     "fillBefore": 0.686,
+     "fillAfter": 0.915,
+     "co2eBeforeKg": 5970.5,
+     "co2eAfterKg": 4833.0,
+     "deliveriesPerWeek": 3,
+     "provenance": "estimated"
+    },
+    {
+     "id": "loop-2",
+     "members": [
+      "etb",
+      "mds"
+     ],
+     "trucksBefore": 4,
+     "trucksAfter": 3,
+     "kmBefore": 1440.9,
+     "kmAfter": 1147.2,
+     "fillBefore": 0.585,
+     "fillAfter": 0.781,
+     "co2eBeforeKg": 1512.9,
+     "co2eAfterKg": 1204.6,
+     "deliveriesPerWeek": 3,
+     "provenance": "estimated"
+    }
+   ],
+   "totals": {
+    "trucksSaved": 2,
+    "kmSaved": 1377.0,
+    "co2eSavedKg": 1445.8,
+    "suppliersInLoops": 4,
+    "excluded": [
+     {
+      "supplierId": "hmo",
+      "reason": "At risk now: red light"
+     }
+    ]
+   }
+  },
+  {
+   "customerId": "slp-interiors",
+   "generatedAt": "2026-10-05T07:00:00Z",
+   "loops": [],
+   "totals": {
+    "trucksSaved": 0,
+    "kmSaved": 0,
+    "co2eSavedKg": 0,
+    "suppliersInLoops": 0,
+    "excluded": []
+   }
+  }
+ ],
+ "circularProfiles": [
+  {
+   "companyId": "edl",
+   "year": 2026,
+   "scrapRate": 0.046,
+   "scrapTonnes": 300,
+   "scrapRoute": "recycler",
+   "recycledContentPct": 0.25,
+   "returnablePackagingPct": 0.6,
+   "renewableElectricityPct": 0.1,
+   "iso14001": true,
+   "notes": "Steel offcuts sold to a scrap recycler in Celaya. Figures from our 2026 production records.",
+   "provenance": "estimated",
+   "updatedAt": "2026-10-02T09:00:00Z"
+  },
+  {
+   "companyId": "etb",
+   "year": 2026,
+   "scrapRate": 0.072,
+   "scrapTonnes": 85,
+   "scrapRoute": "recycler",
+   "recycledContentPct": 0.08,
+   "returnablePackagingPct": 0.35,
+   "renewableElectricityPct": 0.0,
+   "iso14001": false,
+   "notes": "Foam trimmings go to a bonded-foam recycler; leather offcuts are still landfilled.",
+   "provenance": "estimated",
+   "updatedAt": "2026-10-01T09:00:00Z"
   }
  ]
 }

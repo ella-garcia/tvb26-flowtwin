@@ -22,7 +22,7 @@ export interface ScenarioState {
 const DEFAULT_SCENARIO: ScenarioState = { weeks: 12, share: 0.5, seed: 1, overrides: {}, view: "operational" };
 
 export type ModuleId =
-  | "risk" | "parts" | "what-if" | "alerts" | "supplier" | "invite" | "tier1-data" // key customer (Tier 1): the v0 lead journey
+  | "risk" | "parts" | "what-if" | "sustainability" | "alerts" | "supplier" | "invite" | "tier1-data" // key customer (Tier 1)
   | "my-risk" | "data"                                 // supplier (Tier 2 owner / ops)
   | "signals" | "companies";                           // admin
 
@@ -111,6 +111,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (mode !== "seed") return; // live data is never persisted locally
     save(STORE_KEY, {
       generatedAt: data.generatedAt, uploads: data.uploads, relationships: data.relationships, alerts: data.alerts, invites: data.invites,
+      circularProfiles: data.circularProfiles, requests: data.requests, shares: data.shares,
     });
   }, [data, mode]);
   useEffect(() => {
@@ -169,6 +170,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       case "respond-alert": call = remote.respondAlert(a.id, a.response); break;
       case "send-invite": call = remote.sendInvite(a.invite); break;
       case "record-upload": call = remote.recordUpload(a.upload); break;
+      case "save-circular-profile": call = remote.saveCircularProfile(a.profile); break;
+      // Ids are assigned by the server for these: reload once saved so the page shows the server's rows.
+      case "request-circular": call = remote.requestCircular(a.request.toCompanyId, a.request.note).then(reload); break;
+      case "share-circular": call = remote.shareCircular(a.customerId, a.summary, a.requestId).then(reload); break;
+      case "revoke-share": call = remote.revokeShare(a.id).then(reload); break;
       default: break; // no backend yet: stays local
     }
     call?.catch((e: unknown) => {
