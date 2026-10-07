@@ -412,6 +412,51 @@ select public.t_assert('wp0 reset_demo keeps one primary contact per company wit
   (select count(*) from contacts) = (select count(*) from companies where contact is not null)
   and (select count(*) = 0 from contacts where phone_e164 is not null or whatsapp_opt_in_at is not null));
 
+-- ---- WP1: admin signal RPCs (announced blockades and policy events; disable / enable)
+set local role authenticated;
+select public.switch_test_identity('customer', 'qss');
+select public.t_throws('wp1 customer qss: cannot add a signal',
+  $$select admin_upsert_signal('{"kind":"blockade","title":"x","startsAt":"2026-10-08","endsAt":"2026-10-08","severity":"high","lat":19,"lon":-98,"radiusKm":20,"transitMultiplier":2}')$$);
+select public.t_throws('wp1 customer qss: cannot disable a signal', $$select admin_set_signal_active('sig-rain-veracruz', false)$$);
+select public.t_throws('wp1 customer qss: cannot update signals directly', $$update signals set active = false where id = 'sig-rain-veracruz'$$);
+select public.switch_test_identity('owner', 'edl');
+select public.t_throws('wp1 owner edl: cannot add a signal',
+  $$select admin_upsert_signal('{"kind":"policy","title":"x","startsAt":"2026-10-08","endsAt":"2026-10-08","severity":"low","affects":{"originCountries":["CN"]}}')$$);
+
+select public.switch_test_identity('admin', 'qss');
+select public.t_works('wp1 admin: adds a pre-announced blockade',
+  $$select admin_upsert_signal('{"id":"adm-test-blockade","kind":"blockade","title":"Bloqueo anunciado en la MEX-57D","startsAt":"2026-10-09","endsAt":"2026-10-10","severity":"high","lat":20.39,"lon":-99.99,"radiusKm":15,"highways":["mex-57d"],"transitMultiplier":2.2,"state":"Querétaro"}')$$);
+select public.t_assert('wp1 admin: blockade stored with source_id admin, estimated, highways upper-cased',
+  (select source_id = 'admin' and provenance = 'estimated' and active and highways = '{MEX-57D}' and transit_multiplier = 2.2
+   from signals where id = 'adm-test-blockade'));
+select public.t_works('wp1 admin: adds a tariff policy event',
+  $$select admin_upsert_signal('{"id":"adm-test-policy","kind":"policy","title":"Arancel a autopartes","startsAt":"2026-11-01","endsAt":"2026-12-31","severity":"medium","affects":{"originCountries":["cn","KR"],"hsPrefixes":["8708","87.14"]}}')$$);
+select public.t_assert('wp1 admin: policy keeps affects and has no transit effect',
+  (select affects = '{"originCountries":["CN","KR"],"hsPrefixes":["8708","8714"]}'::jsonb and transit_multiplier = 1 and radius_km = 0
+   from signals where id = 'adm-test-policy'));
+select public.t_throws('wp1 admin: policy without countries or HS prefixes is refused',
+  $$select admin_upsert_signal('{"kind":"policy","title":"x","startsAt":"2026-11-01","endsAt":"2026-11-02","severity":"low","affects":{}}')$$);
+select public.t_throws('wp1 admin: other kinds are refused',
+  $$select admin_upsert_signal('{"kind":"weather","title":"x","startsAt":"2026-11-01","endsAt":"2026-11-02","severity":"low","lat":19,"lon":-98,"radiusKm":20,"transitMultiplier":2}')$$);
+select public.t_throws('wp1 admin: end before start is refused',
+  $$select admin_upsert_signal('{"kind":"blockade","title":"x","startsAt":"2026-11-02","endsAt":"2026-11-01","severity":"low","lat":19,"lon":-98,"radiusKm":20,"transitMultiplier":2}')$$);
+select public.t_throws('wp1 admin: cannot overwrite a feed signal',
+  $$select admin_upsert_signal('{"id":"sig-rain-veracruz","kind":"blockade","title":"x","startsAt":"2026-11-01","endsAt":"2026-11-02","severity":"low","lat":19,"lon":-98,"radiusKm":20,"transitMultiplier":2}')$$);
+select public.t_works('wp1 admin: disables a feed signal', $$select admin_set_signal_active('sig-rain-veracruz', false)$$);
+select public.t_assert('wp1 admin: the feed signal is inactive', (select not active from signals where id = 'sig-rain-veracruz'));
+select public.t_works('wp1 admin: enables it again', $$select admin_set_signal_active('sig-rain-veracruz', true)$$);
+select public.t_throws('wp1 admin: unknown signal id is an error', $$select admin_set_signal_active('no-such-signal', false)$$);
+select public.t_works('wp1 admin: edits its own blockade',
+  $q$select admin_set_signal_active('adm-test-blockade', false), admin_upsert_signal('{"id":"adm-test-blockade","kind":"blockade","title":"Bloqueo pospuesto","startsAt":"2026-10-12","endsAt":"2026-10-12","severity":"medium","lat":20.39,"lon":-99.99,"radiusKm":15,"transitMultiplier":1.5}')$q$);
+select public.t_assert('wp1 admin: an edit keeps it disabled and changes the dates',
+  (select not active and starts_at = '2026-10-12' and title = 'Bloqueo pospuesto' from signals where id = 'adm-test-blockade'));
+reset role;
+set local role anon;
+select public.t_throws('wp1 anon: cannot call admin_upsert_signal',
+  $$select admin_upsert_signal('{"kind":"policy","title":"x","startsAt":"2026-11-01","endsAt":"2026-11-02","severity":"low","affects":{"originCountries":["CN"]}}')$$);
+select public.t_throws('wp1 anon: cannot call admin_set_signal_active', $$select admin_set_signal_active('sig-rain-veracruz', false)$$);
+reset role;
+
 -- ---- report
 select (case when ok then 'PASS' else 'FAIL' end) || '  ' || name from public.t_results order by n;
 select count(*) filter (where not ok) > 0 as failed, count(*) filter (where not ok) as nfail from public.t_results \gset
