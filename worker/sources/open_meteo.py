@@ -157,15 +157,21 @@ class OpenMeteoSource:
             raise ValueError(f"Open-Meteo returned {len(data)} locations for {len(pts)} points")
         return data
 
+    def daily(self, pts: list[dict]) -> list[dict]:
+        """One {dates, precip, prob, gust} series per point, in the order of pts (used by sources/weather.py too)."""
+        client = self._client or httpx.Client(timeout=TIMEOUT)
+        out = []
+        for k in range(0, len(pts), CHUNK):
+            for loc in self._forecast(client, pts[k:k + CHUNK]):
+                d = loc["daily"]
+                out.append(dict(dates=[date.fromisoformat(x) for x in d["time"]], precip=list(d["precipitation_sum"]),
+                                prob=list(d.get("precipitation_probability_max") or []), gust=list(d.get("wind_gusts_10m_max") or [])))
+        return out
+
     def fetch(self) -> list[dict]:
         pts = sample_points(self._companies_list())
-        client = self._client or httpx.Client(timeout=TIMEOUT)
         rows = []
-        for k in range(0, len(pts), CHUNK):
-            chunk = pts[k:k + CHUNK]
-            for pt, loc in zip(chunk, self._forecast(client, chunk)):
-                d = loc["daily"]
-                dates = [date.fromisoformat(x) for x in d["time"]]
-                rows += rain_signals(pt, dates, d["precipitation_sum"], d.get("precipitation_probability_max"),
-                                     d.get("wind_gusts_10m_max"), source="Open-Meteo forecast", source_id=self.source_id, id_prefix="om")
+        for pt, d in zip(pts, self.daily(pts)):
+            rows += rain_signals(pt, d["dates"], d["precip"], d["prob"] or None, d["gust"] or None,
+                                 source="Open-Meteo forecast", source_id=self.source_id, id_prefix="om")
         return rows
