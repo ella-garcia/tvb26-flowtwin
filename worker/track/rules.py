@@ -79,7 +79,8 @@ def receipt_problem(receipt: dict, today: date) -> str | None:
         return "not received" if promised and promised < today else None
     notes = []
     if promised and received > promised:
-        notes.append(f"late by {(received - promised).days} days")
+        n = (received - promised).days
+        notes.append(f"late by {n} day{'' if n == 1 else 's'}")
     if _num(receipt.get("quantity_received")) < _num(receipt.get("quantity_ordered")):
         notes.append(f"short: {_num(receipt.get('quantity_received')):g} of {_num(receipt.get('quantity_ordered')):g}")
     return ", ".join(notes) or None
