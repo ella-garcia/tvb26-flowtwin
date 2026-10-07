@@ -1,0 +1,118 @@
+{
+ "incidents": [
+  {
+   "type": "Feature",
+   "geometry": {"type": "LineString", "coordinates": [[-99.9952, 20.3801], [-99.9871, 20.3862], [-99.9793, 20.3917]]},
+   "properties": {
+    "id": "1b8a3c7e5f6d4a2b9c0e1f2a3b4c5d6e",
+    "iconCategory": 8,
+    "magnitudeOfDelay": 4,
+    "events": [{"description": "Closed", "code": 401, "iconCategory": 8}],
+    "startTime": "2026-10-07T13:20:00Z",
+    "endTime": "2026-10-08T23:00:00Z",
+    "from": "San Juan del Río",
+    "to": "Palmillas",
+    "length": 6420.5,
+    "delay": 0,
+    "roadNumbers": ["MEX-57D"],
+    "timeValidity": "present",
+    "probabilityOfOccurrence": "certain"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {"type": "LineString", "coordinates": [[-97.3921, 18.8702], [-97.3744, 18.8655]]},
+   "properties": {
+    "id": "8e2f0a9d-77c1-4e5b-a3f6-0c2d4b9e1a77",
+    "iconCategory": 6,
+    "magnitudeOfDelay": 3,
+    "events": [{"description": "Demonstration", "code": 1501, "iconCategory": 6}, {"description": "Stationary traffic", "code": 101, "iconCategory": 6}],
+    "startTime": "2026-10-07T15:05:00Z",
+    "endTime": null,
+    "from": "Esperanza",
+    "to": "Cumbres de Maltrata",
+    "length": 1890.0,
+    "delay": 2460,
+    "roadNumbers": ["150D"],
+    "timeValidity": "present",
+    "probabilityOfOccurrence": "certain"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {"type": "Point", "coordinates": [-100.4012, 26.5023]},
+   "properties": {
+    "id": "TTI-55f0e1c2-flood",
+    "iconCategory": 11,
+    "magnitudeOfDelay": 2,
+    "events": [{"description": "Flooding", "code": 907, "iconCategory": 11}],
+    "startTime": "2026-10-06T09:00:00Z",
+    "endTime": "2026-10-10T18:00:00Z",
+    "from": "Sabinas Hidalgo",
+    "to": "Vallecillo",
+    "length": 3200.0,
+    "delay": 600,
+    "roadNumbers": ["Fed. 85D"],
+    "timeValidity": "present",
+    "probabilityOfOccurrence": "probable"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {"type": "LineString", "coordinates": [[-100.3105, 25.6702], [-100.3011, 25.6733]]},
+   "properties": {
+    "id": "jam-0001",
+    "iconCategory": 6,
+    "magnitudeOfDelay": 3,
+    "events": [{"description": "Stationary traffic", "code": 101, "iconCategory": 6}],
+    "startTime": "2026-10-07T14:00:00Z",
+    "endTime": "2026-10-07T15:30:00Z",
+    "from": "Av. Constitución",
+    "to": "Av. Gonzalitos",
+    "length": 900.0,
+    "delay": 480,
+    "roadNumbers": [],
+    "timeValidity": "present",
+    "probabilityOfOccurrence": "certain"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {"type": "Point", "coordinates": [-103.9001, 22.7502]},
+   "properties": {
+    "id": "far-closure-0002",
+    "iconCategory": 8,
+    "magnitudeOfDelay": 4,
+    "events": [{"description": "Closed", "code": 401, "iconCategory": 8}],
+    "startTime": "2026-10-07T10:00:00Z",
+    "endTime": "2026-10-07T20:00:00Z",
+    "from": "Huejúcar",
+    "to": "Colotlán",
+    "length": 1200.0,
+    "delay": 0,
+    "roadNumbers": ["MEX-23"],
+    "timeValidity": "present",
+    "probabilityOfOccurrence": "certain"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {"type": "LineString", "coordinates": [[-99.5001, 27.5402], [-99.4952, 27.5455]]},
+   "properties": {
+    "id": "lane-minor-0003",
+    "iconCategory": 7,
+    "magnitudeOfDelay": 1,
+    "events": [{"description": "Lane closed", "code": 500, "iconCategory": 7}],
+    "startTime": "2026-10-07T12:00:00Z",
+    "endTime": "2026-10-07T18:00:00Z",
+    "from": "Mines Rd",
+    "to": "Mile Marker 4",
+    "length": 700.0,
+    "delay": 60,
+    "roadNumbers": ["I-35"],
+    "timeValidity": "present",
+    "probabilityOfOccurrence": "certain"
+   }
+  }
+ ]
+}

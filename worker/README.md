@@ -6,7 +6,7 @@ Python service (FastAPI, Cloud Run) that runs the FlowTwin risk engine against t
 - `GET /health` liveness and whether the two Supabase env vars are set.
 - `POST /jobs/run-next` claims the oldest `jobs` row with `status = queued` (conditional update `queued -> running`, so two workers never take the same job), runs it, then sets `done`, or `failed` with the error text.
   - `recompute-risk` (`company_id` = customer, or null for all customers; optional `payload.as_of`): reloads parts, signals and supplier data, recomputes every risk of the customer, upserts `risks`, and creates or refreshes `alerts` for non-green risks. Alert `status`, `chosen_action_id`, `supplier_response` and `actions` of existing alerts are never overwritten.
-  - `ingest-signals` (`payload.source` = `file` default, or `smn-conagua`): upserts `signals`, then queues a `recompute-risk` job for all customers. The file source reads `worker/data/seed_signals.json` (or `payload.path` / `SIGNALS_FILE`). `smn-conagua` reads the SMN/CONAGUA municipal forecast (see Sources below).
+  - `ingest-signals` (`payload.source` = `file` default, or any source name below): upserts `signals`, marks vanished signals of a live source inactive (like the hourly run), then queues a `recompute-risk` job for all customers. The file source reads `worker/data/seed_signals.json` (or `payload.path` / `SIGNALS_FILE`).
   - `parse-upload`: parses a Tier 1 upload (`intake/`). Uses `job.company_id` only and refuses jobs whose payload names another company or whose `storage_path` is outside `<company_id>/`.
   - `build-twin`: not implemented; the job is marked `failed` with "not implemented".
   - Phase 2 kinds (`ingest-edi`, `sync-connection`, `evaluate-alerts`, `extract-reply`, `send-digest`) are dispatched to
@@ -56,7 +56,7 @@ The container listens on `$PORT`.
 `scheduled.py` exposes two functions for the routes `POST /cron/hourly` and `POST /jobs/drain` (called by pg_cron at :05 every hour and every 2 minutes; see `worker_config` in the intake migration).
 
 `run_hourly(db)`:
-1. Ingest every source in `SIGNAL_SOURCES` (default `open-meteo,file`), upsert into `signals` (stable `id`, `source_id`, `external_ref`), and set `active = false` on signals of a live source that its latest successful fetch no longer returns. Nothing is deleted. A source that errors is recorded in the summary and skipped.
+1. Ingest every source in `SIGNAL_SOURCES` (default `weather,tomtom,cbp,theft,file`), upsert into `signals` (stable `id`, `source_id`, `external_ref`), and set `active = false` on signals of a live source that its latest successful fetch no longer returns. Nothing is deleted. A source that errors is recorded in the summary and skipped.
 2. `risk_runner.recompute_all`.
 3. Auto-resolve: alerts of pairs whose risk is now green get `status = 'resolved'`, `resolved_by = 'engine'`; the key customer is told (`auto-resolved`).
 4. Notify (email; Resend): `new-alert` and `level-up` (amber to red) to the key customer and the supplier, `supplier-responded` to the key customer. Addresses come from `companies.contact.email`. Every attempt is a row in `alert_notifications`; `(alert, reason, recipient)` is never sent twice. Without `RESEND_API_KEY` the status is `dry-run`.
@@ -64,16 +64,26 @@ The container listens on `$PORT`.
 `drain_jobs(db, max_jobs=20)` runs `jobs.run_next` until the queue is idle.
 
 ### Sources
-- `sources/open_meteo.py` Open-Meteo forecast (no key), 14 days, one request per 50 company locations (suppliers and key customers). A heavy-rain episode is a run of at least 3 consecutive days with at least 25 mm, or any day of at least 60 mm. Severity and transit multiplier by peak daily rainfall (table `RAIN_BANDS` at the top of the file): 25-40 mm medium x1.3, 40-60 mm high x1.8, 60 mm and over high x2.6; points inside a landslide-prone corridor (`LANDSLIDE_ZONES`, e.g. Orizaba-Puebla on MEX-150D) get at least x2.6 and the corridor's highways. Radius 40 km. Multipliers are hand-set; calibrate against carrier transit-time data.
-- `sources/smn.py` SMN/CONAGUA municipal forecast web service (`https://smn.conagua.gob.mx/tools/GUI/webservices/?method=1`, gzip JSON, 4 days, hourly refresh), opt-in with `SIGNAL_SOURCES=...,smn`. Same rain rule on the nearest municipality within 30 km. Warnings (avisos) and cyclone bulletins are not in this service and are not implemented.
-- `sources/file.py` the seeded demo signals (never marked inactive by another source).
+Every live source has an injectable `client=` (httpx) and a `summary` dict after `fetch()`; multipliers are hand-set
+tables at the top of each file, to be calibrated against carrier transit-time data.
+- `weather` (`sources/weather.py`, default): one merged forecast per company location. Days 1-3 from the SMN/CONAGUA municipal forecast where a municipality is within 30 km, otherwise and for days 4-14 from Open-Meteo; then the heavy-rain rule below. Ids `wx-<lat>_<lon>-<first day>`, `source_id = weather`. If SMN fails the run uses Open-Meteo alone (noted in `summary`). SMN warnings (avisos) and cyclone bulletins have no documented machine-readable feed (checked 2026-10-07) and are not implemented.
+- `open-meteo` (`sources/open_meteo.py`) Open-Meteo forecast (no key), 14 days, one request per 50 company locations. A heavy-rain episode is a run of at least 3 consecutive days with at least 25 mm, or any day of at least 60 mm. Severity and transit multiplier by peak daily rainfall (`RAIN_BANDS`): 25-40 mm medium x1.3, 40-60 mm high x1.8, 60 mm and over high x2.6; points inside a landslide-prone corridor (`LANDSLIDE_ZONES`, e.g. Orizaba-Puebla on MEX-150D) get at least x2.6 and the corridor's highways. Radius 40 km. Still available by name.
+- `smn` (`sources/smn.py`) SMN/CONAGUA municipal forecast web service (`https://smn.conagua.gob.mx/tools/GUI/webservices/?method=1`, gzip JSON, 4 days, hourly refresh). Same rule on the nearest municipality within 30 km. Still available by name.
+- `tomtom` (`sources/tomtom.py`) TomTom Traffic Incident Details v5 in 90 km boxes around every company, route leg and landslide corridor (at most 40 boxes per run). Road closures, flooding and major lane closures become `road` signals, incidents whose text says blockade/demonstration/bloqueo become `blockade`; highways from the road numbers (`MEX-57D`, `57D`, `Fed. 85D`); kept only on a corridor highway or within 10 km of one of our points. Multiplier by kind and expected duration (`MULTIPLIERS`, < 6 h / < 48 h / longer), `provenance = measured`. Ids `tt-<TomTom id>`. Needs `TOMTOM_API_KEY`; without it no request is made, `fetch()` returns [] with `summary.mode = dry-run` and nothing is marked stale.
+- `cbp` (`sources/cbp.py`) US CBP Border Wait Times (`https://bwt.cbp.gov/api/waittimes`, public, no key). For each border leg of a supplier route, the port's commercial standard-lane wait (`PORTS`, `WAIT_BANDS`: 90 min x1.4, 150 min x1.8, 240 min x2.5) becomes a `customs` signal on that leg with a 3 km radius, so it slows the border leg only. Measured, US side only (trucks entering the US; southbound and Mexican customs are not measured). Id `cbp-<place>`.
+- `theft` (`sources/theft.py`, table `data/theft_corridors.json`) standing cargo-theft priors per corridor: highways, states, weekdays, hour band, multiplier (1.05-1.15) and the published figure and source per row (Overhaul, SESNSP as reported; `verified` false where second-hand). Each run of risky weekdays in the next 14 days is one `theft` signal, `estimated`, id `theft-<corridor>-<first day>`. No live feed.
+- `file` (`sources/file.py`) the seeded demo signals (never marked inactive by another source).
+- Announced events (pre-announced blockades, tariff or USMCA `policy` events) are added by an admin on the Signals page through the RPC `admin_upsert_signal` (`source_id = admin`); "Disable" calls `admin_set_signal_active`.
 
-Tests: `tests/test_sources*.py`, `test_notify*.py`, `test_scheduled*.py` use fakes and mocked HTTP; no network.
+Moving from `open-meteo` to `weather`: rows with `source_id = open-meteo` are not retired by the `weather` source; run
+`update signals set active = false where source_id in ('open-meteo', 'smn')` once after switching, or they count twice until they end.
+
+Tests: `tests/test_sources*.py` (fixtures in `tests/fixtures/`), `test_notify*.py`, `test_scheduled*.py` use fakes and mocked HTTP; no network.
 
 ## Deploy on Vercel (prototype hosting)
 The same FastAPI app runs as a Vercel Python function (`api/index.py`, `vercel.json`). Cloud Run (Dockerfile) stays an option for heavier simulation later.
 1. In Vercel, create a **new project** from this repository with **Root Directory `worker`** (keep the app's project separate).
-2. Environment variables (Production): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TOKEN` (a long random string), `APP_URL` (the app's URL). Optional: `RESEND_API_KEY`, `NOTIFY_FROM`, `SIGNAL_SOURCES` (default `open-meteo,file`).
+2. Environment variables (Production): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TOKEN` (a long random string), `APP_URL` (the app's URL). Optional: `RESEND_API_KEY`, `NOTIFY_FROM`, `TOMTOM_API_KEY`, `SIGNAL_SOURCES` (default `weather,tomtom,cbp,theft,file`).
 3. Deploy, then check `https://<worker>.vercel.app/health` shows `"supabase_configured": true`.
 4. In the Supabase SQL editor, point the scheduler at it:
    ```sql

@@ -1,0 +1,69 @@
+{
+  "_about": "Standing cargo-theft priors by corridor for sources/theft.py. Not a live feed. weekdays: 0 = Monday … 6 = Sunday; hours: [from, to) local time, may wrap midnight (context only: the engine works by day). multiplier: hand-set, modest transit effect for escorts, convoy waits and detours on the risky days (not a loss probability). figure: the published numbers the row rests on; verified = true only where the figure was read on the cited page on checked_on, false where it comes from a secondary report or could not be confirmed. Recheck each quarter against the latest Overhaul report and SESNSP 'robo a transportista' incidence.",
+  "corridors": [
+    {
+      "id": "mex150d-puebla",
+      "corridor": "México–Puebla–Veracruz, San Martín Texmelucan to Esperanza",
+      "highways": ["MEX-150D"],
+      "states": ["Puebla"],
+      "lat": 18.98, "lon": -97.85, "radius_km": 60,
+      "weekdays": [0, 1, 2, 3, 4],
+      "hours": [18, 6],
+      "multiplier": 1.15,
+      "severity": "medium",
+      "figure": "68% of Puebla cargo theft is on MEX-150D; 45% of it between San Martín Texmelucan and Amozoc; 93% Monday to Friday; 51% between 18:00 and 06:00 (Q1 2024).",
+      "source": "Overhaul, Understanding theft patterns in the Mexican state of Puebla",
+      "source_url": "https://over-haul.com/theft-patterns-mexican-state-of-puebla/",
+      "verified": true,
+      "checked_on": "2026-10-07"
+    },
+    {
+      "id": "mex57d-mexico-queretaro",
+      "corridor": "México–Querétaro (Estado de México, Hidalgo and Querétaro sections)",
+      "highways": ["MEX-57D"],
+      "states": ["Estado de México", "Hidalgo", "Querétaro"],
+      "lat": 20.05, "lon": -99.55, "radius_km": 80,
+      "weekdays": [0, 1, 2, 3, 4],
+      "hours": [19, 24],
+      "multiplier": 1.1,
+      "severity": "medium",
+      "figure": "Estado de México had 21% of cargo theft incidents in 2025, the highest of any state; the México–Querétaro road is named among the most affected routes; Friday is the peak day and 19:00–24:00 holds nearly a third of cases.",
+      "source": "Overhaul, Mexico 2025 annual cargo theft report (state share); SESNSP and AMESIS figures as reported by Mexico Business News (routes, days, hours)",
+      "source_url": "https://mexicobusiness.news/mobility/news/cargo-theft-surges-across-mexicos-vital-freight-corridors",
+      "verified": false,
+      "checked_on": "2026-10-07"
+    },
+    {
+      "id": "mex45d-bajio",
+      "corridor": "Querétaro–Celaya–León (Bajío)",
+      "highways": ["MEX-45D"],
+      "states": ["Guanajuato", "Querétaro"],
+      "lat": 20.6, "lon": -100.9, "radius_km": 70,
+      "weekdays": [0, 1, 2, 3, 4],
+      "hours": [19, 24],
+      "multiplier": 1.05,
+      "severity": "low",
+      "figure": "Guanajuato is among the top three states for cargo theft (36 cases in March 2025) and rose about 2% in 2025.",
+      "source": "SESNSP incidence as reported by Mexico Business News (March 2025); Overhaul, Mexico 2025 annual cargo theft report (trend)",
+      "source_url": "https://mexicobusiness.news/mobility/news/cargo-theft-surges-across-mexicos-vital-freight-corridors",
+      "verified": false,
+      "checked_on": "2026-10-07"
+    },
+    {
+      "id": "mex85d-monterrey-nuevo-laredo",
+      "corridor": "Monterrey–Nuevo Laredo",
+      "highways": ["MEX-85D"],
+      "states": ["Nuevo León", "Tamaulipas"],
+      "lat": 26.6, "lon": -99.9, "radius_km": 80,
+      "weekdays": [0, 1, 2, 3, 4, 5, 6],
+      "hours": [20, 6],
+      "multiplier": 1.05,
+      "severity": "low",
+      "figure": "Nuevo León is named among the states affected by the 2025 rise in cargo theft; no corridor share published that we could find.",
+      "source": "SESNSP and AMESIS figures as reported by Mexico Business News",
+      "source_url": "https://mexicobusiness.news/mobility/news/cargo-theft-surges-across-mexicos-vital-freight-corridors",
+      "verified": false,
+      "checked_on": "2026-10-07"
+    }
+  ]
+}
