@@ -1,0 +1,56 @@
+/* Performance page. Tokens only; prefix perf-. */
+.perf-kpis { display: grid; gap: var(--space-4); grid-template-columns: repeat(6, minmax(0, 1fr)); }
+@media (max-width: 1280px) { .perf-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .perf-kpis { grid-template-columns: minmax(0, 1fr); } }
+
+.perf-grid-main { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+@media (max-width: 1100px) { .perf-grid-main { grid-template-columns: minmax(0, 1fr); } }
+.perf-side { display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
+
+.perf-note { margin: 0; font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+
+/* Small multiples */
+.perf-minis { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  border-top: 1px solid var(--border); border-left: 1px solid var(--border); }
+.perf-mini { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); min-width: 0;
+  border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.perf-mini-head { display: flex; flex-direction: column; align-items: center; gap: 0; border: 0; background: none; padding: 0;
+  cursor: pointer; color: var(--ink); text-align: center; border-radius: var(--radius-sm); }
+.perf-mini-head:hover .perf-mini-name { text-decoration: underline; }
+.perf-mini-head:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.perf-mini-name { font: 600 13px/18px var(--font-sans); color: var(--ink-muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.perf-mini-value { font: 700 22px/28px var(--font-sans); color: var(--ink); }
+.perf-mini-sub { font: 400 12px/16px var(--font-sans); color: var(--ink-subtle); }
+.perf-mini-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-1); }
+.perf-mini-foot { margin: 0; font: 400 12px/16px var(--font-sans); color: var(--ink-muted); text-align: center; }
+
+/* Charts */
+.perf-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.perf-grid { stroke: var(--border); stroke-width: 1; }
+.perf-axis { font: 400 10px/1 var(--font-sans); fill: var(--ink-subtle); }
+.perf-axis-strong { font-weight: 600; fill: var(--ink-muted); }
+.perf-value { font: 600 10px/1 var(--font-sans); fill: var(--ink); font-variant-numeric: tabular-nums; }
+.perf-value-short { fill: var(--risk-red); }
+.perf-value-in { fill: var(--on-primary, var(--surface)); }
+.perf-bar { fill: var(--primary); }
+.perf-bar-short { fill: var(--risk-red); }
+.perf-tick { stroke: var(--ink); stroke-width: 2; }
+.perf-tick-halo { stroke: var(--surface-raised); stroke-width: 5; }
+.perf-area { fill: var(--projection); opacity: .18; }
+.perf-line { fill: none; stroke: var(--projection); stroke-width: 2; stroke-linejoin: round; }
+.perf-dot-max { fill: var(--risk-red); stroke: var(--surface-raised); stroke-width: 2; }
+.perf-dot-min { fill: var(--risk-green); stroke: var(--surface-raised); stroke-width: 2; }
+
+/* Donut */
+.perf-donut { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+.perf-donut-svg { width: 160px; height: 160px; flex: none; }
+.perf-donut-value { font: 700 26px/1 var(--font-sans); fill: var(--ink); }
+.perf-s1 { fill: var(--primary); } .perf-s2 { fill: var(--chart-2); } .perf-s3 { fill: var(--chart-3); } .perf-s4 { fill: var(--ink-subtle); }
+.perf-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); flex: 1; min-width: 160px; }
+.perf-legend li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: var(--space-2); align-items: center;
+  font: 400 13px/18px var(--font-sans); color: var(--ink); }
+.perf-legend i { width: 12px; height: 12px; border-radius: 3px; display: block; }
+.perf-legend i.perf-s1 { background: var(--primary); } .perf-legend i.perf-s2 { background: var(--chart-2); }
+.perf-legend i.perf-s3 { background: var(--chart-3); } .perf-legend i.perf-s4 { background: var(--ink-subtle); }
+.perf-mini .perf-axis { font-size: 13px; }
+.perf-mini .perf-value { font-size: 14px; }

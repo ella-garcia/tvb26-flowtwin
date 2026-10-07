@@ -563,6 +563,21 @@ export interface AlertOutcome {
   evaluatedAt?: string;
 }
 
+/** One goods-receipt line at the key customer (mirrors public.receipts). Quantities in the part's own unit; no amounts. */
+export interface Receipt {
+  id?: number;
+  customerId: string;
+  supplierId: string;
+  partId?: string;             // absent when the line could not be matched to a part
+  poNumber: string;
+  promisedDate: string;
+  receivedDate?: string;       // absent = not received yet
+  quantityOrdered: number;
+  quantityReceived: number;
+  source?: IntakeSource;
+  sourceRef?: string;
+}
+
 /** A delivery problem nobody warned about: a late or short receipt (or stock-out) with no alert in the 3 days before. */
 export interface MissedEvent {
   customerId: string;
