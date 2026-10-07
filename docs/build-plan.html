@@ -1,0 +1,512 @@
+<title>FlowTwin Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column with a sticky section index on wide screens; phases as stacked tables, priority filter in the header. Palette and faces follow the teammate's prototype. */
+:root{
+  --bg:#F3F5F3; --surface:#FFFFFF; --ink:#1B2420; --muted:#4F5A55; --line:#D6DAD6;
+  --accent:#1F4E8C; --accent-bg:#E4ECF6;
+  --p0:#9A3A0B; --p0-bg:#FBEADF; --p1:#1F4E8C; --p1-bg:#E4ECF6; --p2:#4A5550; --p2-bg:#E8EBE8;
+  --good:#1D6B4F; --good-bg:#E2F0E9;
+  --twin:#5B3E8F; --twin-bg:#EEE8F7; --wa:#17694A; --wa-bg:#DFF1E8;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121715; --surface:#1A201D; --ink:#E6EBE8; --muted:#A3AEA9; --line:#2E3733;
+  --accent:#8FB4E6; --accent-bg:#1C2A3D;
+  --p0:#F0A07A; --p0-bg:#3A241A; --p1:#8FB4E6; --p1-bg:#1C2A3D; --p2:#B5BFBA; --p2-bg:#262E2B;
+  --good:#7CC4A3; --good-bg:#17302A; --twin:#C3A8EE; --twin-bg:#2A2238; --wa:#7DD3AE; --wa-bg:#163128; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121715; --surface:#1A201D; --ink:#E6EBE8; --muted:#A3AEA9; --line:#2E3733;
+  --accent:#8FB4E6; --accent-bg:#1C2A3D;
+  --p0:#F0A07A; --p0-bg:#3A241A; --p1:#8FB4E6; --p1-bg:#1C2A3D; --p2:#B5BFBA; --p2-bg:#262E2B;
+  --good:#7CC4A3; --good-bg:#17302A; --twin:#C3A8EE; --twin-bg:#2A2238; --wa:#7DD3AE; --wa-bg:#163128; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:0}.toc{display:none}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;font-size:13.5px;display:flex;flex-direction:column;gap:2px;padding-top:150px}
+.toc a{color:var(--muted);text-decoration:none;padding:4px 10px;border-left:2px solid var(--line)}
+.toc a:hover,.toc a:focus-visible{color:var(--ink);border-left-color:var(--accent)}
+main{min-width:0}
+h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(34px,5vw,48px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:28px;font-weight:700;margin-bottom:6px}
+h3{font-size:20px;font-weight:600}
+h4{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
+p{margin:0;max-width:72ch}
+a{color:var(--accent)}
+.eyebrow{font-family:var(--display);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lede{font-size:17.5px;color:var(--muted);margin-top:10px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);margin-top:14px}
+section{margin-top:52px;scroll-margin-top:20px}
+section > .intro{color:var(--muted);margin-bottom:18px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px}
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:22px}
+@media (max-width:760px){.rules{grid-template-columns:minmax(0,1fr)}}
+.rule{border-top:3px solid var(--ink);background:var(--surface);padding:14px 16px;border-radius:0 0 6px 6px;border-inline:1px solid var(--line);border-bottom:1px solid var(--line)}
+.rule b{display:block;font-family:var(--display);font-size:17px;font-weight:600;margin-bottom:4px}
+.rule span{font-size:14px;color:var(--muted)}
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;font-weight:500;padding:1px 7px;border-radius:4px;white-space:nowrap;vertical-align:1px}
+.P0{color:var(--p0);background:var(--p0-bg)} .P1{color:var(--p1);background:var(--p1-bg)} .P2{color:var(--p2);background:var(--p2-bg)}
+.tw{color:var(--twin);background:var(--twin-bg)}
+.new{color:var(--good);background:var(--good-bg)}
+.wap{color:var(--wa);background:var(--wa-bg)}
+/* phase strip */
+.strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:22px}
+@media (max-width:760px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ph{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:6px}
+.ph:hover,.ph:focus-visible{border-color:var(--accent)}
+.ph .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.ph .t{font-family:var(--display);font-weight:600;font-size:16px;line-height:1.2}
+/* filter */
+.filter{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:26px;font-size:13.5px;color:var(--muted)}
+.filter button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 13px;cursor:pointer}
+.filter button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* tables */
+.tscroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th{text-align:left;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:500;min-width:220px}
+td.c{white-space:nowrap}
+.phasehead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin:30px 0 10px}
+.phasehead .n{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.phasehead p{flex-basis:100%;color:var(--muted);font-size:14.5px}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+/* architecture */
+.arch{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;justify-items:stretch}
+.arow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.node{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 14px;font-size:14px;text-align:center}
+.node small{display:block;color:var(--muted);font-size:12px}
+.node.twin{background:var(--twin-bg);border:2px solid var(--twin);color:var(--ink);font-weight:600;padding:12px 18px;max-width:560px;margin:0 auto}
+.node.twin small{color:var(--muted);font-weight:400}
+.node.wa{background:var(--wa-bg);border-color:var(--wa)}
+.arrow{text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+.consumers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:760px){.consumers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* priority columns */
+.prio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.prio{grid-template-columns:minmax(0,1fr)}}
+.prio .box h3{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.prio ul{margin:0;padding-left:18px;font-size:14px;display:flex;flex-direction:column;gap:3px}
+.journey{margin-top:24px}
+.journey .who{font-size:14px;color:var(--muted);margin:4px 0 10px}
+.ok{font-size:14px;margin-top:8px;color:var(--muted)}
+.ok b{color:var(--ink)}
+details{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 18px}
+details summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:17px}
+details[open] summary{margin-bottom:12px}
+details .tscroll{border:0}
+.callout{background:var(--ink);color:var(--bg);border-radius:6px;padding:18px 22px}
+.callout .eyebrow{color:var(--bg);opacity:.75}
+.callout p{margin-top:6px;max-width:80ch}
+.callout a{color:inherit}
+.src{font-size:13.5px;color:var(--muted)}
+.src a{color:var(--accent)}
+.foot{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <a href="#toggles">Testing toggles</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#phases">Phases</a>
+  <a href="#priorities">By priority</a>
+  <a href="#journeys">Focus journeys</a>
+  <a href="#changes">What changed</a>
+  <a href="#open">Risks and open decisions</a>
+  <a href="#sources">Sources</a>
+</nav>
+
+<main>
+<header>
+  <div class="eyebrow">Core platform build plan · v5 · early warning</div>
+  <h1>FlowTwin build plan</h1>
+  <p class="lede">An early-warning platform for automotive supply chains in Mexico. A Tier 1 supplier pays for it and invites its Tier 2 suppliers for free. Each supplier gets a risk traffic light that predicts delivery problems before they stop the line, for example a supplier near Veracruz in rainy season whose transit goes from 2 to 5 days. A digital twin of each supplier's network projects the next 14 days and tests whether it can absorb the 15% demand swings contracts allow.</p>
+  <div class="meta"><span>7 October 2026</span><span>FlowTwin is a working name</span><span>Status: v0 in build</span><span><span class="pill new">New</span> marks items added in v5</span></div>
+
+  <div class="callout" style="margin-top:22px"><div class="eyebrow">Why v5 changed</div><p>A market scan (<a href="https://claude.ai/artifact/K5J2JsxvExXQUkQaJovDE9" target="_blank" rel="noopener">gap analysis</a>) confirmed no one predicts per-part line stops for Mexican Tier 2s, but showed the plan's signals were thin. Trade and tariff risk and upstream component shortages were missing, and most Mexican feeds have no open API. An <a href="https://claude.ai/artifact/UX4mAwTCHmpeycZ4MERE7r" target="_blank" rel="noopener">integrations plan</a> replaces upload-only intake with an EDI copy, one ERP connector and e-invoices (CFDI). WhatsApp becomes a send-only alert channel with a one-tap reply page. Predicted vs actual moves from Phase 6 to Phase 2.</p></div>
+
+  <div class="rules" aria-label="Rules that hold in every phase">
+    <div class="rule"><b>Costs and margins are never shared</b><span>A Tier 1 sees risk, stock, flex capacity and delivery performance. Supplier prices and costs are dropped when data arrives, whether from ERP, EDI, invoices or a typed reply, not just hidden in the UI.</span></div>
+    <div class="rule"><b>Suppliers see what their customer sees</b><span>Each Tier 2 sees its own traffic light, the reasons behind it and every alert about it.</span></div>
+    <div class="rule"><b>Rank by line-stop risk, not by spend</b><span>A MX$2 clip with no substitute can stop a line. Every list sorts by days to line stop and exposure.</span></div>
+  </div>
+
+  <div class="strip" aria-label="Phases">
+    <a class="ph" href="#ph0"><span class="n">Phase 0</span><span class="t">Foundation</span><span class="pill P0">P0</span></a>
+    <a class="ph" href="#ph1"><span class="n">Phase 1</span><span class="t">Early warning</span><span class="pill P0">P0</span></a>
+    <a class="ph" href="#ph2"><span class="n">Phase 2</span><span class="t">Live data, alerts and twin depth</span><span class="pill P1">P1</span></a>
+    <a class="ph" href="#ph3"><span class="n">Phase 3</span><span class="t">Supplier response tools</span><span><span class="pill P1">P1</span> <span class="pill P2">P2</span></span></a>
+    <a class="ph" href="#ph4"><span class="n">Phase 4</span><span class="t">Scorecards, audit and carbon</span><span><span class="pill P1">P1</span> <span class="pill P2">P2</span></span></a>
+    <a class="ph" href="#ph5"><span class="n">Phase 5</span><span class="t">Network and expansion</span><span><span class="pill P1">P1</span> <span class="pill P2">P2</span></span></a>
+    <a class="ph" href="#ph6"><span class="n">Phase 6</span><span class="t">Commercial and hardening</span><span class="pill P2">P2</span></a>
+  </div>
+  <p class="meta" style="margin-top:12px"><span><span class="pill P0">P0</span> needed for a credible demo</span><span><span class="pill P1">P1</span> makes it convincing</span><span><span class="pill P2">P2</span> after testing</span><span><span class="pill tw">Twin</span> digital twin feature</span><span><span class="pill wap">WhatsApp</span> send-only channel</span></p>
+</header>
+
+<section id="toggles">
+  <div class="eyebrow">While we test</div>
+  <h2>Testing toggles instead of logins</h2>
+  <p class="intro">Logins and authorization are left out for now. A switcher above the app moves between roles, companies, plans and industries. The demo opens as the Tier 1. The mobile reply page opened from WhatsApp uses signed links for one alert instead of a login.</p>
+  <div class="tscroll"><table>
+    <thead><tr><th>Toggle</th><th>Options</th><th>What it changes</th></tr></thead>
+    <tbody>
+      <tr><td>Industry pack</td><td>Auto (first) · second pack once built</td><td>Labels, indicators, requirements, signal types</td></tr>
+      <tr><td>Role</td><td>Key customer (Tier 1, default) · Supplier owner · Supplier ops · Admin</td><td>Navigation, available actions, visible data</td></tr>
+      <tr><td>Company</td><td>QRO Seating Systems (Tier 1) · Estampados del Laja and other synthetic suppliers</td><td>Whose view you're in</td></tr>
+      <tr><td>Plan</td><td>Paid (Tier 1) · Sponsored (supplier) · Free</td><td>Which features are switched on</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="architecture">
+  <div class="eyebrow">How the pieces fit</div>
+  <h2>Signals and the twin feed the traffic light</h2>
+  <p class="intro">External signals and each supplier's own data feed a twin that projects the next 14 days. The risk engine compares projected delivery times, and the supplier's own input supply, with the Tier 1's stock of each part and raises an alert before cover runs out. In v0 the projection is pre-computed by a standalone Monte Carlo model; ISOMORPH replaces it in Phase 2. Every data source writes through the same intake checks as an upload.</p>
+  <div class="box arch" role="img" aria-label="Signals, supplier data and Tier 1 data feed the twin; the risk engine produces traffic lights and alerts shown on the risk board, supplier detail, supplier view and pushed on WhatsApp and email.">
+    <div class="arow"><div class="node">External signals<small>weather, roads and blockades, theft, border and ports, trade and tariff events</small></div><div class="node">Supplier data<small>capacity, stock, input shortages · reply page, CFDI invoices, ERP</small></div><div class="node">Tier 1 data<small>parts, stock per part, releases, receipts · ERP, EDI copy, uploads</small></div></div>
+    <div class="arrow">↓</div>
+    <div class="node twin">Digital twin<small>each supplier's network · 14-day forward projection · +15% demand flex test · track record vs actual</small></div>
+    <div class="arrow">↓</div>
+    <div class="arow"><div class="node">Risk engine<small>days to line stop · exposure in € · drivers</small></div></div>
+    <div class="arrow">↓</div>
+    <div class="consumers">
+      <div class="node">Risk board<small>Tier 1</small></div>
+      <div class="node">Alerts<small>Tier 1, with suggested actions</small></div>
+      <div class="node">Supplier detail<small>Tier 1</small></div>
+      <div class="node">What my customer sees<small>Tier 2</small></div>
+      <div class="node wa">WhatsApp and email<small>send-only, link to reply page</small></div>
+    </div>
+  </div>
+</section>
+
+<section id="phases">
+  <div class="eyebrow">Build order</div>
+  <h2>Phases and priorities</h2>
+  <p class="intro">v0 covers Phases 0 and 1 on seed data: one Tier 1 and 10–12 synthetic Tier 2 suppliers across Mexico. Phase 2 is what a pilot with real data needs. The <a href="https://claude.ai/artifact/UX4mAwTCHmpeycZ4MERE7r" target="_blank" rel="noopener">integrations plan</a> has its build steps (A–E) in detail.</p>
+  <div class="filter" role="group" aria-label="Show items by priority">
+    <span>Show:</span>
+    <button type="button" data-f="all" aria-pressed="true">All</button>
+    <button type="button" data-f="P0" aria-pressed="false">P0</button>
+    <button type="button" data-f="P1" aria-pressed="false">P1</button>
+    <button type="button" data-f="P2" aria-pressed="false">P2</button>
+    <button type="button" data-f="new" aria-pressed="false">New in v5</button>
+  </div>
+
+  <div class="phase">
+  <div class="phasehead" id="ph0"><span class="n">Phase 0</span><h3>Foundation</h3><span class="pill P0">P0</span></div>
+  <div class="tscroll"><table>
+    <thead><tr><th>Item</th><th>Priority</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr data-p="P0"><td>Testing toggles, opening as the Tier 1</td><td class="c"><span class="pill P0">P0</span></td><td>Replace logins for testing</td></tr>
+      <tr data-p="P0"><td>Keystone design system, ported to the app</td><td class="c"><span class="pill P0">P0</span></td><td>One look across every screen; light and dark themes</td></tr>
+      <tr data-p="P0"><td>Industry packs and industry-neutral company profile</td><td class="c"><span class="pill P0">P0</span></td><td>Labels like "Tier 2" come from the pack, so other industries need configuration only</td></tr>
+      <tr data-p="P0"><td>Data model with parts, stock per part, signals, risk assessments, alerts and invites</td><td class="c"><span class="pill P0">P0</span></td><td>Everything else depends on it</td></tr>
+      <tr data-p="P0" data-new><td>Data model additions for live data <span class="pill new">New</span></td><td class="c"><span class="pill P0">P0</span></td><td>Origin country and HS code per part; shipment notices; capacity events; source and confidence on every row; WhatsApp contacts with opt-in. Cheap now, expensive once real data arrives</td></tr>
+      <tr data-p="P0"><td>Data layer that enforces sharing</td><td class="c"><span class="pill P0">P0</span></td><td>A Tier 1 can read risk about its suppliers but never their costs; suppliers read what is said about them</td></tr>
+      <tr data-p="P0"><td>Seed data and risk engine <span class="pill tw">Twin</span></td><td class="c"><span class="pill P0">P0</span></td><td>One Tier 1, 10–12 suppliers, seeded signals (Veracruz rain, MEX-57D closure, theft, port congestion), a 14-day Monte Carlo projection and the +15% flex test</td></tr>
+      <tr data-p="P0"><td>"Formula + source" panel on every figure</td><td class="c"><span class="pill P0">P0</span></td><td>Shows how each figure is calculated and whether it is measured or estimated</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="phase">
+  <div class="phasehead" id="ph1"><span class="n">Phase 1</span><h3>Early warning</h3><span class="pill P0">P0</span><p>The v0 demo. The Tier 1 journey leads; the supplier journey shows why Tier 2s accept the invitation.</p></div>
+  <div class="tscroll"><table>
+    <thead><tr><th>Module</th><th>Priority</th><th>Main roles</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr data-p="P0"><td>Supplier risk board</td><td class="c"><span class="pill P0">P0</span></td><td>Tier 1</td><td>Traffic light per supplier, sorted by days to line stop; map with suppliers and active signals; exposure in €</td></tr>
+      <tr data-p="P0"><td>Supplier risk detail <span class="pill tw">Twin</span></td><td class="c"><span class="pill P0">P0</span></td><td>Tier 1</td><td>Why this colour, 14-day projection of transit time vs stock held, +15% flex test, parts ranked by line-stop risk, delivery trend</td></tr>
+      <tr data-p="P0"><td>Alerts with suggested actions</td><td class="c"><span class="pill P0">P0</span></td><td>Tier 1</td><td>"Transit from Orizaba goes from 2 to 5 days; you hold 3 days of cover." Choose an action, acknowledge, resolve</td></tr>
+      <tr data-p="P0"><td>Invite suppliers</td><td class="c"><span class="pill P0">P0</span></td><td>Tier 1</td><td>Sponsored accounts, free for the supplier; states what is shared and what never is. From v5 it also collects WhatsApp opt-in</td></tr>
+      <tr data-p="P0"><td>What your customers see</td><td class="c"><span class="pill P0">P0</span></td><td>Supplier owner</td><td>The same risk view the Tier 1 sees; respond to alerts and confirm capacity; how to improve the score</td></tr>
+      <tr data-p="P0"><td>Light supplier onboarding</td><td class="c"><span class="pill P0">P0</span></td><td>Supplier ops</td><td>Capacity, lead times, stock and file uploads, about 15 minutes</td></tr>
+      <tr data-p="P0" data-new><td>Better uploads <span class="pill new">New</span></td><td class="c"><span class="pill P0">P0</span></td><td>Tier 1, supplier ops</td><td>Email-in address and SFTP drop, column-mapping screen when headers don't match, CONTPAQi and Aspel export templates. Stays the fallback for everyone</td></tr>
+      <tr data-p="P1" data-new><td>Spanish-first supplier screens <span class="pill new">New</span></td><td class="c"><span class="pill P1">P1</span></td><td>Supplier owner, ops</td><td>What my customer sees, My data and the reply page in Spanish; Tier 1 screens stay English for now (decision below)</td></tr>
+      <tr data-p="P0"><td>Signals and companies (admin)</td><td class="c"><span class="pill P0">P0</span></td><td>Admin</td><td>The seeded signals that feed the lights; the company directory</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="phase">
+  <div class="phasehead" id="ph2"><span class="n">Phase 2</span><h3>Live data, alerts and twin depth</h3><span class="pill P1">P1</span><p>What a pilot with real data needs. Start the long-lead items in week 0: Meta business verification and template approval, the LFPDPPP privacy notice, legal review of e-invoice access, and asking the design partner which ERP and EDI provider it uses.</p></div>
+  <h4>Signals</h4>
+  <div class="tscroll"><table>
+    <thead><tr><th>Item</th><th>Priority</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr data-p="P1"><td>Weather</td><td class="c"><span class="pill P1">P1</span></td><td>Open-Meteo 14-day forecasts are live in the worker. Add SMN for days 1–3, SMN cyclone bulletins and warnings, an uncertainty band that widens with distance, and calibrate the rain multipliers against carrier transit times</td></tr>
+      <tr data-p="P1" data-new><td>Road closures and blockades <span class="pill new">New</span></td><td class="c"><span class="pill P1">P1</span></td><td>No open API exists. A Spanish-language parser over Guardia Nacional and CAPUFE posts and news, which also catches blockades announced days ahead, or paid traffic data (Waze for Cities, TomTom, HERE)</td></tr>
+      <tr data-p="P1"><td>Theft as a route risk</td><td class="c"><span class="pill P1">P1</span></td><td>Official data lags 1–2 months. Model theft by corridor, weekday and hour; explore a data partnership with Overhaul or a telematics provider</td></tr>
+      <tr data-p="P1"><td>Border and ports</td><td class="c"><span class="pill P1">P1</span></td><td>CBP wait times for the US side now; a customs broker partner or AIS data for Mexican customs and port delays</td></tr>
+      <tr data-p="P1" data-new><td>Trade and tariff events <span class="pill new">New</span></td><td class="c"><span class="pill P1">P1</span></td><td>USMCA annual reviews, Section 232, Mexico's tariffs of up to 50% on non-FTA parts; flagged per part from origin country and HS code</td></tr>
+      <tr data-p="P1" data-new><td>Supplier input shortages <span class="pill new">New</span> <span class="pill tw">Twin</span></td><td class="c"><span class="pill P1">P1</span></td><td>A second failure path besides transit: the supplier's own inputs (Nexperia-type chip cuts, steel), reported on the reply page. Also labour and protest events and CFE power cuts</td></tr>
+    </tbody>
+  </table></div>
+  <h4>Twin</h4>
+  <div class="tscroll"><table>
+    <thead><tr><th>Item</th><th>Priority</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr data-p="P1"><td>ISOMORPH replaces the seed engine <span class="pill tw">Twin</span></td><td class="c"><span class="pill P1">P1</span></td><td>Forward projection and flex test run on each supplier's real network. Where a supplier has few receipts, a zero-shot forecasting model (Chronos-2 or Moirai) fits the transit-time distribution</td></tr>
+      <tr data-p="P1" data-new><td>Twin track record <span class="pill new">Moved up</span> <span class="pill tw">Twin</span></td><td class="c"><span class="pill P1">P1</span></td><td>Replay plus predicted vs actual, merged and moved from Phase 6. Every alert is marked hit, miss or false alarm when shipment notices and receipts arrive; the hit rate is shown to the Tier 1 and the supplier. No vendor publishes this</td></tr>
+    </tbody>
+  </table></div>
+  <h4>Data intake</h4>
+  <div class="tscroll"><table>
+    <thead><tr><th>Item</th><th>Priority</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr data-p="P1" data-new><td>EDI copy from the Tier 1 <span class="pill new">New</span></td><td class="c"><span class="pill P1">P1</span></td><td>Delivery schedules (830/862, DELFOR) and shipment notices (856, DESADV), copied by the Tier 1's EDI provider to a FlowTwin mailbox. One setting covers every EDI-capable supplier</td></tr>
+      <tr data-p="P1" data-new><td>First Tier 1 ERP connector <span class="pill new">New</span></td><td class="c"><span class="pill P1">P1</span></td><td>Read-only, for the design partner's system (most likely SAP S/4 or ECC): stock per part, scheduling agreements, receipts, supplier master, origin and HS code. Replaces "Tier 1 data intake" from v4</td></tr>
+      <tr data-p="P1" data-new><td>E-invoices (CFDI) for Tier 2s <span class="pill new">New</span></td><td class="c"><span class="pill P1">P1</span></td><td>Through Syntage with the supplier's consent: shipments from sales invoices, receipts, Carta Porte routes. Amounts stripped. Makes ERP-less suppliers "measured"</td></tr>
+    </tbody>
+  </table></div>
+  <h4>Alerts and replies</h4>
+  <div class="tscroll"><table>
+    <thead><tr><th>Item</th><th>Priority</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr data-p="P1"><td>Notifications by email and WhatsApp <span class="pill wap">WhatsApp</span></td><td class="c"><span class="pill P1">P1</span></td><td>WhatsApp is send-only: approved Spanish utility templates with a link button. New alert, escalation, 4-hour reminder on red, supplier responded, resolved, Tier 1 daily digest at 7:30, weekly stock and capacity check-in. Incoming messages are not answered except opt-outs. About US$0.08 per supplier a month</td></tr>
+      <tr data-p="P1" data-new><td>Mobile reply page <span class="pill new">New</span></td><td class="c"><span class="pill P1">P1</span></td><td>Opened from a WhatsApp or email link with a signed token for one alert, no login. One-tap answers (ship Thursday, other date, can't) and a short stock and capacity form</td></tr>
+      <tr data-p="P1" data-new><td>AI on the reply page <span class="pill new">New</span></td><td class="c"><span class="pill P1">P1</span></td><td>Free text and Excel turned into a proposed update that the supplier confirms before anything is saved; low confidence goes to a review queue. Costs mentioned are dropped</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="phase">
+  <div class="phasehead" id="ph3"><span class="n">Phase 3</span><h3>Supplier response tools</h3><span class="pill P1">P1</span><span class="pill P2">P2</span><p>What keeps Tier 2s engaged: tools to answer an alert and to protect margins under annual price cuts.</p></div>
+  <div class="tscroll"><table>
+    <thead><tr><th>Item</th><th>Priority</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr data-p="P1"><td>Scenarios on the twin <span class="pill tw">Twin</span></td><td class="c"><span class="pill P1">P1</span></td><td>Test responses to an alert: earlier departure, alternative route, extra shift</td></tr>
+      <tr data-p="P1"><td>Savings recommendations and optimisation <span class="pill tw">Twin</span></td><td class="c"><span class="pill P1">P1</span></td><td>Fuller trucks, better safety stock; private to the supplier</td></tr>
+      <tr data-p="P1"><td>Stress test and resilience score <span class="pill tw">Twin</span></td><td class="c"><span class="pill P1">P1</span></td><td>Standard disruptions from the pack; shareable with the Tier 1</td></tr>
+      <tr data-p="P2" data-new><td>Voice notes and photos on the reply page <span class="pill new">New</span></td><td class="c"><span class="pill P2">P2</span></td><td>Voice recorded in the browser and photos of stock sheets, after benchmarking transcription on real plant audio</td></tr>
+      <tr data-p="P2" data-new><td>Tier 2 ERP connectors <span class="pill new">New</span></td><td class="c"><span class="pill P2">P2</span></td><td>SAP B1, Odoo, Business Central on request; a small on-site program for CONTPAQi and Microsip</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="phase">
+  <div class="phasehead" id="ph4"><span class="n">Phase 4</span><h3>Scorecards, audit and carbon</h3><span class="pill P1">P1</span><span class="pill P2">P2</span></div>
+  <div class="tscroll"><table>
+    <thead><tr><th>Item</th><th>Priority</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr data-p="P1"><td>Customer scorecards inside the supplier risk profile</td><td class="c"><span class="pill P1">P1</span></td><td>OTIF, defect rate, PPAP status, certifications against each Tier 1's targets</td></tr>
+      <tr data-p="P1" data-new><td>IATF 16949 evidence export <span class="pill new">New</span></td><td class="c"><span class="pill P1">P1</span></td><td>The alert, response and reply log as evidence for clauses 6.1.2.3 (contingency plans) and 8.4.1.2 (supplier monitoring). Gives the Tier 1's quality team a reason to buy</td></tr>
+      <tr data-p="P2"><td>Carbon footprint and reports on request</td><td class="c"><span class="pill P2">P2</span></td><td>Scopes 1, 2 and 3 upstream; shared with one customer at a time</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="phase">
+  <div class="phasehead" id="ph5"><span class="n">Phase 5</span><h3>Network and expansion</h3><span class="pill P1">P1</span><span class="pill P2">P2</span></div>
+  <div class="tscroll"><table>
+    <thead><tr><th>Item</th><th>Priority</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr data-p="P1"><td>Second industry pack, configuration only</td><td class="c"><span class="pill P1">P1</span></td><td>Aerospace or appliances</td></tr>
+      <tr data-p="P2" data-new><td>Second Tier 1 ERP family <span class="pill new">New</span></td><td class="c"><span class="pill P2">P2</span></td><td>Dynamics, Epicor or Plex as customers require</td></tr>
+      <tr data-p="P2" data-new><td>Ask FlowTwin in the app <span class="pill new">New</span></td><td class="c"><span class="pill P2">P2</span></td><td>Tier 1 questions ("¿quién está en rojo hoy?") answered only from what the Tier 1 can already see</td></tr>
+      <tr data-p="P2" data-new><td>Catena-X compatibility <span class="pill new">New</span></td><td class="c"><span class="pill P2">P2</span></td><td>Map capacity and demand fields to the DCM standard through the AIAG North America hub; FlowTwin as the transit-risk layer on top</td></tr>
+      <tr data-p="P2"><td>Peer benchmarks</td><td class="c"><span class="pill P2">P2</span></td><td>At least 5 firms per group; competition-law review first</td></tr>
+      <tr data-p="P2"><td>Cluster twin and introductions</td><td class="c"><span class="pill P2">P2</span></td><td>Shared milk runs, backhauls, spare capacity between nearby firms. The scan found no one doing this</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="phase">
+  <div class="phasehead" id="ph6"><span class="n">Phase 6</span><h3>Commercial and hardening</h3><span class="pill P2">P2</span></div>
+  <div class="tscroll"><table>
+    <thead><tr><th>Item</th><th>Priority</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr data-p="P2"><td>Logins, real roles, separation between companies</td><td class="c"><span class="pill P2">P2</span></td><td>Replace the testing toggles and the signed reply links</td></tr>
+      <tr data-p="P2"><td>Billing: Tier 1 subscription with sponsored supplier seats</td><td class="c"><span class="pill P2">P2</span></td><td>The Tier 1 pays; suppliers join free or at a very low cost</td></tr>
+      <tr data-p="P2"><td>Consent, data deletion, audit log</td><td class="c"><span class="pill P2">P2</span></td><td>The audit log must not be editable. WhatsApp opt-in and the privacy notice are needed earlier, in Phase 2</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+</section>
+
+<section id="priorities">
+  <div class="eyebrow">Summary</div>
+  <h2>Everything by priority</h2>
+  <div class="prio">
+    <div class="box"><h3><span class="pill P0">P0</span> v0 demo</h3><ul>
+      <li>Testing toggles and Keystone port</li><li>Industry packs and company profile</li><li>Data model, sharing rules and v5 additions</li><li>Seed data, signals and risk engine</li><li>14-day projection and +15% flex test</li><li>Risk board with map</li><li>Supplier risk detail</li><li>Alerts with suggested actions</li><li>Invite suppliers</li><li>What your customers see</li><li>Light supplier onboarding</li><li>Better uploads</li><li>Admin signals and companies</li></ul></div>
+    <div class="box"><h3><span class="pill P1">P1</span> Convincing</h3><ul>
+      <li>Spanish-first supplier screens</li><li>Weather, roads, theft, border, tariff and input-shortage signals</li><li>ISOMORPH engine</li><li>Twin track record</li><li>EDI copy, first Tier 1 ERP connector, CFDI</li><li>Email and WhatsApp alerts (send-only)</li><li>Mobile reply page with AI</li><li>Supplier scenarios and savings</li><li>Stress test</li><li>Scorecards and IATF evidence</li><li>Second industry pack</li></ul></div>
+    <div class="box"><h3><span class="pill P2">P2</span> After testing</h3><ul>
+      <li>Voice and photos on the reply page</li><li>Tier 2 ERP connectors</li><li>Second Tier 1 ERP family</li><li>Ask FlowTwin</li><li>Catena-X compatibility</li><li>Carbon reports</li><li>Benchmarks</li><li>Cluster twin and introductions</li><li>Logins and billing</li><li>Consent and audit</li></ul></div>
+  </div>
+</section>
+
+<section id="journeys">
+  <div class="eyebrow">What we demo</div>
+  <h2>Focus journeys</h2>
+  <p class="intro">The Tier 1 journey leads. The supplier journey shows the other side of the same alert. Stages marked P1 show how the journey works once Phase 2 is live.</p>
+
+  <div class="journey">
+    <h3>1 · Tier 1 supply-risk manager: from a morning check to a prevented line stop</h3>
+    <p class="who">Alejandra, supplier development manager at QRO Seating Systems, Querétaro</p>
+    <div class="tscroll"><table>
+      <thead><tr><th>Stage</th><th>What they do</th><th>Module</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>Morning check</td><td>Sees one supplier at "Act now" and the soonest line stop in 2 days</td><td>Risk board</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>Morning digest <span class="pill wap">WhatsApp</span></td><td>Gets the 7:30 digest on WhatsApp (1 red, 2 amber) and taps through to the risk board</td><td>Notifications</td><td class="c"><span class="pill P1">P1</span></td></tr>
+        <tr><td>Understand <span class="pill tw">Twin</span></td><td>Opens the supplier near Orizaba: rainy season pushes transit from 2 to 5 days, cover is 3 days on a line-stopper part</td><td>Supplier detail</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>Act</td><td>Chooses "Pull the next order forward" and acknowledges the alert</td><td>Alerts</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>Hear back</td><td>Sees the supplier's response confirming capacity; marks the alert resolved. From Phase 2 the response arrives as a WhatsApp push</td><td>Alerts</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>Grow coverage</td><td>Invites two more suppliers, free for them</td><td>Invite</td><td class="c"><span class="pill P0">P0</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="ok"><b>Success:</b> a likely line stop is spotted days ahead, with a clear reason and a next step.</p>
+  </div>
+
+  <div class="journey">
+    <h3>2 · Tier 2 owner: from an invitation to a better score</h3>
+    <p class="who">Ing. Roberto, owner of Estampados del Laja, Celaya</p>
+    <div class="tscroll"><table>
+      <thead><tr><th>Stage</th><th>What they do</th><th>Module</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>Invited</td><td>Joins free through the Tier 1's sponsorship and opts in to WhatsApp alerts</td><td>Invite (Tier 1 side)</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>See what the customer sees</td><td>Sees an amber light: night departures on high-theft roads and a press near its limit for a +15% surge</td><td>My risk</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>Respond</td><td>Answers an alert and confirms capacity</td><td>My risk</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>Respond from WhatsApp <span class="pill wap">WhatsApp</span></td><td>Gets the alert on WhatsApp, taps "Responder", and answers "1,800 Thursday, 600 Monday, press 3 in maintenance" on the reply page; confirms what the AI read</td><td>Reply page</td><td class="c"><span class="pill P1">P1</span></td></tr>
+        <tr><td>Improve</td><td>Follows the suggested actions; the team adds capacity data</td><td>My risk, My data</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>Save <span class="pill tw">Twin</span></td><td>Uses private savings tools to protect margins against price cuts</td><td>Supplier response tools</td><td class="c"><span class="pill P1">P1</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="ok"><b>Success:</b> the supplier understands its light, responds in minutes, and sees nothing about it is hidden from them.</p>
+  </div>
+
+  <div class="journey">
+    <h3>3 · Tier 2 ops associate: light onboarding</h3>
+    <p class="who">Lupita, supply chain analyst at Estampados del Laja</p>
+    <div class="tscroll"><table>
+      <thead><tr><th>Stage</th><th>What they do</th><th>Module</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>Capacity</td><td>Confirms presses, tonnage, shifts and utilisation</td><td>My data</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>Lead times</td><td>Confirms their own suppliers' lead times and variability</td><td>My data</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>Stock and files</td><td>Enters stock held per customer; uploads exports</td><td>My data</td><td class="c"><span class="pill P0">P0</span></td></tr>
+        <tr><td>Connect invoices</td><td>Consents to sharing the company's e-invoices (CFDI) so shipments update on their own, with amounts removed</td><td>My data</td><td class="c"><span class="pill P1">P1</span></td></tr>
+        <tr><td>Weekly check-in <span class="pill wap">WhatsApp</span></td><td>Gets a weekly WhatsApp reminder and updates stock and capacity on the reply page in under a minute</td><td>Reply page</td><td class="c"><span class="pill P1">P1</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="ok"><b>Success:</b> done in about 15 minutes, and the light switches from "estimated" to "measured".</p>
+  </div>
+</section>
+
+<section id="changes">
+  <div class="eyebrow">History</div>
+  <h2>What changed</h2>
+  <div class="stack">
+  <details open>
+    <summary>Changes after the market scan and integrations plan (v4 → v5)</summary>
+    <div class="tscroll"><table>
+      <thead><tr><th>Area</th><th>v4</th><th>v5</th></tr></thead>
+      <tbody>
+        <tr><td>Signals</td><td>Weather, roads, theft, ports</td><td>Adds trade and tariff events and supplier input shortages; each signal has a named source, and the ones with no open feed are flagged</td></tr>
+        <tr><td>Twin failure paths</td><td>Transit only</td><td>Transit and the supplier's own input supply</td></tr>
+        <tr><td>Predicted vs actual</td><td>Phase 6, P2</td><td>Phase 2, P1, merged with twin replay</td></tr>
+        <tr><td>Tier 1 data</td><td>"From the Tier 1's ERP", uploads in v0</td><td>EDI copy first, then one ERP connector for the design partner; better uploads as fallback</td></tr>
+        <tr><td>Tier 2 data</td><td>Onboarding form and uploads</td><td>Adds e-invoices (CFDI), the reply page with AI and the weekly check-in; Tier 2 ERP connectors in Phase 3</td></tr>
+        <tr><td>WhatsApp</td><td>"Alerts by email or WhatsApp"</td><td>Send-only templates with a link to a one-tap reply page; no chat</td></tr>
+        <tr><td>Language</td><td>English UI</td><td>Spanish-first supplier screens proposed; Tier 1 stays English</td></tr>
+        <tr><td>New items</td><td>—</td><td>IATF 16949 evidence export (P1), Catena-X compatibility (P2), Ask FlowTwin (P2)</td></tr>
+        <tr><td>Data model</td><td>Parts without origin</td><td>Origin country and HS code per part, shipment notices, capacity events, source and confidence on every row</td></tr>
+      </tbody>
+    </table></div>
+  </details>
+  <details>
+    <summary>Changes after the advisor review (v3 → v4)</summary>
+    <p style="margin-bottom:12px;color:var(--muted)">An industry advisor reviewed the approach. Automakers value suppliers that see problems coming more than savings, since contracts already impose about 3% price cuts a year; the Tier 1 should be the entry point and payer; and a line stop costs about €15,000 per minute.</p>
+    <div class="tscroll"><table>
+      <thead><tr><th>Area</th><th>v3</th><th>v4</th></tr></thead>
+      <tbody>
+        <tr><td>Main value</td><td>Visibility, compliance and optimisation</td><td>Early warning before a line stop</td></tr>
+        <tr><td>Entry point and payer</td><td>Tier 2 suppliers, free then paid</td><td>Tier 1, who sponsors its Tier 2s</td></tr>
+        <tr><td>Lead journey</td><td>Supplier answers a customer's data request</td><td>Tier 1 spots and prevents a line stop</td></tr>
+        <tr><td>Headline indicator</td><td>OTIF and carbon</td><td>Days to line stop, exposure in €, +15% flex capacity</td></tr>
+        <tr><td>Ranking</td><td>By value and cost</td><td>By line-stop risk; cheap parts can rank first</td></tr>
+        <tr><td>Twin's main job</td><td>Replay and test decisions</td><td>Project the next 14 days and test demand swings</td></tr>
+        <tr><td>Carbon and scorecards</td><td>P0</td><td>P1–P2, as Tier 1 requests</td></tr>
+        <tr><td>Cluster twin and benchmarks</td><td>P1</td><td>P2</td></tr>
+        <tr><td>Sponsorship</td><td>P2</td><td>P0 (invite suppliers)</td></tr>
+      </tbody>
+    </table></div>
+  </details>
+  </div>
+</section>
+
+<section id="open">
+  <div class="eyebrow">Before we go further</div>
+  <h2>Risks and open decisions</h2>
+  <div class="stack">
+    <div class="callout"><div class="eyebrow">Biggest open questions</div><p>Will a Tier 1 share its stock per part and its supplier list with us? The early warning depends on knowing how many days of cover the Tier 1 holds. In the same first conversation, ask which ERP and EDI provider it uses and whether its IT will approve a read-only connection and a copy of its 830/862/856 traffic. That sets the order of the Phase 2 intake work.</p></div>
+    <div class="tscroll"><table>
+      <thead><tr><th>Open item</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td>Line-stop cost of €15k per minute</td><td>From the advisor call. Published figures vary widely; confirm with a Tier 1 and its chargeback terms</td></tr>
+        <tr><td>ISOMORPH adaptation</td><td>Still the main technical risk. A zero-shot forecasting baseline for thin history lowers it</td></tr>
+        <tr><td>Road closure and blockade data</td><td>The second technical risk: no open API, so it needs a Spanish news and social parser or paid traffic data</td></tr>
+        <tr><td>Mexican-side border and port data</td><td>CBP covers only the US side; no public ANAM or ASIPONA feed. Needs a broker partner or AIS data</td></tr>
+        <tr><td>Holding a supplier's e.firma</td><td>It is legally a signature. Use Syntage so FlowTwin never holds it; get Mexican legal advice before direct SAT downloads</td></tr>
+        <tr><td>People reply in WhatsApp anyway</td><td>Answers in the chat would be lost. Every template says "Responde en el enlace"; track how often it happens and revisit send-only if it's frequent</td></tr>
+        <tr><td>Reply links without logins</td><td>A forwarded link lets someone else answer. Tokens cover one alert, expire after 72 hours and are logged</td></tr>
+        <tr><td>Language of the UI</td><td>BRIEF.md says English; suppliers work in Spanish. Proposed: Spanish-first supplier screens and messages, English Tier 1 screens for now</td></tr>
+        <tr><td>LFPDPPP 2025</td><td>FlowTwin has direct obligations for contact data: privacy notice, consent log, retention, rights handling. Meta processes WhatsApp messages and must be named</td></tr>
+        <tr><td>Competitors closing in</td><td>Overhaul (with FreightVerify), Prewave's free supplier network and Resilinc are the most likely to move into part-level line-stop prediction</td></tr>
+        <tr><td>Tier 1 pricing</td><td>Subscription per plant or per supplier seat</td></tr>
+        <tr><td>Product name</td><td>FlowTwin is a working name</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section id="sources">
+  <div class="eyebrow">Inputs</div>
+  <h2>What this plan is based on</h2>
+  <ul class="plain src">
+    <li><a href="https://claude.ai/artifact/K5J2JsxvExXQUkQaJovDE9" target="_blank" rel="noopener">FlowTwin gap analysis</a> (6 Oct 2026): market scan of about 40 vendors and Mexican signal sources, 12 ranked gaps</li>
+    <li><a href="https://claude.ai/artifact/UX4mAwTCHmpeycZ4MERE7r" target="_blank" rel="noopener">FlowTwin integrations plan</a> (7 Oct 2026): ERP, EDI and CFDI connectors; send-only WhatsApp and the reply page; build steps A–E</li>
+    <li>Advisor call (October 2026): early warning over optimisation, Tier 1 entry, €15k/min line-stop cost, ±15% demand clauses, ~3% annual price cuts</li>
+    <li>Supply Chain Optimization Platform one-pager (team document): free mapping and AI analysis, then paid benchmarks; Mexico focus</li>
+    <li>Team prototype "Auto SME Supply Chain Platform – Prototype v1": seven boards from data upload to cluster twin</li>
+    <li>FlowTwin View 0 prototype and simulation readout (earlier team artifacts)</li>
+    <li>ISOMORPH simulator and parameter sampler (local repository); FlowTwin worker (Open-Meteo source, intake, notifications)</li>
+    <li><a href="https://mexicobusiness.news/logistics/news/mexico-cannot-compete-two-speed-supply-chain" target="_blank" rel="noopener">Mexico Business News: Mexico cannot compete with a two-speed supply chain</a></li>
+    <li><a href="https://matro.com.mx/estampado-metalico/tier-1-vs-tier-2-cadena-de-suministro/" target="_blank" rel="noopener">MATRO: Tier 1 vs Tier 2 in the supply chain</a> (written by a Tier 1 stamper)</li>
+    <li>Sustainability reporting: the Lexology article couldn't be read (bot check). Used instead: <a href="https://www.gtlaw.com/en/insights/2025/6/normas-de-informacion-de-sostenibilidad-2024" target="_blank" rel="noopener">Greenberg Traurig on NIS</a>, <a href="https://www.manglai.io/en/blog/ifrs-s1-s2-mexico-2026" target="_blank" rel="noopener">Manglai on IFRS S1/S2</a>, <a href="https://www.gea.legal/en/post/your-client-is-already-asking-mexico-s-esg-reporting-rules-and-what-manufacturing-companies-need-to" target="_blank" rel="noopener">GEA Legal on supplier requests</a></li>
+  </ul>
+  <p class="foot">Version 5 · 7 October 2026 · v0 in build. Figures for Estampados del Laja are sample data from the prototype.</p>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+  var btns=[].slice.call(document.querySelectorAll('.filter button'));
+  var rows=[].slice.call(document.querySelectorAll('#phases tr[data-p]'));
+  function apply(f){
+    btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.f===f));});
+    rows.forEach(function(r){r.hidden=!(f==='all'||(f==='new'?r.hasAttribute('data-new'):r.dataset.p===f));});
+    [].slice.call(document.querySelectorAll('#phases .tscroll')).forEach(function(t){
+      var any=[].slice.call(t.querySelectorAll('tr[data-p]')).some(function(r){return !r.hidden;});
+      t.hidden=!any;
+      var prev=t.previousElementSibling;if(prev&&prev.tagName==='H4')prev.hidden=!any;});
+    [].slice.call(document.querySelectorAll('#phases .phase')).forEach(function(p){
+      p.hidden=![].slice.call(p.querySelectorAll('tr[data-p]')).some(function(r){return !r.hidden;});});
+    try{localStorage.setItem('bp-filter',f);}catch(e){}
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){apply(b.dataset.f);});});
+  var saved='all';try{saved=localStorage.getItem('bp-filter')||'all';}catch(e){}
+  if(!btns.some(function(b){return b.dataset.f===saved;}))saved='all';
+  apply(saved);
+})();
+</script>
