@@ -97,3 +97,17 @@ def test_drain_stops_when_idle_or_at_max(monkeypatch):
     assert scheduled.drain_jobs(None, max_jobs=2)["ran"] == 2
     out = scheduled.drain_jobs(None, max_jobs=20)
     assert out["ran"] == 1 and out["idle"] is True
+
+
+def test_ingest_signals_passes_on_a_source_status(monkeypatch):
+    class Quiet:
+        name, source_id, marks_stale = "tomtom", "tomtom", True
+        summary = {"mode": "dry-run", "reason": "TOMTOM_API_KEY is not set"}
+
+        def fetch(self):
+            return []
+
+    monkeypatch.setattr(scheduled, "get_source", lambda name, payload, db: Quiet())
+    db = FakeDB(signals=[])
+    out = scheduled.ingest_signals(db, ["tomtom"])
+    assert out["tomtom"]["status"]["mode"] == "dry-run" and out["tomtom"]["upserted"] == 0

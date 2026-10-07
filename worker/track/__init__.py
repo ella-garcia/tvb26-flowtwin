@@ -5,9 +5,8 @@ first snapshot of a new day one queued 'evaluate-alerts' job (so evaluation runs
 evaluate(db, job) runs jobs of kind 'evaluate-alerts': it judges every alert whose predicted stop date has passed
 (rules in track/rules.py) and writes alert_outcomes with the evidence.
 
-Misses (a delivery problem with no alert before it) are returned in the result, not stored: alert_outcomes.alert_id
-references alerts(id), so a miss has no row to hang on. Persisting them needs a schema change (e.g. a nullable
-alert_id plus customer_id/supplier_id/part_id/date columns, or a separate missed_events table).
+Misses (a delivery problem with no alert before it) go to missed_events, one row per (customer, supplier, part, date);
+a problem with no part (a receipt line without part_id) is returned in the result but not stored.
 """
 from datetime import date, datetime, timezone
 
@@ -95,7 +94,10 @@ def evaluate(db, job: dict) -> dict:
     db.upsert("alert_outcomes", out_rows, "alert_id")
 
     misses = rules.find_misses(alerts, receipts, stockouts, today, windows)
+    stored = [dict(customer_id=m["customer_id"], supplier_id=m["supplier_id"], part_id=m["part_id"], event_date=m["date"],
+                   evidence=m["evidence"], rule_version=rules.RULE_VERSION, detected_at=now) for m in misses if m.get("part_id")]
+    if stored:
+        db.upsert("missed_events", stored, "customer_id,supplier_id,part_id,event_date")
     return {"as_of": today.isoformat(), "customer_id": cust, "written": len(out_rows), "kept": kept,
-            "no_prediction": no_prediction, "outcomes": counts, "misses_found": len(misses), "misses": misses,
-            "misses_note": "not stored: alert_outcomes.alert_id references alerts(id); persisting misses needs a schema change",
+            "no_prediction": no_prediction, "outcomes": counts, "misses_found": len(misses), "misses_stored": len(stored), "misses": misses,
             "rule_version": rules.RULE_VERSION}

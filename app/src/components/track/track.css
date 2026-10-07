@@ -20,3 +20,4 @@
 .track-evidence-kind { font-weight: 600; color: var(--ink); }
 .track-evidence-note { color: var(--ink); }
 .track-mount { margin-top: var(--space-6); }
+.track-subhead { margin: 0; font: 600 14px/20px var(--font-sans); color: var(--ink); }

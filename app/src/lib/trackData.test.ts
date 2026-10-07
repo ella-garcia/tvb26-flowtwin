@@ -64,3 +64,16 @@ describe("track record summary", () => {
     expect(s.counts.unknown + s.counts.pending).toBe(2);
   });
 });
+
+describe("misses", () => {
+  it("are scoped like outcomes and counted in the window, not in the rate", () => {
+    const qss = scopeTrack(TRACK_DEMO, { role: "customer", companyId: "qss" });
+    expect(qss.misses.length).toBe(1);
+    const s = summarize(qss.entries, "2026-10-05", 90, qss.misses);
+    expect(s.counts.miss).toBe(1);
+    expect(s.rate).toBe(summarize(qss.entries, "2026-10-05").rate);
+    expect(scopeTrack(TRACK_DEMO, { role: "owner", companyId: "tsr" }).misses.length).toBe(1);
+    expect(scopeTrack(TRACK_DEMO, { role: "owner", companyId: "hmo" }).misses).toEqual([]);
+    expect(scopeTrack(TRACK_DEMO, { role: "customer", companyId: "slp-interiors" }).misses).toEqual([]);
+  });
+});

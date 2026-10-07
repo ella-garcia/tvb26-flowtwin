@@ -9,8 +9,11 @@ Python service (FastAPI, Cloud Run) that runs the FlowTwin risk engine against t
   - `ingest-signals` (`payload.source` = `file` default, or any source name below): upserts `signals`, marks vanished signals of a live source inactive (like the hourly run), then queues a `recompute-risk` job for all customers. The file source reads `worker/data/seed_signals.json` (or `payload.path` / `SIGNALS_FILE`).
   - `parse-upload`: parses a Tier 1 upload (`intake/`). Uses `job.company_id` only and refuses jobs whose payload names another company or whose `storage_path` is outside `<company_id>/`.
   - `build-twin`: not implemented; the job is marked `failed` with "not implemented".
-  - Phase 2 kinds (`ingest-edi`, `sync-connection`, `evaluate-alerts`, `extract-reply`, `send-digest`) are dispatched to
-    `edi/`, `connectors/`, `track/`, `reply_ai/` and `notify/scheduled.py`; until their work package lands they fail
+  - `evaluate-alerts` (`track/`): judges alerts whose predicted stop date has passed (hit, prevented, false-alarm, unknown)
+    into `alert_outcomes`, and stores delivery problems nobody warned about in `missed_events`. Queued once a day by
+    `track.snapshot`, which the hourly run calls after the recompute (it also writes one `risk_history` row per pair per day).
+  - Other Phase 2 kinds (`ingest-edi`, `sync-connection`, `extract-reply`, `send-digest`) are dispatched to
+    `edi/`, `connectors/`, `reply_ai/` and `notify/scheduled.py`; until their work package lands they fail
     with "not implemented yet (WPn)". See `docs/phase2-plan-2026-10.md`.
 - `POST /recompute-risk` body `{"customer_id": "qss", "as_of": "2026-10-05"}` recomputes one customer immediately.
 
@@ -24,7 +27,8 @@ See `.env.example` (no values). `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` requ
 - `db.py` PostgREST client (httpx), `risk_runner.py` DB glue, `jobs.py` queue, `sources/` signal sources, `main.py` API.
 - `intake/` Tier 1 data: `run_parse_upload` for files, `ingest_rows` for any source that already has field-named rows
   (EDI, ERP, CFDI); both validate and write the same way and tag rows with `source` / `source_ref`.
-- Phase 2 stubs: `track/` (risk history, alert outcomes), `edi/`, `connectors/`, `reply_ai/`, `notify/scheduled.py`.
+- `track/` twin track record: `snapshot` (risk_history), `evaluate` (alert_outcomes, missed_events); rules in `track/rules.py`.
+- Phase 2 stubs: `edi/`, `connectors/`, `reply_ai/`, `notify/scheduled.py`.
 - `data/supplier_profiles.json` static supplier inputs from the v0 seed; `data/seed_signals.json` seeded signals.
 - `spikes/isomorph/` ISOMORPH feasibility spike (`FINDINGS.md`).
 

@@ -34,6 +34,8 @@ def ingest_signals(db, names: list[str] | None = None, errors: list | None = Non
             db.upsert("signals", rows, "id")
             stale = mark_stale(db, src.source_id, {r["id"] for r in rows}) if src.marks_stale else 0
             out[name] = {"upserted": len(rows), "marked_inactive": stale}
+            if getattr(src, "summary", None):  # e.g. TomTom: {"mode": "dry-run", "reason": "TOMTOM_API_KEY is not set"}
+                out[name]["status"] = src.summary
         except Exception as e:  # noqa: BLE001 - a failing feed must not stop the hourly run
             errors.append({"step": f"ingest:{name}", "error": f"{type(e).__name__}: {e}"[:500]})
             out[name] = {"upserted": 0, "marked_inactive": 0, "error": True}

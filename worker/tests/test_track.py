@@ -191,7 +191,10 @@ def test_evaluate_writes_outcomes_with_evidence():
     assert r["rule_version"] == "v1" and r["evaluated_at"] and r["part_ids"] == [PART]
     assert r["evidence"][0]["kind"] == "receipt" and "late" in r["evidence"][0]["note"]
     assert res["outcomes"] == {"hit": 1, "prevented": 1, "false-alarm": 1, "unknown": 1, "pending": 1}
-    assert res["misses_found"] == 1 and res["misses"][0]["part_id"] == "p-loose" and "schema change" in res["misses_note"]
+    assert res["misses_found"] == 1 and res["misses"][0]["part_id"] == "p-loose" and res["misses_stored"] == 1
+    m = db.t["missed_events"][0]
+    assert (m["customer_id"], m["supplier_id"], m["part_id"], m["event_date"]) == ("qss", "hmo", "p-loose", "2026-09-30")
+    assert m["evidence"][0]["ref"] == "MISS" and m["rule_version"] == "v1"
 
     # A second run keeps final verdicts, re-checks unknown and pending.
     db.t["receipts"].append({**receipt("2026-09-23", "2026-09-23", part="p-tsr", po="T"), "supplier_id": "tsr"})
@@ -199,6 +202,7 @@ def test_evaluate_writes_outcomes_with_evidence():
     rows = {r["alert_id"]: r for r in db.t["alert_outcomes"]}
     assert rows["a-unknown"]["outcome"] == "false-alarm" and rows["a-pending"]["outcome"] == "unknown"
     assert res2["kept"] == 3 and res2["written"] == 2
+    assert len(db.t["missed_events"]) == 1  # the same miss is upserted, not duplicated
 
 
 def test_evaluate_job_is_dispatched_and_scoped_to_one_customer():

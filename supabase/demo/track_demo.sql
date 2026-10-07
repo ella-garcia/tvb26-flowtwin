@@ -93,4 +93,11 @@ insert into public.alert_outcomes (alert_id, predicted_stop_date, part_ids, outc
    '[{"kind":"receipt","ref":"PO-SLP-2231","date":"2026-09-06","note":"On time and complete"}]', 'v1', '2026-09-09T06:05:00Z')
 on conflict (alert_id) do nothing;
 
+-- A miss: a short delivery nobody warned about (no alert in the 3 days before). Cleared by reset_demo() with the parts.
+insert into public.missed_events (customer_id, supplier_id, part_id, event_date, evidence, rule_version, detected_at) values
+  ('qss', 'tsr', 'part-qss-9027-clp', '2026-09-22',
+   '[{"kind":"receipt","ref":"PO-QSS-48577","date":"2026-09-22","note":"short by 1,200 units, no alert in the 3 days before"}]',
+   'v1', '2026-09-23T06:05:00Z')
+on conflict do nothing;
+
 commit;

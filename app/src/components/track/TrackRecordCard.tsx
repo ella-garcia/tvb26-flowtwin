@@ -38,15 +38,16 @@ export function TrackRecordCard({ customerId, supplierId, audience }: TrackRecor
     return <Card title="Track record" actions={tag}><p className="track-note">The track record could not be loaded ({state.error}).</p></Card>;
   }
   const { data } = state;
-  const s = summarize(data.entries, db.asOf);
+  const s = summarize(data.entries, db.asOf, TRACK_WINDOW_DAYS, data.misses);
   const nameOf = (id: string) => db.company(id)?.name ?? id;
+  const partLabel = (id: string) => { const p = db.parts().find((x) => x.id === id); return p ? `${p.number} · ${p.name}` : id; };
   const showSupplier = !supplierId;
   const showCustomer = !customerId;
   const subject = audience === "supplier" ? "alerts about you" : supplierId ? "alerts about this supplier" : "alerts about your suppliers";
 
   return (
     <Card title="Track record" actions={tag} className="track-card">
-      {s.entries.length === 0 ? (
+      {s.entries.length === 0 && s.misses.length === 0 ? (
         <Empty title="Nothing evaluated yet">
           Each alert is checked against goods receipts one day after its predicted stop date. Results for {subject} appear
           here; the last {TRACK_WINDOW_DAYS} days are shown.
@@ -75,6 +76,7 @@ export function TrackRecordCard({ customerId, supplierId, audience }: TrackRecor
           </div>
           <p className="track-note">
             Unknown and pending alerts are counted but left out of the rate: we do not guess an outcome without receipts.
+            Missed problems (no alert in the 3 days before) are listed below and are not part of the rate either.
           </p>
           <ol className="track-list">
             {s.entries.map((e) => (
@@ -82,6 +84,26 @@ export function TrackRecordCard({ customerId, supplierId, audience }: TrackRecor
                 who={[showSupplier && nameOf(e.alert.supplierId), showCustomer && `for ${nameOf(e.alert.customerId)}`].filter(Boolean).join(" ")} />
             ))}
           </ol>
+          {s.misses.length > 0 && (
+            <>
+              <h3 className="track-subhead">Missed: problems without an alert</h3>
+              <ol className="track-list">
+                {s.misses.map((m) => (
+                  <li key={`${m.customerId}-${m.supplierId}-${m.partId}-${m.eventDate}`} className="track-item">
+                    <div className="track-item-head">
+                      <StatusPill tone={OUTCOME.miss.tone}>{OUTCOME.miss.label}</StatusPill>
+                      <span className="track-item-title">{partLabel(m.partId)}</span>
+                    </div>
+                    <p className="track-meta">
+                      {[showSupplier && nameOf(m.supplierId), showCustomer && `for ${nameOf(m.customerId)}`].filter(Boolean).join(" ")}
+                      {(showSupplier || showCustomer) && " · "}{date(m.eventDate)}
+                      {m.evidence[0]?.note && <> · {m.evidence[0].note}</>}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </>
+          )}
         </>
       )}
       <FormulaSource
@@ -90,7 +112,7 @@ export function TrackRecordCard({ customerId, supplierId, audience }: TrackRecor
           + "Hit: a late or short receipt, or a known stock-out, for the alert's parts in the window. "
           + "Prevented: no such problem, and the key customer chose an action or the supplier confirmed capacity. "
           + "False alarm: on-time, complete deliveries and no action. Unknown: no receipts or shipment notices in the window. "
-          + "Problems with no alert in the 3 days before (misses) are found by the worker but not shown here yet."}
+          + "Missed: a late or short receipt (or stock-out) with no alert in the 3 days before; listed, not rated."}
         data="Measured from goods receipts (promised vs received date, ordered vs received quantity) and shipment notices for the alert's parts, the action chosen on the alert and the supplier's response. Rules v1 (worker/track/rules.py)."
         provenance="measured" />
     </Card>

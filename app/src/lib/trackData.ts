@@ -7,7 +7,7 @@ import demoJson from "../data/track-demo.json";
 import { rowToApp, rowsToApp } from "./caseMap";
 import type { Viewer } from "./dataLayer";
 import { supabase } from "./remote";
-import type { AlertOutcome, AlertOutcomeKind, RiskHistoryRow, RiskLevel } from "./types";
+import type { AlertOutcome, AlertOutcomeKind, MissedEvent, RiskHistoryRow, RiskLevel } from "./types";
 
 /** The alert an outcome belongs to (the fields the card shows). */
 export interface TrackAlert {
@@ -24,6 +24,8 @@ export interface TrackData {
   entries: TrackEntry[];
   /** risk_history rows of the days the alerts were raised: what the twin predicted at the time. */
   history: RiskHistoryRow[];
+  /** Delivery problems with no alert before them (missed_events). */
+  misses: MissedEvent[];
   /** True for the bundled sample data (seed mode). */
   sample: boolean;
 }
@@ -31,6 +33,7 @@ export interface TrackData {
 export const TRACK_DEMO: TrackData = {
   entries: (demoJson as unknown as { entries: TrackEntry[] }).entries,
   history: (demoJson as unknown as { history: RiskHistoryRow[] }).history,
+  misses: (demoJson as unknown as { misses?: MissedEvent[] }).misses ?? [],
   sample: true,
 };
 
@@ -45,6 +48,7 @@ export function scopeTrack(data: TrackData, viewer: Viewer): TrackData {
   return {
     entries: data.entries.filter((e) => canSeePair(viewer, e.alert.customerId, e.alert.supplierId)),
     history: data.history.filter((h) => canSeePair(viewer, h.customerId, h.supplierId)),
+    misses: data.misses.filter((m) => canSeePair(viewer, m.customerId, m.supplierId)),
     sample: data.sample,
   };
 }
@@ -55,12 +59,13 @@ export function filterPair(data: TrackData, pair: { customerId?: string; supplie
   return {
     entries: data.entries.filter((e) => keep(e.alert.customerId, e.alert.supplierId)),
     history: data.history.filter((h) => keep(h.customerId, h.supplierId)),
+    misses: data.misses.filter((m) => keep(m.customerId, m.supplierId)),
     sample: data.sample,
   };
 }
 
 export const TRACK_WINDOW_DAYS = 90;
-export const OUTCOME_ORDER: AlertOutcomeKind[] = ["hit", "prevented", "false-alarm", "unknown", "pending"];
+export const OUTCOME_ORDER: AlertOutcomeKind[] = ["hit", "prevented", "false-alarm", "unknown", "pending", "miss"];
 
 export interface TrackSummary {
   /** Entries of alerts raised in the window, newest first. */
@@ -72,6 +77,8 @@ export interface TrackSummary {
   rated: number;
   /** right / rated, or null when nothing is rated yet */
   rate: number | null;
+  /** Misses in the window, newest first (counted in counts.miss, not in the rate). */
+  misses: MissedEvent[];
   since: string;
 }
 
@@ -82,15 +89,18 @@ const addDays = (iso: string, n: number) => {
 };
 
 /** Hit rate over the alerts raised in the last `days` days up to asOf: (hit + prevented) / (hit + prevented + false alarm). */
-export function summarize(entries: TrackEntry[], asOf: string, days = TRACK_WINDOW_DAYS): TrackSummary {
+export function summarize(entries: TrackEntry[], asOf: string, days = TRACK_WINDOW_DAYS, misses: MissedEvent[] = []): TrackSummary {
   const since = addDays(asOf, -days);
   const shown = entries.filter((e) => e.alert.createdAt >= since && e.alert.createdAt <= asOf)
     .sort((a, b) => b.alert.createdAt.localeCompare(a.alert.createdAt));
   const counts = { hit: 0, prevented: 0, "false-alarm": 0, unknown: 0, pending: 0, miss: 0 } as Record<AlertOutcomeKind, number>;
   for (const e of shown) counts[e.outcome.outcome] += 1;
+  const missed = misses.filter((m) => m.eventDate >= since && m.eventDate <= asOf)
+    .sort((a, b) => b.eventDate.localeCompare(a.eventDate));
+  counts.miss = missed.length;
   const right = counts.hit + counts.prevented;
   const rated = right + counts["false-alarm"];
-  return { entries: shown, counts, right, rated, rate: rated > 0 ? right / rated : null, since };
+  return { entries: shown, counts, right, rated, rate: rated > 0 ? right / rated : null, misses: missed, since };
 }
 
 /** The snapshot of the pair on the day the alert was raised, if one was kept. */
@@ -121,7 +131,9 @@ export async function loadTrackLive(): Promise<TrackData> {
     if (h.error) throw new Error(`risk_history: ${h.error.message}`);
     history = rowsToApp<RiskHistoryRow>(h.data);
   }
-  return { entries, history, sample: false };
+  const m = await sb.from("missed_events").select("customer_id, supplier_id, part_id, event_date, evidence, rule_version, detected_at");
+  if (m.error) throw new Error(`missed_events: ${m.error.message}`);
+  return { entries, history, misses: rowsToApp<MissedEvent>(m.data), sample: false };
 }
 
 export type TrackState = { status: "loading" } | { status: "error"; error: string } | { status: "ready"; data: TrackData };

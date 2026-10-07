@@ -563,6 +563,17 @@ export interface AlertOutcome {
   evaluatedAt?: string;
 }
 
+/** A delivery problem nobody warned about: a late or short receipt (or stock-out) with no alert in the 3 days before. */
+export interface MissedEvent {
+  customerId: string;
+  supplierId: string;
+  partId: string;
+  eventDate: string;
+  evidence: AlertOutcome["evidence"];
+  ruleVersion?: string;
+  detectedAt?: string;
+}
+
 /** A data connection (EDI inbox, ERP, CFDI provider). Secrets are never in the app. */
 export interface Connection {
   id: string;

@@ -457,6 +457,26 @@ select public.t_throws('wp1 anon: cannot call admin_upsert_signal',
 select public.t_throws('wp1 anon: cannot call admin_set_signal_active', $$select admin_set_signal_active('sig-rain-veracruz', false)$$);
 reset role;
 
+-- ---- Track record: missed_events (delivery problems nobody warned about)
+reset role;
+insert into missed_events (customer_id, supplier_id, part_id, event_date, evidence) values
+  ('qss', 'edl', 'part-qss-4471-brk', '2026-09-30', '[]'),
+  ((select customer_id from parts where customer_id = 'slp-interiors' limit 1), (select supplier_id from parts where customer_id = 'slp-interiors' limit 1),
+   (select id from parts where customer_id = 'slp-interiors' limit 1), '2026-09-30', '[]');
+set local role authenticated;
+select public.switch_test_identity('customer', 'qss');
+select public.t_assert('miss customer qss: sees only its own missed_events', (select count(*) = 1 and bool_and(customer_id = 'qss') from missed_events));
+select public.t_throws('miss customer qss: cannot insert missed_events',
+  $$insert into missed_events (customer_id, supplier_id, part_id, event_date) values ('qss', 'edl', 'part-qss-4471-brk', '2026-09-29')$$);
+select public.switch_test_identity('owner', 'edl');
+select public.t_assert('miss owner edl: sees the miss about itself', (select count(*) = 1 and bool_and(supplier_id = 'edl') from missed_events));
+select public.switch_test_identity('owner', 'hmo');
+select public.t_assert('miss owner hmo: sees none', (select count(*) = 0 from missed_events));
+select public.switch_test_identity('customer', 'qss');
+select public.t_works('miss reset_demo runs', $$select reset_demo()$$);
+reset role;
+select public.t_assert('miss reset_demo clears missed_events (parts restored)', (select count(*) = 0 from missed_events));
+
 -- ---- report
 select (case when ok then 'PASS' else 'FAIL' end) || '  ' || name from public.t_results order by n;
 select count(*) filter (where not ok) > 0 as failed, count(*) filter (where not ok) as nfail from public.t_results \gset

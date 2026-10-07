@@ -246,7 +246,9 @@ def test_hourly_ingest_creates_road_customs_and_theft_signals_and_retires_vanish
     srcs = {"tomtom": tomtom_source(), "cbp": cbp_source(), "theft": TheftSource(today=date(2026, 10, 7))}
     monkeypatch.setattr(scheduled, "get_source", lambda name, payload, db: srcs[name])
     out = scheduled.ingest_signals(db, ["tomtom", "cbp", "theft"], [])
-    assert out["tomtom"] == {"upserted": 3, "marked_inactive": 1} and out["cbp"] == {"upserted": 1, "marked_inactive": 1}
+    counts = {k: {f: v[f] for f in ("upserted", "marked_inactive")} for k, v in out.items()}
+    assert counts["tomtom"] == {"upserted": 3, "marked_inactive": 1} and counts["cbp"] == {"upserted": 1, "marked_inactive": 1}
+    assert out["tomtom"]["status"]["mode"] == "live"
     kinds = {r["kind"] for r in db.t["signals"] if r.get("active")}
     assert {"road", "blockade", "customs", "theft"} <= kinds
     n = len(db.t["signals"])

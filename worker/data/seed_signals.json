@@ -231,5 +231,56 @@
   "transitMultiplier": 1.3,
   "source": "Historical holiday freight pattern (seeded for demo)",
   "provenance": "estimated"
+ },
+ {
+  "id": "sig-input-etb-polyol",
+  "kind": "supplier-input",
+  "short": "Polyol shortage",
+  "title": "Polyol shortage, Espumas y Tapizados del Bajío",
+  "description": "ETB's polyol supplier declared force majeure after a plant outage on the Gulf coast. ETB receives about 60% of its usual polyol and has cut foam output accordingly; finished goods cover the first days.",
+  "state": "Guanajuato",
+  "lat": 21.12,
+  "lon": -101.68,
+  "radiusKm": 5,
+  "highways": [],
+  "startsAt": "2026-10-07",
+  "endsAt": "2026-10-24",
+  "severity": "medium",
+  "transitMultiplier": 1.0,
+  "supplyCutPct": 0.4,
+  "affects": {
+   "supplierIds": [
+    "etb"
+   ]
+  },
+  "source": "Supplier-reported through FlowTwin (seeded for demo)",
+  "provenance": "estimated"
+ },
+ {
+  "id": "sig-policy-resin-tariff",
+  "kind": "policy",
+  "short": "Higher tariff on Asian polyamide",
+  "title": "Tariff increase on polyamide resins from countries without a trade agreement",
+  "description": "Mexico raises the import tariff on polyamide (HS 3908) from countries without a trade agreement, including China and Korea, from 1 November. Importers of PA6 compound may re-source or hold stock back while the change settles.",
+  "state": "Ciudad de México",
+  "lat": 19.43,
+  "lon": -99.13,
+  "radiusKm": 0,
+  "highways": [],
+  "startsAt": "2026-11-01",
+  "endsAt": "2027-10-31",
+  "severity": "high",
+  "transitMultiplier": 1.0,
+  "affects": {
+   "originCountries": [
+    "CN",
+    "KR"
+   ],
+   "hsPrefixes": [
+    "3908"
+   ]
+  },
+  "source": "Diario Oficial de la Federación decree pattern (seeded for demo)",
+  "provenance": "estimated"
  }
 ]
