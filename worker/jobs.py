@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import config  # noqa: F401
 from db import DB
 from risk_runner import recompute_all, recompute_customer
-from sources import get_source
+from sources import get_source, mark_stale
 
 log = logging.getLogger("flowtwin.jobs")
 
@@ -40,8 +40,9 @@ def run_job(db: DB, job: dict) -> dict:
         source = get_source(payload.get("source", "file"), payload, db)
         rows = source.fetch()
         db.upsert("signals", rows, "id")
+        stale = mark_stale(db, source.source_id, {r["id"] for r in rows}) if source.marks_stale else 0  # as scheduled.ingest_signals
         db.insert("jobs", [{"kind": "recompute-risk", "company_id": None, "payload": {"reason": "ingest-signals"}}])
-        return {"signals_upserted": len(rows), "queued": "recompute-risk"}
+        return {"signals_upserted": len(rows), "marked_inactive": stale, "queued": "recompute-risk"}
     if kind == "ingest-edi":
         import edi
         return edi.run(db, job)

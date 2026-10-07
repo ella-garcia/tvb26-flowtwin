@@ -57,6 +57,26 @@ def test_ingest_signals_upserts_and_queues_recompute():
     assert db.inserts[0][1][0]["kind"] == "recompute-risk"
 
 
+def test_ingest_signals_job_marks_stale_for_live_sources(monkeypatch):
+    """The job path retires vanished signals of a marks_stale source, like scheduled.ingest_signals; never the file set."""
+    from tests.test_sources import FakeDB as SignalDB
+
+    class Live:
+        name, source_id, marks_stale = "live", "live", True
+
+        def fetch(self):
+            return [{"id": "lv-keep", "source_id": "live", "active": True}]
+
+    db = SignalDB(signals=[{"id": "lv-keep", "source_id": "live", "active": True},
+                           {"id": "lv-gone", "source_id": "live", "active": True},
+                           {"id": "sig-x", "source_id": "file", "active": True}])
+    monkeypatch.setattr(jobs, "get_source", lambda name, payload, db: Live())
+    res = jobs.run_job(db, {"kind": "ingest-signals", "payload": {"source": "live"}})
+    assert res["marked_inactive"] == 1
+    assert {r["id"]: r["active"] for r in db.t["signals"]} == {"lv-keep": True, "lv-gone": False, "sig-x": True}
+    assert db.t["jobs"][0]["kind"] == "recompute-risk"
+
+
 def test_file_source_and_smn_offline():
     # SMN is a live source now (see test_sources_smn.py); with no municipal records and no company in range it yields nothing.
     assert SmnConaguaSource(records=[], companies=[]).fetch() == []
