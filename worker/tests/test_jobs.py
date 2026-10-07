@@ -117,3 +117,20 @@ def test_httpx_error_is_a_502_and_other_runtime_errors_a_500(monkeypatch):
     assert r.status_code == 502 and r.json()["detail"] == "Supabase unreachable: ConnectError"
     monkeypatch.setattr(main.scheduled, "drain_jobs", boom(NotImplementedError("x")))
     assert client.post("/jobs/drain").status_code == 500
+
+
+def test_phase2_job_kinds_are_dispatched_and_fail_clearly_until_built():
+    import jobs as j
+    for kind, wp in (("ingest-edi", "WP4a"), ("sync-connection", "WP4b"), ("evaluate-alerts", "WP3"),
+                     ("extract-reply", "WP7"), ("send-digest", "WP5")):
+        with pytest.raises(NotImplementedError, match=wp):
+            j.run_job(None, {"kind": kind, "payload": {}})
+
+
+def test_phase2_endpoints_answer_501_until_built():
+    from fastapi.testclient import TestClient
+    import main
+    c = TestClient(main.app)
+    assert c.get("/webhooks/whatsapp").status_code == 501
+    assert c.post("/webhooks/whatsapp").status_code == 501
+    assert c.post("/reply/abc/extract").status_code == 501

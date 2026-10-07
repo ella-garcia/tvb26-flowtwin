@@ -1,4 +1,5 @@
-"""Scheduled work: the hourly cycle (ingest signals -> recompute -> auto-resolve -> notify) and the job drain.
+"""Scheduled work: the hourly cycle (ingest signals -> recompute -> auto-resolve -> notify -> track snapshot ->
+reminders, digest and check-ins) and the job drain.
 
 Routes (wired in main.py): POST /cron/hourly -> run_hourly(db); POST /jobs/drain -> drain_jobs(db).
 Neither raises on a source or notification error: failures are recorded in the returned summary's `errors`.
@@ -8,7 +9,9 @@ from datetime import datetime, timezone
 
 import jobs
 import notify
+import track
 from notify import dispatch
+from notify import scheduled as notify_scheduled
 from risk_runner import recompute_all
 from sources import get_source, mark_stale
 
@@ -73,7 +76,9 @@ def run_hourly(db, as_of=None, client=None) -> dict:
         summary["finished_at"] = datetime.now(timezone.utc).isoformat()
         return summary  # alerts and notifications would act on stale risks
     for step, fn in (("auto_resolve", lambda: auto_resolve(db, client)),
-                     ("notify", lambda: notify.notify_after_recompute(db, before, client))):
+                     ("notify", lambda: notify.notify_after_recompute(db, before, client)),
+                     ("track", lambda: track.snapshot(db, as_of)),                          # WP3
+                     ("notify_scheduled", lambda: notify_scheduled.run(db, None, client))):  # WP5
         try:
             summary[step] = fn()
         except Exception as e:  # noqa: BLE001

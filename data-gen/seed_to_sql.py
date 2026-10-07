@@ -153,6 +153,8 @@ def main():
     out.append(",\n".join(f"  ({q(n)}, {q(json.dumps(rows, ensure_ascii=False))}::jsonb)"
                           for n, rows in snapshots.items()) +
                "\non conflict (name) do update set rows = excluded.rows;\n")
+    out.append("-- contacts mirror companies.contact (phones and WhatsApp opt-in are added by people, never seeded)")
+    out.append("select public.sync_contacts();\n")
     out.append("commit;")
     OUT.write_text("\n".join(out) + "\n")
     print(f"wrote {OUT}")

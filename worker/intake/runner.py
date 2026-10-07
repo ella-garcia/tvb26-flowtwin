@@ -1,4 +1,5 @@
-"""parse-upload job: download, parse, map, validate, write, update the uploads row, refresh profiles, queue a recompute."""
+"""Tier 1 intake. parse-upload job: download, parse, map, then ingest_rows: validate, write, update the uploads row,
+refresh profiles, queue a recompute. Other sources (EDI, ERP, CFDI) call ingest_rows directly with field-named rows."""
 import os
 from datetime import date, datetime, timezone
 from urllib.parse import quote
@@ -6,7 +7,7 @@ from urllib.parse import quote
 import config
 from engine.profiles import derive_profile_from_receipts
 
-from .columns import map_columns, norm, slug
+from .columns import SYNONYMS, map_columns, norm, slug
 from .fileparse import ParseError, parse_file
 from .validate import DEFAULT_REQUIREMENTS, VALIDATORS
 
@@ -62,6 +63,12 @@ def write_suppliers(db, customer_id, recs, _file, ctx=None):
     return {"companies": len(new), "relationships": len(new)}, [r["id"] for r in recs]
 
 
+def _provenance(ctx, file_name) -> tuple[str, str]:
+    """(source, source_ref) for rows a writer saves: set by ingest_rows; an upload is ('upload', file name)."""
+    ctx = ctx or {}
+    return ctx.get("source") or "upload", ctx.get("source_ref") or file_name or ""
+
+
 def _cover(on_hand, usage):
     return round(float(on_hand) / float(usage), 1) if usage else 0
 
@@ -91,28 +98,34 @@ def write_stock(db, customer_id, recs, _file, ctx=None):
         p = dict(by_id[r["part_id"]])
         p["on_hand"] = r["on_hand"]
         p["days_of_cover"] = _cover(r["on_hand"], p["daily_usage"])
+        p["stock_source"], p["stock_source_ref"] = _provenance(ctx, _file)
         # Optional columns: a blank cell keeps what the part already had (every row carries both keys for the bulk upsert).
         if r.get("in_transit") is not None:
             p["in_transit"] = r["in_transit"]
         if r.get("next_delivery_date") is not None:
             p["next_delivery_date"] = r["next_delivery_date"].isoformat()
         rows.append({k: p.get(k) for k in ("id", "number", "name", "supplier_id", "customer_id", "unit_cost_mxn", "daily_usage",
-                                           "on_hand", "days_of_cover", "single_source", "criticality", "in_transit", "next_delivery_date")})
+                                           "on_hand", "days_of_cover", "single_source", "criticality", "in_transit", "next_delivery_date",
+                                           "stock_source", "stock_source_ref")})
     db.upsert("parts", rows, "id")
     return {"parts_updated": len(rows)}, sorted({r["supplier_id"] for r in rows})
 
 
 def write_releases(db, customer_id, recs, file_name, ctx=None):
+    source, ref = _provenance(ctx, file_name)
     db.upsert("demand_releases", [dict(customer_id=customer_id, part_id=r["part_id"], week_start=r["week_start"].isoformat(),
-                                       quantity=r["quantity"], upload_id=file_name) for r in recs], "customer_id,part_id,week_start")
+                                       quantity=r["quantity"], upload_id=file_name, source=source, source_ref=ref)
+                                  for r in recs], "customer_id,part_id,week_start")
     return {"demand_releases": len(recs)}, sorted({r["supplier_id"] for r in recs})
 
 
 def write_receipts(db, customer_id, recs, file_name, ctx=None):
+    source, ref = _provenance(ctx, file_name)
     db.upsert("receipts", [dict(customer_id=customer_id, supplier_id=r["supplier_id"], part_id=r["part_id"], po_number=r["po_number"],
                                 promised_date=r["promised_date"].isoformat(),
                                 received_date=r["received_date"].isoformat() if r["received_date"] else None,
-                                quantity_ordered=r["quantity_ordered"], quantity_received=r["quantity_received"], upload_id=file_name)
+                                quantity_ordered=r["quantity_ordered"], quantity_received=r["quantity_received"], upload_id=file_name,
+                                source=source, source_ref=ref)
                            for r in recs], "customer_id,po_number,part_id")
     return {"receipts": len(recs)}, sorted({r["supplier_id"] for r in recs})
 
@@ -146,10 +159,13 @@ def refresh_profiles(db, customer_id: str, supplier_ids, as_of=None) -> list[str
 
 
 # ---------------------------------------------------------------- job
-def _save_upload(db, company_id, kind, file_name, rows, status, storage_path, issues, mapping, job_id):
+def _save_upload(db, company_id, kind, file_name, rows, status, storage_path, issues, mapping, job_id, source=None):
+    """One uploads row per (company, kind): the latest delivery of that data, whatever the source.
+    source: label shown in the app ('EDI', 'ERP', 'CFDI'); default from the file extension (Excel or CSV)."""
     ext = os.path.splitext(file_name or "")[1].lower()
+    label = source or ("Excel" if ext in (".xlsx", ".xlsm") else "CSV")
     db.upsert("uploads", [dict(company_id=company_id, kind=kind, file_name=file_name or "", rows=rows,
-                               source="Excel" if ext in (".xlsx", ".xlsm") else "CSV", status=status, uploaded_at=_now(),
+                               source=label, status=status, uploaded_at=_now(),
                                storage_path=storage_path, issues=issues, mapping=mapping, job_id=job_id)], "company_id,kind")
 
 
@@ -185,7 +201,30 @@ def run_parse_upload(db, job: dict, fetch=None) -> dict:
         _save_upload(db, company_id, kind, file_name, 0, "needs-input", path, issues, {}, job_id)
         return {"company_id": company_id, "kind": kind, "status": "needs-input", "rows": 0, "errors": 1}
     mapping, issues = map_columns(kind, headers)
-    ctx = load_context(db, company_id, kind)
+    return ingest_rows(db, company_id, kind, rows, mapping=mapping, issues=issues, file_name=file_name or path,
+                       storage_path=path, job_id=job_id, source="upload", source_ref=file_name or path)
+
+
+def identity_mapping(kind: str) -> dict:
+    """For sources that already name fields (EDI, ERP, CFDI adapters): {field: field}."""
+    return {f: f for f in SYNONYMS[kind]}
+
+
+def ingest_rows(db, customer_id: str, kind: str, rows: list[dict], *, mapping: dict | None = None, issues: list | None = None,
+                file_name: str = "", storage_path: str | None = None, job_id=None, source: str = "upload",
+                source_ref: str | None = None, label: str | None = None) -> dict:
+    """Validate, write and record rows of one intake kind for one key customer, then refresh profiles and queue a recompute.
+
+    rows: [{header or field: value, "__row__": n}]. mapping: {header: field}; None = rows are keyed by field names.
+    source / source_ref: provenance written on receipts, releases and stock ('upload' + file name, 'edi' + interchange …).
+    label: what the uploads row shows as its source (default Excel/CSV from file_name). The caller checks tenancy."""
+    if kind not in VALIDATORS:
+        raise ValueError(f"Unknown intake kind '{kind}' (expected one of {', '.join(KINDS)})")
+    mapping = identity_mapping(kind) if mapping is None else mapping
+    issues = list(issues or [])
+    rows = [r if "__row__" in r else {**r, "__row__": i} for i, r in enumerate(rows, start=2)]
+    ctx = load_context(db, customer_id, kind)
+    ctx["source"], ctx["source_ref"] = source, source_ref or file_name
     records = []
     if not any(i["severity"] == "error" for i in issues):  # required column missing: nothing to validate
         records, row_issues = VALIDATORS[kind](rows, mapping, ctx)
@@ -193,18 +232,18 @@ def run_parse_upload(db, job: dict, fetch=None) -> dict:
     written, affected, profiles, saved = {}, [], [], 0
     if records:
         w = WRITERS[kind]
-        written, affected = w(db, company_id, records, file_name or path, ctx=ctx)
+        written, affected = w(db, customer_id, records, file_name, ctx=ctx)
         skipped = ctx.get("write_issues", [])  # rows a writer could not save
         issues += skipped
         saved = len(records) - len(skipped)
     errors = sum(1 for i in issues if i["severity"] == "error")
     status = "needs-input" if errors else "uploaded"
-    _save_upload(db, company_id, kind, file_name, saved, status, path, issues, mapping, job_id)
+    _save_upload(db, customer_id, kind, file_name, saved, status, storage_path, issues, mapping, job_id, source=label)
     queued = None
     if saved:
-        profiles = refresh_profiles(db, company_id, affected)
-        db.insert("jobs", [{"kind": "recompute-risk", "company_id": company_id, "payload": {"reason": "parse-upload", "kind": kind}}])
+        profiles = refresh_profiles(db, customer_id, affected)
+        db.insert("jobs", [{"kind": "recompute-risk", "company_id": customer_id, "payload": {"reason": "parse-upload" if source == "upload" else f"intake-{source}", "kind": kind}}])
         queued = "recompute-risk"
-    return {"company_id": company_id, "kind": kind, "status": status, "rows": saved, "input_rows": len(rows),
+    return {"company_id": customer_id, "kind": kind, "status": status, "rows": saved, "input_rows": len(rows),
             "errors": errors, "warnings": sum(1 for i in issues if i["severity"] == "warning"), "written": written,
-            "profiles_updated": profiles, "queued": queued}
+            "profiles_updated": profiles, "queued": queued, "source": source}

@@ -9,6 +9,8 @@ import { date, num } from "../../lib/format";
 import { CircularityForm } from "./CircularityForm";
 import "./data.css";
 
+/** Supplier uploads only (the tier1-* kinds belong to the key customer's Data page). */
+type SupplierUpload = UploadRecord & { kind: UploadKind };
 const KIND_LABEL: Record<UploadKind, string> = {
   "sales-orders": "Sales orders", "purchase-orders": "Purchase orders", inventory: "Inventory", "item-master": "Item list",
   quality: "Quality", freight: "Freight", energy: "Energy bills", fuel: "Fuel",
@@ -90,9 +92,9 @@ export default function DataPage() {
   const sampleRows: Record<UploadKind, number> = {
     "sales-orders": 1840, "purchase-orders": 960, inventory: 420, "item-master": 138, quality: 310, freight: 540, energy: 12, fuel: 12,
   };
-  const uploadRows: UploadRecord[] = KINDS.map((k) => uploads.find((u) => u.kind === k)
+  const uploadRows: SupplierUpload[] = KINDS.map((k) => (uploads.find((u) => u.kind === k) as SupplierUpload | undefined)
     ?? { companyId, kind: k, fileName: "", rows: 0, source: "", status: "waiting" as const });
-  const uploadCols: Column<UploadRecord & { id: string }>[] = [
+  const uploadCols: Column<SupplierUpload & { id: string }>[] = [
     { key: "kind", label: "File", render: (r) => KIND_LABEL[r.kind] },
     { key: "status", label: "Status", render: (r) => <UploadPill status={r.status} /> },
     { key: "fileName", label: "Latest file", render: (r) => r.fileName

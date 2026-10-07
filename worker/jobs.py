@@ -42,6 +42,21 @@ def run_job(db: DB, job: dict) -> dict:
         db.upsert("signals", rows, "id")
         db.insert("jobs", [{"kind": "recompute-risk", "company_id": None, "payload": {"reason": "ingest-signals"}}])
         return {"signals_upserted": len(rows), "queued": "recompute-risk"}
+    if kind == "ingest-edi":
+        import edi
+        return edi.run(db, job)
+    if kind == "sync-connection":
+        import connectors
+        return connectors.run_sync(db, job)
+    if kind == "evaluate-alerts":
+        import track
+        return track.evaluate(db, job)
+    if kind == "extract-reply":
+        import reply_ai
+        return reply_ai.extract(db, job)
+    if kind == "send-digest":
+        from notify import scheduled as notify_scheduled
+        return notify_scheduled.send_digest(db, job)
     raise NotImplementedError(f"job kind '{kind}' is not implemented in the worker yet")
 
 

@@ -1,0 +1,5 @@
+/* Reply page: one narrow column, phone first. Tokens only. */
+.reply { min-height: 100dvh; background: var(--surface-sunken); color: var(--ink); display: flex; justify-content: center;
+  padding-block: var(--space-8); padding-inline: var(--space-4); }
+.reply-card { width: 100%; max-width: 30rem; align-self: flex-start; }
+.reply-brand { margin: 0; font-weight: 600; color: var(--primary); letter-spacing: 0.02em; }
