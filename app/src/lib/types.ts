@@ -274,6 +274,7 @@ export interface ProjectionDay {
   transitP50: number;
   transitP90: number;
   coverDays: number;           // key customer's cover of the most exposed part, projected
+  confidence?: "high" | "medium" | "low"; // high up to day 3, medium up to day 7, low after (weather bands widen too)
 }
 
 /** Can the supplier absorb the contract demand swing (+15%)? Result of a twin run. */
