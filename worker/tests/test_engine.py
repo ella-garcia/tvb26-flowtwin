@@ -37,6 +37,31 @@ def test_edl_stays_amber(qss):
     assert r["days_to_line_stop"] is None
 
 
+def test_etb_turns_amber_from_the_polyol_shortage_not_transit(qss):
+    # WP2 seed: sig-input-etb-polyol cuts ETB's deliveries by 40% from 7 Oct, after 1.5 days of its finished goods.
+    r = qss[0]["etb"]
+    assert r["level"] == "amber" and r["days_to_line_stop"] is None
+    assert r["drivers"][0]["kind"] == "supplier-input" and r["drivers"][0]["label"].startswith("Input shortage at the supplier")
+    assert r["flex"]["canAbsorb"] is False
+    assert r["expected_transit_days"] <= 1.1  # transit untouched
+    alert = next(a for a in qss[1] if a["supplier_id"] == "etb")
+    assert alert["title"].startswith("Input shortage at Espumas y Tapizados del Bajío")
+
+
+def test_rdp_carries_trade_exposure_for_the_pa6_tariff(qss):
+    r = qss[0]["rdp"]
+    trade = [d for d in r["drivers"] if d["kind"] == "policy"]
+    assert len(trade) == 1 and trade[0]["contribution"] == 8 and "QSS-5310-PAB" in trade[0]["label"]
+    assert [w.get("tradeExposure", False) for w in r["outlook"]][:3] == [False, False, False]
+    assert all(w.get("tradeExposure") for w in r["outlook"][3:])
+    assert not any(d["kind"] == "policy" for sid, x in qss[0].items() if sid != "rdp" for d in x["drivers"])
+
+
+def test_projection_days_carry_confidence(qss):
+    conf = [p["confidence"] for p in qss[0]["hmo"]["projection"]]
+    assert conf[:4] == ["high"] * 4 and conf[4:8] == ["medium"] * 4 and set(conf[8:]) == {"low"}
+
+
 def test_all_risks_match_seed_exactly(db_rows, seed):
     expected = {(r["customerId"], r["supplierId"]): r for r in seed["risks"]}
     got = {}
