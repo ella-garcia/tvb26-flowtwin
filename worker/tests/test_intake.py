@@ -312,3 +312,35 @@ def test_job_reports_rows_a_writer_skipped(monkeypatch):
     res = run_parse_upload(db, job("tier1-stock"), fetch=lambda d, p: b"part number,on hand units\nQSS-1,5\n")
     assert res["status"] == "needs-input" and res["rows"] == 0 and res["errors"] == 1 and res["queued"] is None
     assert db.t["uploads"][0]["rows"] == 0 and "no longer in the parts list" in db.t["uploads"][0]["issues"][-1]["message"]
+
+
+# ---------------------------------------------------------------- ingest_rows (non-file sources: EDI, ERP, CFDI)
+def test_ingest_rows_takes_field_named_rows_and_tags_provenance():
+    from intake import ingest_rows
+    db = base_db()
+    rows = [dict(po_number="PO9", supplier="edl", number="QSS-1", promised_date="2026-09-14", received_date="2026-09-15",
+                 quantity_ordered=100, quantity_received=100)]
+    res = ingest_rows(db, "qss", "tier1-receipts", rows, source="edi", source_ref="ISA-000123", file_name="edi-856", label="EDI")
+    assert res["status"] == "uploaded" and res["rows"] == 1 and res["source"] == "edi"
+    r = db.t["receipts"][0]
+    assert r["source"] == "edi" and r["source_ref"] == "ISA-000123" and r["upload_id"] == "edi-856"
+    assert db.t["uploads"][0]["source"] == "EDI"
+    assert db.inserted[0][1][0]["payload"]["reason"] == "intake-edi"
+
+
+def test_ingest_rows_stock_records_stock_source_and_uploads_keep_upload_provenance():
+    from intake import ingest_rows
+    db = base_db()
+    ingest_rows(db, "qss", "tier1-stock", [dict(number="QSS-1", on_hand=55)], source="erp", source_ref="sync-42", label="ERP")
+    p = db.t["parts"][0]
+    assert p["on_hand"] == 55 and p["stock_source"] == "erp" and p["stock_source_ref"] == "sync-42"
+    run_parse_upload(db, job("tier1-stock"), fetch=lambda d, p: b"part number,on hand units\nQSS-1,60\n")
+    p = db.t["parts"][0]
+    assert p["on_hand"] == 60 and p["stock_source"] == "upload" and p["stock_source_ref"] == "file.csv"
+    assert db.t["uploads"][0]["source"] == "CSV"
+
+
+def test_ingest_rows_rejects_unknown_kind():
+    from intake import ingest_rows
+    with pytest.raises(ValueError):
+        ingest_rows(base_db(), "qss", "tier1-nope", [], source="edi")

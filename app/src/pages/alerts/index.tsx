@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../../app/AppContext";
 import { AlertStatusPill, Card, CritPill, Empty, PageHeader, RiskLight, ScopedError } from "../../components/shared";
+import { TrackRecordCard } from "../../components/track/TrackRecordCard";
 import { Button, FilterChip, StatusPill } from "../../keystone";
 import { date, dateTime } from "../../lib/format";
 import { ALERT_STATUS } from "../../lib/labels";
@@ -147,6 +148,7 @@ export default function AlertsPage() {
           })}
         </div>
       )}
+      <div className="track-mount"><TrackRecordCard customerId={db.viewer.companyId} audience="customer" /></div>
     </>
   );
 }

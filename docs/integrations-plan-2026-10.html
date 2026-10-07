@@ -1,0 +1,400 @@
+<title>FlowTwin Integrations Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: third page in the Build Plan / Gap Analysis set — same palette and faces; reading column with a sticky index; sources table, flow diagram, step-by-step phasing. */
+:root{
+  --bg:#F3F5F3; --surface:#FFFFFF; --ink:#1B2420; --muted:#4F5A55; --line:#D6DAD6;
+  --accent:#1F4E8C; --accent-bg:#E4ECF6;
+  --p0:#9A3A0B; --p0-bg:#FBEADF; --p1:#1F4E8C; --p1-bg:#E4ECF6; --p2:#4A5550; --p2-bg:#E8EBE8;
+  --good:#1D6B4F; --good-bg:#E2F0E9; --warn:#8A5A00; --warn-bg:#FBF0D6;
+  --twin:#5B3E8F; --twin-bg:#EEE8F7; --wa:#17694A; --wa-bg:#DFF1E8;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121715; --surface:#1A201D; --ink:#E6EBE8; --muted:#A3AEA9; --line:#2E3733;
+  --accent:#8FB4E6; --accent-bg:#1C2A3D;
+  --p0:#F0A07A; --p0-bg:#3A241A; --p1:#8FB4E6; --p1-bg:#1C2A3D; --p2:#B5BFBA; --p2-bg:#262E2B;
+  --good:#7CC4A3; --good-bg:#17302A; --warn:#E8C27A; --warn-bg:#33291A; --twin:#C3A8EE; --twin-bg:#2A2238;
+  --wa:#7DD3AE; --wa-bg:#163128; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121715; --surface:#1A201D; --ink:#E6EBE8; --muted:#A3AEA9; --line:#2E3733;
+  --accent:#8FB4E6; --accent-bg:#1C2A3D;
+  --p0:#F0A07A; --p0-bg:#3A241A; --p1:#8FB4E6; --p1-bg:#1C2A3D; --p2:#B5BFBA; --p2-bg:#262E2B;
+  --good:#7CC4A3; --good-bg:#17302A; --warn:#E8C27A; --warn-bg:#33291A; --twin:#C3A8EE; --twin-bg:#2A2238;
+  --wa:#7DD3AE; --wa-bg:#163128; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:0}.toc{display:none}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;font-size:13.5px;display:flex;flex-direction:column;gap:2px;padding-top:150px}
+.toc a{color:var(--muted);text-decoration:none;padding:4px 10px;border-left:2px solid var(--line)}
+.toc a:hover,.toc a:focus-visible{color:var(--ink);border-left-color:var(--accent)}
+main{min-width:0}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(34px,5vw,48px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:28px;font-weight:700;margin-bottom:6px}
+h3{font-size:20px;font-weight:600}
+p{margin:0;max-width:72ch}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:12.5px;background:var(--p2-bg);padding:0 5px;border-radius:3px}
+.eyebrow{font-family:var(--display);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lede{font-size:17.5px;color:var(--muted);margin-top:10px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);margin-top:14px}
+section{margin-top:52px;scroll-margin-top:20px}
+section > .intro{color:var(--muted);margin-bottom:18px}
+.sub{margin-top:28px;margin-bottom:10px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px}
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;font-weight:500;padding:1px 7px;border-radius:4px;white-space:nowrap;vertical-align:1px}
+.P0{color:var(--p0);background:var(--p0-bg)} .P1{color:var(--p1);background:var(--p1-bg)} .P2{color:var(--p2);background:var(--p2-bg)}
+.tw{color:var(--twin);background:var(--twin-bg)} .wa{color:var(--wa);background:var(--wa-bg)} .ai{color:var(--warn);background:var(--warn-bg)}
+.g{color:var(--good);background:var(--good-bg)}
+.u{font-family:var(--mono);font-size:10.5px;color:var(--warn);background:var(--warn-bg);padding:0 5px;border-radius:3px;vertical-align:1px;white-space:nowrap}
+.callout{background:var(--ink);color:var(--bg);border-radius:6px;padding:18px 22px}
+.callout .eyebrow{color:var(--bg);opacity:.75}
+.callout p{margin-top:6px;max-width:80ch}
+.callout code{background:transparent;color:inherit;border:1px solid currentColor;opacity:.9}
+.rules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+@media (max-width:980px){.rules{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.rules{grid-template-columns:minmax(0,1fr)}}
+.rule{border-top:3px solid var(--ink);background:var(--surface);padding:14px 16px;border-radius:0 0 6px 6px;border-inline:1px solid var(--line);border-bottom:1px solid var(--line)}
+.rule b{display:block;font-family:var(--display);font-size:17px;font-weight:600;margin-bottom:4px}
+.rule span{font-size:14px;color:var(--muted)}
+/* tables */
+.tscroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:760px}
+th{text-align:left;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:500}
+td.c{white-space:nowrap}
+.legend{font-size:13px;color:var(--muted);margin-top:8px}
+/* flow diagram */
+.flow{display:grid;gap:10px}
+.lane{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.node{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 14px;font-size:14px;text-align:center;min-width:0}
+.node small{display:block;color:var(--muted);font-size:12px}
+.node.wa{border-color:var(--wa);background:var(--wa-bg);color:var(--ink)}
+.node.core{background:var(--accent-bg);border:2px solid var(--accent);font-weight:600;max-width:640px;margin:0 auto}
+.node.core small{font-weight:400}
+.node.guard{border:2px dashed var(--p0);background:var(--p0-bg);color:var(--ink);font-weight:600;max-width:640px;margin:0 auto}
+.node.guard small{font-weight:400}
+.arrow{text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+/* whatsapp mock */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+.chat{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.chat h3{font-size:17px;margin-bottom:4px}
+.msg{max-width:88%;padding:8px 12px;border-radius:8px;line-height:1.45}
+.msg.in{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg.out{align-self:flex-end;background:var(--wa-bg);border:1px solid var(--wa)}
+.msg .who{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:2px}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.btns span{border:1px solid var(--wa);color:var(--wa);border-radius:999px;padding:1px 10px;font-size:12.5px}
+.note{font-size:13px;color:var(--muted)}
+/* steps */
+.step{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px 20px}
+.step .hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin-bottom:8px}
+.step .n{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.step .when{font-size:13px;color:var(--muted);margin-left:auto}
+.step ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:14.5px}
+.step .done{font-size:14px;color:var(--muted);margin-top:10px}
+.step .done b{color:var(--ink)}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+.src{font-size:13.5px;color:var(--muted)}
+.src h3{font-size:16px;color:var(--ink);margin:18px 0 6px}
+.foot{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <a href="#shape">How it fits</a>
+  <a href="#sources">Data sources</a>
+  <a href="#erp">ERP connectors</a>
+  <a href="#whatsapp">WhatsApp</a>
+  <a href="#ai">AI pipeline</a>
+  <a href="#steps">Build steps</a>
+  <a href="#data">Data model changes</a>
+  <a href="#risks">Risks and decisions</a>
+  <a href="#refs">Sources</a>
+</nav>
+
+<main>
+<header>
+  <div class="eyebrow">Integrations plan · extends build plan v4</div>
+  <h1>FlowTwin integrations plan</h1>
+  <p class="lede">How data gets in without uploads, and how suppliers and Tier 1s get alerted on WhatsApp and answer in one tap. It covers ERP and EDI connectors for the Tier 1, light connectors and Mexican e-invoices (CFDI) for Tier 2s, and WhatsApp as a send-only alert channel. Its buttons open a mobile reply page where AI turns typed answers, voice notes and photos into confirmed updates. The gap-analysis recommendations are built in.</p>
+  <div class="meta"><span>7 October 2026</span><span>Builds on <a href="https://claude.ai/artifact/HrqYRwyQBjougarqxXKmp1" target="_blank" rel="noopener">Build Plan v4</a> and <a href="https://claude.ai/artifact/K5J2JsxvExXQUkQaJovDE9" target="_blank" rel="noopener">Gap Analysis</a></span><span>Uploads stay as the fallback</span></div>
+
+  <div class="callout" style="margin-top:22px"><div class="eyebrow">The short version</div><p>Don't integrate ERPs one at a time first. The best first move is a <b>copy of the Tier 1's automotive EDI traffic</b>: delivery schedules (830/862, DELFOR) and advance shipping notices (856, DESADV). That's one configuration change at the Tier 1 and it covers every EDI-capable supplier. Push alerts on <b>WhatsApp (send-only)</b> with a link to a one-tap mobile reply page for Tier 2s, then <b>CFDI e-invoices</b> for suppliers with no ERP. Build one direct ERP connector, for the design-partner Tier 1's system. Every source writes through the existing upload checks in <code>worker/intake</code>, so the risk engine doesn't change.</p></div>
+
+  <div class="rules" aria-label="Rules for every integration">
+    <div class="rule"><b>One intake path</b><span>Connectors, EDI, CFDI and the reply page produce the same rows as an upload and go through the same checks and writes in <code>worker/intake</code>.</span></div>
+    <div class="rule"><b>Strip costs on arrival</b><span>Supplier prices, costs and margins are dropped when the data arrives, not hidden in the UI. That covers CFDI amounts, ERP cost fields and costs typed on the reply page.</span></div>
+    <div class="rule"><b>Confirm before writing</b><span>Anything AI reads from a typed answer, voice note or photo is shown back to the sender with Confirm and Fix. Nothing is saved until they confirm.</span></div>
+    <div class="rule"><b>Read-only first</b><span>Connectors only read from customer systems. FlowTwin never writes back to an ERP in this plan.</span></div>
+  </div>
+</header>
+
+<section id="shape">
+  <div class="eyebrow">How it fits</div>
+  <h2>Every source feeds the same intake</h2>
+  <p class="intro">The worker already has a job queue, five upload types for the Tier 1 (suppliers, parts, stock, releases, receipts) with Spanish header matching, an hourly scheduler and a log of every notification sent. Integrations add sources in front of the intake, and WhatsApp becomes a second send channel next to email.</p>
+  <div class="box flow" role="img" aria-label="Six sources, including the mobile reply page, feed connector adapters, a cost filter and the existing intake checks, then the database, the risk engine and alerts pushed by email and WhatsApp.">
+    <div class="lane">
+      <div class="node">Tier 1 ERP<small>SAP, Dynamics, Epicor, Plex</small></div>
+      <div class="node">EDI copy<small>830 · 862 · 856 · DELFOR</small></div>
+      <div class="node">CFDI and Carta Porte<small>via SAT or Syntage</small></div>
+      <div class="node">Tier 2 ERP<small>B1, Odoo, BC, CONTPAQi agent</small></div>
+      <div class="node">Mobile reply page<small>opened from WhatsApp links: taps, text, voice, photos</small></div>
+      <div class="node">Uploads<small>web, email-in, SFTP</small></div>
+    </div>
+    <div class="arrow">↓ adapters map each source to intake rows</div>
+    <div class="node guard">Cost filter and AI confirmation<small>drop price and margin fields · confirm with the sender anything AI extracted</small></div>
+    <div class="arrow">↓</div>
+    <div class="node core">Existing intake checks and writes<small>suppliers · parts · stock · releases · receipts, plus new: shipment notices, capacity, supplier-reported events</small></div>
+    <div class="arrow">↓ recompute-risk job (unchanged)</div>
+    <div class="lane">
+      <div class="node">Risk engine and twin<small>14-day projection, flex test</small></div>
+      <div class="node">Predicted vs actual<small>matched against receipts and shipment notices</small></div>
+    </div>
+    <div class="arrow">↓ notification dispatch</div>
+    <div class="lane">
+      <div class="node">Email<small>current</small></div>
+      <div class="node wa">WhatsApp, send-only<small>utility templates with link buttons</small></div>
+      <div class="node">In-app alerts<small>current</small></div>
+    </div>
+  </div>
+</section>
+
+<section id="sources">
+  <div class="eyebrow">What comes from where</div>
+  <h2>Data sources ranked by reach per unit of effort</h2>
+  <p class="intro">Effort figures are our estimates for one read-only integration, not vendor numbers. The last column links each source to the gap-analysis item it closes.</p>
+  <div class="tscroll"><table>
+    <thead><tr><th>Source</th><th>Who</th><th>Data it carries</th><th>How</th><th>Effort</th><th>Priority</th><th>Gaps closed</th></tr></thead>
+    <tbody>
+      <tr><td>EDI copy from the Tier 1</td><td>Tier 1, covering all its EDI suppliers</td><td>Delivery schedules (830/862, DELFOR, VDA 4984), shipment notices (856, DESADV), OEM demand to the Tier 1</td><td>The Tier 1's EDI provider (OpenText, SEEBURGER, EDICOM, SupplyOn) adds a duplicate route to a FlowTwin AS2 or SFTP mailbox</td><td class="c">3–5 wks</td><td class="c"><span class="pill P1">P1</span></td><td>05 track record (shipment notices vs receipts), 12 Catena-X DCM shape</td></tr>
+      <tr><td>WhatsApp pushes and mobile reply page</td><td>Tier 2 owners and ops; Tier 1 managers</td><td>Out: alerts, reminders, digests, check-ins. In, through the reply page: alert answers, capacity, stock, input shortages</td><td>Meta Cloud API templates with link buttons (send-only); signed links to a Spanish reply page</td><td class="c">4–6 wks</td><td class="c"><span class="pill P1">P1</span></td><td>06 Spanish and WhatsApp, 02 input shocks, 07 IATF evidence</td></tr>
+      <tr><td>CFDI e-invoices and Carta Porte</td><td>Tier 2s with no ERP</td><td>Shipped quantities and dates (sales invoices), receipts from Tier 3s, route and departure times when the supplier ships in its own trucks (Carta Porte)</td><td>Syntage API with the supplier's consent, or SAT bulk download (descarga masiva) with the supplier's e.firma</td><td class="c">4–6 wks</td><td class="c"><span class="pill P1">P1</span></td><td>05 track record, 08 departure times for theft risk</td></tr>
+      <tr><td>Tier 1 ERP connector</td><td>The design-partner Tier 1</td><td>Stock per part, open POs and scheduling agreements, goods receipts, supplier master, part origin country and HS code</td><td>S/4HANA OData through SAP Cloud Connector; ECC through IDocs or middleware; Dynamics or Epicor REST</td><td class="c">1–3 months, mostly Tier 1 IT approval</td><td class="c"><span class="pill P1">P1</span></td><td>01 tariff exposure, the plan's top open question (stock per part)</td></tr>
+      <tr><td>Tier 2 ERP connectors</td><td>Tier 2s on cloud or modern ERPs</td><td>Stock, production orders, shipments</td><td>SAP B1 Service Layer, Odoo JSON-2 API, Business Central API v2</td><td class="c">2–4 wks each</td><td class="c"><span class="pill P2">P2</span></td><td>Data quality: lights switch from estimated to measured</td></tr>
+      <tr><td>On-prem agent</td><td>Tier 2s on CONTPAQi, Aspel or Microsip</td><td>Stock, sales, purchases</td><td>Small Windows service, outbound HTTPS only, reads the local SQL database</td><td class="c">4–6 wks once</td><td class="c"><span class="pill P2">P2</span></td><td>Covers the most common Mexican SME systems</td></tr>
+      <tr><td>Uploads, improved</td><td>Everyone</td><td>All five Tier 1 data types; supplier data</td><td>Current web upload plus an email-in address, SFTP drop, column-mapping screen, CONTPAQi and Aspel export templates</td><td class="c">2–3 wks</td><td class="c"><span class="pill P0">P0</span></td><td>The fallback for everyone</td></tr>
+    </tbody>
+  </table></div>
+  <p class="legend">Not recommended now: unified ERP APIs (Merge, Apideck, Codat, Rutter). They mostly cover accounting objects, not stock per part, schedules or shipment notices, and none covers CONTPAQi, Aspel or Microsip. Pricing starts around $650–750 a month.</p>
+</section>
+
+<section id="erp">
+  <div class="eyebrow">Direct connectors</div>
+  <h2>ERP connectors by system</h2>
+  <p class="intro">No public figures show which ERPs Mexican suppliers use. Large Tier 1s mostly run SAP, Oracle, Dynamics, Infor, Epicor or QAD. Tier 2 and Tier 3 SMEs mostly use CONTPAQi, Aspel or Microsip for invoicing and Excel for everything else. Build connectors in the order design partners ask for them.</p>
+  <div class="tscroll"><table>
+    <thead><tr><th>System</th><th>Side</th><th>Method</th><th>What to read</th><th>Watch out for</th></tr></thead>
+    <tbody>
+      <tr><td>SAP S/4HANA</td><td>Tier 1</td><td>Released OData APIs through SAP Cloud Connector or BTP (clean core)</td><td>Material stock, scheduling agreements and delivery schedules, goods receipts, vendor master, material master (origin country, HS code)</td><td>Customer IT security review takes weeks. The delivery-schedule OData API is read-only, which is all we need.</td></tr>
+      <tr><td>SAP ECC</td><td>Tier 1</td><td>IDoc outputs (DELFOR, DESADV) or reports through the customer's middleware (PI/PO, CPI)</td><td>Same as S/4</td><td>Mainstream maintenance ends 31 Dec 2027, so many Tier 1s are migrating. Prefer outputs that survive the move (IDoc and EDI) over custom tables.</td></tr>
+      <tr><td>Dynamics 365 BC and F&amp;O</td><td>Both</td><td>BC API v2.0 or F&amp;O data entities (OData), Entra OAuth</td><td>Items, inventory, vendors, purchase orders, receipts</td><td>F&amp;O entity names vary by customisation</td></tr>
+      <tr><td>Epicor Kinetic</td><td>Both</td><td>REST v2 (OData), API key plus token</td><td>Part bins, POs, receipts, jobs</td><td>Saved queries (BAQs) are the easiest way to get exactly the fields we need</td></tr>
+      <tr><td>Plex (Rockwell)</td><td>Tier 1, US-owned plants</td><td>REST through the Plex developer portal</td><td>Inventory, shipments, orders</td><td>The customer must set up access</td></tr>
+      <tr><td>SAP Business One</td><td>Tier 2</td><td>Service Layer (OData v4)</td><td>Items, warehouses, goods receipt POs, deliveries</td><td>Often installed on-site, so it needs the agent or a VPN</td></tr>
+      <tr><td>Odoo</td><td>Tier 2</td><td>JSON-2 API with an API key</td><td>stock.quant, purchase, mrp</td><td>The old XML-RPC/JSON-RPC API is deprecated since Odoo 19. Don't build on it.</td></tr>
+      <tr><td>CONTPAQi, Aspel, Microsip</td><td>Tier 2 and Tier 3</td><td>On-prem agent reading the local SQL Server or Firebird database, or export templates</td><td>Stock, sales, purchases</td><td>No mainstream public API. Highest friction, but the most common systems.</td></tr>
+    </tbody>
+  </table></div>
+  <h3 class="sub">How a connector plugs in</h3>
+  <ul class="plain">
+    <li>A new job type, <code>sync-connector</code>, runs on the existing queue with <code>{company_id, connector, since}</code>. The hourly scheduler queues one per active connection.</li>
+    <li>Each adapter returns rows shaped like an upload (<code>tier1-stock</code>, <code>tier1-releases</code>, …) and calls the same validators and writers as <code>intake/runner.py</code>. A sync also creates an <code>uploads</code> row, with its source set to the connector, so the data status screens work unchanged.</li>
+    <li>Credentials live in a secrets store, never in Postgres rows the app can read. The tenancy check from the upload jobs applies: a job can only write to its own company.</li>
+    <li>Each sync records its row count, issues and the newest timestamp seen in a new <code>integration_runs</code> table, so the next run only pulls changes.</li>
+  </ul>
+</section>
+
+<section id="whatsapp">
+  <div class="eyebrow">Channel</div>
+  <h2>WhatsApp as a push channel</h2>
+  <p class="intro">About 85% of Mexican SMEs prefer WhatsApp for business, so alerts go there first. WhatsApp is <b>send-only</b>: FlowTwin pushes approved messages, and each one carries a link button to a mobile reply page where the person answers. Nobody is asked to reply in the chat.</p>
+
+  <div class="two">
+    <div class="chat" aria-label="Example: supplier alert push and reply page">
+      <h3>Supplier alert</h3>
+      <div class="msg out"><span class="who">FlowTwin · utility template</span>Alerta para Estampados del Laja: QRO Seating tiene 3 días de inventario del soporte 4471-B. Lluvia en la ruta Celaya–Querétaro puede retrasar la entrega. Responde antes de las 17:00.<div class="btns"><span>↗ Responder en FlowTwin</span></div></div>
+      <div class="msg in"><span class="who">Reply page · opens from the button, no login</span>¿Puedes enviar el jueves 9 de octubre?<div class="btns"><span>Sí, el jueves</span><span>Otra fecha</span><span>No puedo</span></div><span class="note">Optional: write, record a voice note or attach a photo or Excel file.</span></div>
+      <p class="note">The answer is saved on the alert, the Tier 1 gets a "supplier responded" push, and any capacity change feeds the flex test.</p>
+    </div>
+    <div class="chat" aria-label="Example: Tier 1 daily digest push">
+      <h3>Tier 1 daily digest</h3>
+      <div class="msg out"><span class="who">FlowTwin · utility template, 7:30</span>Buenos días, Alejandra. Hoy: 1 proveedor en rojo, 2 en ámbar.<br>• Hidroformados MX: paro de línea en ~2 días (lluvia Orizaba)<br>• Estampados del Laja: respondió, envía jueves<div class="btns"><span>↗ Ver alertas</span></div></div>
+      <div class="msg out"><span class="who">FlowTwin · utility template</span>Estampados del Laja respondió a la alerta del soporte 4471-B: envía 1,800 pzas el jueves y 600 el lunes.<div class="btns"><span>↗ Ver respuesta</span></div></div>
+      <p class="note">Each button opens the matching screen in the web app. Acting on the alert happens there.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Messages to send</h3>
+  <div class="tscroll"><table>
+    <thead><tr><th>Message</th><th>To</th><th>Trigger</th><th>Button opens</th><th>Step</th></tr></thead>
+    <tbody>
+      <tr><td>Welcome and opt-in confirmation</td><td>Tier 2 and Tier 1 contacts</td><td>Contact opts in through the invite or onboarding form</td><td>Onboarding in the app</td><td class="c">B</td></tr>
+      <tr><td>New alert</td><td>Tier 2, and Tier 1 if red</td><td><code>new-alert</code> in <code>notify/dispatch.py</code></td><td>Mobile reply page (supplier) · Alerts (Tier 1)</td><td class="c">B</td></tr>
+      <tr><td>Alert escalated, amber to red</td><td>Tier 2 and Tier 1</td><td><code>level-up</code></td><td>Same as above</td><td class="c">B</td></tr>
+      <tr><td>Supplier responded</td><td>Tier 1</td><td><code>supplier-responded</code></td><td>The alert</td><td class="c">B</td></tr>
+      <tr><td>Alert resolved</td><td>Tier 1</td><td><code>auto-resolved</code></td><td>The alert</td><td class="c">B</td></tr>
+      <tr><td>Reminder: no answer after 4 hours on a red alert</td><td>Tier 2</td><td>Hourly scheduler</td><td>Mobile reply page</td><td class="c">B</td></tr>
+      <tr><td>Daily digest of red and amber suppliers</td><td>Tier 1</td><td>Weekdays 7:30, only when something is red or amber</td><td>Risk board</td><td class="c">B</td></tr>
+      <tr><td>Weekly stock and capacity check-in</td><td>Tier 2</td><td>Weekly, skipped if data arrived from EDI, ERP or CFDI that week</td><td>Update page (stock, capacity, input shortages)</td><td class="c">B</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="two" style="margin-top:12px">
+    <div class="box"><h3 style="margin-bottom:8px">What send-only means in practice</h3><ul class="plain">
+      <li><b>Templates only.</b> Every message is an approved utility template in Spanish, transactional and with no promotional wording, so Meta doesn't reclassify it as marketing.</li>
+      <li><b>Link buttons, not reply buttons.</b> Quick-reply buttons would send messages back to us. Use URL buttons that open the app with a signed, expiring link for that one alert.</li>
+      <li><b>Incoming messages are not answered.</b> The webhook only processes opt-outs (BAJA, STOP) and delivery or read receipts. The business profile and every template say "Este número solo envía avisos. Responde en el enlace."</li>
+      <li><b>The AI chatbot policy doesn't apply</b> because there is no conversation on WhatsApp.</li>
+      <li><b>Still required:</b> Meta business verification, a dedicated number, opt-in collected in the Tier 1's invite and onboarding form, and a privacy notice saying Meta processes the messages. New accounts start at 250 messages a day.</li>
+      <li><b>Email stays on</b> as a fallback for contacts without WhatsApp or who opt out.</li>
+    </ul></div>
+    <div class="box"><h3 style="margin-bottom:8px">What it costs</h3><ul class="plain">
+      <li>Only delivered templates are charged. Mexico utility rate: about <b>US$0.0085</b> per message.</li>
+      <li>Supplier: about 4 weekly check-ins plus 4–6 alerts and reminders a month ≈ <b>US$0.07–0.09 per supplier a month</b>.</li>
+      <li>Tier 1 user: about 22 digests plus 10–20 alert and response pushes a month ≈ <b>US$0.30–0.40 per user a month</b>.</li>
+      <li>No reply charges. Meta's new charge for replies (from Oct 2026) and its per-token AI pricing don't apply.</li>
+      <li>Provider: Meta Cloud API directly ($0 extra) is enough for templates. 360dialog (about $49–99 per number a month) only if we want their template tools.</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="ai">
+  <div class="eyebrow">How AI is used</div>
+  <h2>AI on the reply page, not in the chat</h2>
+  <p class="intro">The mobile reply page opened from a WhatsApp button covers what a chat would. Most answers are one tap. When a supplier writes, records a voice note or attaches a photo or Excel file, AI turns it into a proposed update that they confirm on the same page before anything is saved.</p>
+  <div class="tscroll"><table>
+    <thead><tr><th>Stage</th><th>What happens</th><th>Guardrail</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Open</td><td>The link carries a signed token for one supplier and one alert or check-in. The page opens in Spanish with no login.</td><td>Tokens expire after 72 hours, work for one alert only and can't see other suppliers' data. A forwarded link exposes only that alert.</td></tr>
+      <tr><td>2 · Answer</td><td>One-tap answers (yes, other date, can't) write straight away. Free text, voice, photo or Excel goes to extraction.</td><td>Text and files are treated as untrusted data.</td></tr>
+      <tr><td>3 · Normalise</td><td>Transcribe voice notes recorded in the browser (benchmark Whisper/gpt-4o-transcribe against Deepgram on real plant audio). Parse Excel with the existing intake parser. Read photos with a vision model.</td><td>Store the file's hash and the transcript.</td></tr>
+      <tr><td>4 · Extract</td><td>An LLM fills a strict schema: intent (alert answer, stock, capacity, input shortage), part, quantity, date, reason, confidence. Relative dates ("el jueves") are resolved in Mexico City time.</td><td>The only tool the model has is "propose update". It sees only this supplier's open alert and parts. Any cost or price it finds is dropped.</td></tr>
+      <tr><td>5 · Confirm</td><td>The page shows "Entendí esto: …" with Confirm and Fix.</td><td>Low confidence or a large change (capacity down more than 30%) goes to a review queue.</td></tr>
+      <tr><td>6 · Write and record</td><td>Write through the intake writers or alert actions, queue a risk recompute, and log input, extraction, model version and confirmation.</td><td>The log becomes the IATF 16949 evidence export (gap 07).</td></tr>
+    </tbody>
+  </table></div>
+  <p class="legend">The Tier 1's questions ("¿quién está en rojo hoy?") move to the web app, answered only from the data the Tier 1 can already see. Supplier free text is never passed to that context. Add regression tests that try to get supplier costs out.</p>
+</section>
+
+<section id="steps">
+  <div class="eyebrow">Build order</div>
+  <h2>Five build steps</h2>
+  <p class="intro">Steps A–C fit in Phase 2 of the build plan ("Tier 1 data intake" and "Notifications") and are the minimum for a pilot with real data. Times assume one or two engineers.</p>
+  <div class="stack">
+    <div class="step"><div class="hd"><span class="n">Step A</span><h3>Groundwork</h3><span class="pill P0">P0</span><span class="when">Weeks 0–3</span></div><ul>
+      <li>Data model changes (see below): part origin country and HS code (gap 01), shipment notices, capacity events, supplier-reported events, source and confidence on every row, <code>integration_runs</code>, WhatsApp contacts with opt-in and opt-out.</li>
+      <li>Better uploads: an email-in address, SFTP drop, column-mapping screen when headers don't match, and CONTPAQi and Aspel export templates.</li>
+      <li>Start the long-lead items now: Meta business verification, a dedicated number and the Spanish utility templates for approval; the LFPDPPP privacy notice; legal review of e-invoice access; ask the design-partner Tier 1 which ERP and EDI provider it uses.</li>
+    </ul><p class="done"><b>Done when</b> a Tier 1 can email its daily stock export and the board updates without anyone logging in.</p></div>
+
+    <div class="step"><div class="hd"><span class="n">Step B</span><h3>WhatsApp pushes, reply page and EDI copy</h3><span class="pill P1">P1</span><span class="pill wa">WhatsApp</span><span class="when">Weeks 3–8</span></div><ul>
+      <li>WhatsApp as a second channel in <code>notify/dispatch.py</code>, using the same reasons and the same send-once log in <code>alert_notifications</code> (add a channel column). Add the reminder, daily digest and weekly check-in.</li>
+      <li>Mobile reply page in Spanish, opened by a signed link: one-tap answers to alerts and a short stock and capacity form. No AI yet.</li>
+      <li>EDI copy feed from the design partner: AS2 or SFTP mailbox, X12 and EDIFACT parsing into releases and shipment notices.</li>
+      <li>Predicted vs actual (gap 05): match each alert's prediction to shipment notices and receipts; show the hit rate.</li>
+    </ul><p class="done"><b>Done when</b> a supplier gets an alert on WhatsApp and answers it in under a minute, and releases arrive from EDI with no upload.</p></div>
+
+    <div class="step"><div class="hd"><span class="n">Step C</span><h3>First ERP connector, CFDI and AI on the reply page</h3><span class="pill P1">P1</span><span class="pill ai">AI</span><span class="when">Months 2–4</span></div><ul>
+      <li>One Tier 1 ERP connector for the design partner's system (most likely SAP S/4 or ECC), read-only, through <code>sync-connector</code> jobs.</li>
+      <li>CFDI ingestion for Tier 2s through Syntage, with consent: shipments from sales invoices, receipts from purchase invoices, Carta Porte routes and departure times when the supplier ships in its own trucks. Amounts are stripped.</li>
+      <li>AI extraction of free text and Excel on the reply page, with confirmation and the review queue; supplier-reported input shortages as signals (gap 02).</li>
+    </ul><p class="done"><b>Done when</b> stock per part updates hourly from the Tier 1's ERP, and a supplier with no ERP shows as "measured" from its invoices.</p></div>
+
+    <div class="step"><div class="hd"><span class="n">Step D</span><h3>Voice, photos and Tier 2 connectors</h3><span class="pill P2">P2</span><span class="pill ai">AI</span><span class="when">Months 4–6</span></div><ul>
+      <li>Voice notes recorded on the reply page and photos of stock sheets, after benchmarking transcription on real supplier audio.</li>
+      <li>Tier 2 connectors on request: SAP B1, Odoo JSON-2, Business Central; the on-prem agent for CONTPAQi and Microsip.</li>
+      <li>IATF 16949 evidence export from the alert, response and reply log (gap 07).</li>
+    </ul></div>
+
+    <div class="step"><div class="hd"><span class="n">Step E</span><h3>Tier 1 questions and standards</h3><span class="pill P2">P2</span><span class="when">Month 6+</span></div><ul>
+      <li>Tier 1 questions in the web app, answered only from the Tier 1's own view.</li>
+      <li>Map capacity and demand fields to Catena-X DCM through the AIAG North America hub (gap 12).</li>
+      <li>Second Tier 1 ERP family (Dynamics, Epicor or Plex) as customers require.</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="data">
+  <div class="eyebrow">Schema</div>
+  <h2>Data model changes</h2>
+  <p class="intro">The current <code>shipments</code> table holds yearly tonnes for carbon, so shipment notices need a new table.</p>
+  <div class="tscroll"><table>
+    <thead><tr><th>Change</th><th>Fields</th><th>Filled by</th><th>Visible to the Tier 1</th></tr></thead>
+    <tbody>
+      <tr><td><code>parts</code>: new columns</td><td>origin country, HS code (fracción arancelaria)</td><td>Tier 1 ERP material master, upload</td><td>Yes (its own parts)</td></tr>
+      <tr><td><code>shipment_notices</code> (new)</td><td>supplier, customer, part, quantity, ship date, expected arrival, carrier, source ref (856, CFDI UUID, Carta Porte)</td><td>EDI 856/DESADV, CFDI, Tier 2 ERP, reply page</td><td>Yes, without amounts</td></tr>
+      <tr><td><code>capacity_events</code> (new)</td><td>supplier, resource (press 3), from–to dates, capacity change, reason</td><td>Reply page, Tier 2 ERP</td><td>Effect only (flex result); detail stays with the supplier unless shared</td></tr>
+      <tr><td><code>signals</code>: new kinds</td><td>supplier-reported input shortage, policy or tariff event</td><td>Reply page, admin</td><td>Yes, as drivers</td></tr>
+      <tr><td>Every intake row</td><td>source (upload, edi, erp, cfdi, reply-page), confidence, source ref</td><td>All adapters</td><td>As the data status tag (measured or estimated)</td></tr>
+      <tr><td><code>integration_runs</code> (new)</td><td>company, connector, started, finished, rows, issues, last timestamp seen</td><td>sync-connector jobs</td><td>Own company only</td></tr>
+      <tr><td><code>wa_contacts</code> (new)</td><td>phone, company, role, opt-in time and wording, opt-out time, language</td><td>Invite and onboarding forms, opt-out webhook</td><td>Own contacts only</td></tr>
+      <tr><td><code>alert_notifications</code>: new column</td><td>channel (email, whatsapp), provider message id, delivered and read times</td><td>Dispatch and delivery receipts</td><td>Yes, for its own alerts</td></tr>
+      <tr><td><code>reply_links</code>, <code>reply_submissions</code> (new)</td><td>signed token, scope, expiry; submitted text or file hash, transcript, extraction, model version, confirmation</td><td>Reply page</td><td>The confirmed answer only, never the raw text</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="risks">
+  <div class="eyebrow">Before we start</div>
+  <h2>Risks and open decisions</h2>
+  <div class="stack">
+    <div class="callout"><div class="eyebrow">First question for the design partner</div><p>Which ERP and which EDI provider do you use, and will your IT approve a read-only connection and a copy of your 830/862/856 traffic? The answer sets the order of Steps B and C.</p></div>
+    <div class="tscroll"><table>
+      <thead><tr><th>Item</th><th>Why it matters</th><th>What to do</th></tr></thead>
+      <tbody>
+        <tr><td>People reply in WhatsApp anyway</td><td>Answers sent in the chat would be lost</td><td>Say "Responde en el enlace" in every template and the business profile. Track how often it happens; if it's frequent, revisit the send-only decision.</td></tr>
+        <tr><td>Reply links without logins</td><td>A forwarded link lets someone else answer</td><td>Signed tokens for one alert, 72-hour expiry, every answer logged with the token used. Replace with real logins in Phase 6.</td></tr>
+        <tr><td>Tier 1 IT approval</td><td>S/4 connections and EDI routes need security review, often weeks</td><td>Ask in the first meeting; offer the EDI copy first since it's a provider setting</td></tr>
+        <tr><td>Holding a supplier's e.firma or CIEC</td><td>The e.firma is legally a signature</td><td>Use Syntage so FlowTwin never holds it; get Mexican legal advice before any direct SAT download</td></tr>
+        <tr><td>CFDI amounts</td><td>Invoices carry unit prices; purchase invoices expose a Tier 2's input costs</td><td>Drop amount fields in the CFDI adapter before writing; test it</td></tr>
+        <tr><td>Template approval and reclassification</td><td>Meta can reject a template or reclassify it as marketing, which costs more and may be limited</td><td>Keep wording transactional; submit templates in Step A</td></tr>
+        <tr><td>Wrong data from AI extraction</td><td>A misheard quantity could hide or cause a line-stop alert</td><td>Confirmation on the page, review queue, and a source tag showing the data came from free text</td></tr>
+        <tr><td>Language of the UI</td><td>BRIEF.md says English UI; suppliers work in Spanish</td><td>Decide: Spanish-first reply page, supplier screens and WhatsApp; English Tier 1 screens for now</td></tr>
+        <tr><td>LFPDPPP 2025</td><td>FlowTwin now has direct obligations for contact data, even as a processor</td><td>Privacy notice, consent log, retention periods, rights handling; drop driver names from Carta Porte</td></tr>
+        <tr><td>EDI among Tier 2s</td><td>No figures found on how many Mexican Tier 2s receive EDI</td><td>Ask the design partner what share of its suppliers are on EDI or a portal</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+
+<section id="refs" class="src">
+  <div class="eyebrow">Inputs</div>
+  <h2 style="color:var(--ink)">Sources</h2>
+  <h3>ERP, EDI and CFDI</h3>
+  <ul class="plain">
+    <li><a href="https://erp-software.org/en/erp-worldwide/mexico/" target="_blank" rel="noopener">ERP market in Mexico (no share table exists)</a> · <a href="https://clusterindustrial.com.mx/qas-2025-el-rol-del-proveedor-tier-2-en-la-competitividad-regional/" target="_blank" rel="noopener">Tier 2 suppliers in Mexico, about 50% IATF certified</a></li>
+    <li><a href="https://blog.sap-press.com/sap-s4hana-clean-core-principles-benefits-and-best-practices" target="_blank" rel="noopener">SAP clean core</a> · <a href="https://redresscompliance.com/sap-ecc-2027-deadline-reality-check.html" target="_blank" rel="noopener">ECC maintenance ends 2027</a> · <a href="https://sap-b1-blog.com/en/glossar/rest-api/" target="_blank" rel="noopener">SAP B1 Service Layer</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/api-reference/v2.0/api/dynamics_purchaseorder_get" target="_blank" rel="noopener">Business Central API v2</a> · <a href="https://www.odoo.com/documentation/20.0/developer/reference/external_rpc_api.html" target="_blank" rel="noopener">Odoo external API deprecation</a></li>
+    <li><a href="https://edicomgroup.com/blog/edi-in-the-automotive-sector-is-the-key-piece-in-the-inner-workings-of-oem-and-tier" target="_blank" rel="noopener">EDI between OEMs and tiers (EDICOM)</a> · <a href="https://www.gefeg.com/wp-content/uploads/2024/01/Training-VDA-message-4984-T2-Global-DELFOR-GEFEG.pdf" target="_blank" rel="noopener">VDA 4984 Global DELFOR</a></li>
+    <li><a href="https://contadormx.com/nuevo-web-service-del-sat-1-5-descarga-masiva-de-xml/" target="_blank" rel="noopener">SAT bulk download web service v1.5</a> · <a href="https://docs.syntage.com/resources/datasources/sat/invoices" target="_blank" rel="noopener">Syntage invoices API</a> · <a href="https://www.siigo.com/mx/blog/obligaciones-fiscales/cfdi-tipo-traslado-o-tipo-ingreso-cual-debo-emitir/" target="_blank" rel="noopener">Who issues Carta Porte</a></li>
+    <li><a href="https://www.apideck.com/erp-api/purchase-orders.md" target="_blank" rel="noopener">Apideck ERP purchase orders</a> · <a href="https://unified.to/blog/codat_vs_unified_which_should_you_use_for_accounting_integrations_in_2026" target="_blank" rel="noopener">Unified accounting API pricing</a></li>
+  </ul>
+  <h3>WhatsApp</h3>
+  <ul class="plain">
+    <li><a href="https://developers.facebook.com/docs/whatsapp/pricing" target="_blank" rel="noopener">WhatsApp pricing (Meta)</a> · <a href="https://respond.io/blog/whatsapp-pricing-change-2026" target="_blank" rel="noopener">Service-message charges from Oct 2026</a> · <a href="https://www.aurorainbox.com/precio-whatsapp-business-api-mexico-2026/" target="_blank" rel="noopener">Mexico rates 2026</a></li>
+    <li><a href="https://respond.io/blog/whatsapp-general-purpose-chatbots-ban" target="_blank" rel="noopener">General-purpose AI chatbot ban</a> · <a href="https://en.agcm.it/en/media/press-releases/2025/12/A576" target="_blank" rel="noopener">Italy competition authority interim measures</a></li>
+    <li><a href="https://developers.facebook.com/documentation/business-messaging/whatsapp/messaging-limits" target="_blank" rel="noopener">Messaging limits</a> · <a href="https://developers.facebook.com/documentation/business-messaging/whatsapp/getting-opt-in" target="_blank" rel="noopener">Opt-in rules</a></li>
+    <li><a href="https://developers.facebook.com/documentation/business-messaging/whatsapp/data-privacy-and-security" target="_blank" rel="noopener">Cloud API data privacy and storage</a> · <a href="https://docs.360dialog.com/docs/360dialog/prices-plans-and-payment-options" target="_blank" rel="noopener">360dialog pricing</a></li>
+  </ul>
+  <h3>Privacy</h3>
+  <ul class="plain">
+    <li><a href="https://www.hoganlovells.com/es/publications/mexicos-new-federal-data-protection-law-what-it-means-for-companies" target="_blank" rel="noopener">Mexico's new data protection law (Hogan Lovells)</a></li>
+  </ul>
+  <p class="foot">7 October 2026 · Effort figures are team estimates. Items marked "check" come from secondary sources. Example names and figures in the chat mock-ups are from the seed data.</p>
+</section>
+</main>
+</div>

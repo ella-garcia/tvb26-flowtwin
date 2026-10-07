@@ -3,15 +3,27 @@ import math
 
 from .geo import clamp
 from .projection import CRIT_W, active_on, hit_legs
+from .trade import trade_drivers
 
 
-def score_drivers(customer, supplier, proj, flex, otif, signals):
-    """Return (score, drivers). drivers are {label, kind, [signalId], contribution} with integer contributions summing to score."""
+def score_drivers(customer, supplier, proj, flex, otif, signals, parts=()):
+    """Return (score, drivers). drivers are {label, kind, [signalId], contribution} with integer contributions summing to score.
+
+    Delay vs cover (max 45) = 45 x clamp(max(gap90, input gap) / cover / 2), split between transit signals and input
+    shortage in proportion to gap90 and the exposed part's largest input gap (identical to before without input signals).
+    Trade exposure (policy signals matching the parts, max 8) comes from trade.trade_drivers.
+    """
     normal, days, proj_t, exposed = proj["normal"], proj["days"], proj["proj_t"], proj["exposed"]
     ex_part, c0 = exposed["part"], exposed["c0"]
     drivers = []  # (label, kind, signal_id, points)
     gap90 = max(0.0, max(t[2] for t in proj_t) - normal)
+    in_gap = exposed.get("in_gap", 0.0)
     delay_pts = 45 * clamp(gap90 / max(c0, 0.5) / 2.0)
+    input_pts = 0.0
+    if in_gap > 0:
+        pressure = 45 * clamp(max(gap90, in_gap) / max(c0, 0.5) / 2.0)
+        delay_pts = pressure * gap90 / (gap90 + in_gap)
+        input_pts = pressure - delay_pts
     sigs = [s for s in signals if hit_legs(supplier, s) and any(active_on(s, d) for d in days)]
     if sigs and delay_pts > 0.5:
         w = {s["id"]: math.log(float(s["transit_multiplier"])) for s in sigs}
@@ -33,6 +45,18 @@ def score_drivers(customer, supplier, proj, flex, otif, signals):
             drivers.append((lab, s["kind"], s["id"], delay_pts * w[s["id"]] / tw))
     elif delay_pts > 0.5:
         drivers.append((f"Normal transit variability against {c0:g} days of cover", "cover", None, delay_pts))
+    isigs = proj.get("input_signals") or []
+    if isigs and input_pts > 0.5:
+        w = {s["id"]: float(s.get("supply_cut_pct") or 0) or 1e-9 for s in isigs}
+        tw = sum(w.values())
+        fg = exposed.get("fg", 0.0)
+        for s in isigs:
+            short = s.get("short_label") or s.get("short") or s["title"]
+            lab = (f"Input shortage at the supplier: {short} cuts what it can ship by {float(s.get('supply_cut_pct') or 0)*100:.0f}%; "
+                   f"its finished goods cover {fg:.1f} days of {ex_part['name'].lower()}")
+            drivers.append((lab, "supplier-input", s["id"], input_pts * w[s["id"]] / tw))
+    for lab, sid, pts in trade_drivers(parts, signals, days[0]):
+        drivers.append((lab, "policy", sid, pts))
     crit, single = ex_part["criticality"], bool(ex_part["single_source"])
     crit_pts = {"line-stopper": 10, "high": 5, "normal": 1}[crit] + (6 if single else 0)
     lab = f"{ex_part['name']} is a {'single-source ' if single else ''}{crit.replace('-', ' ')} part"

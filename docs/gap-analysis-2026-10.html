@@ -1,0 +1,337 @@
+<title>FlowTwin Gap Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: companion to the Build Plan v4 page — same palette and faces; one reading column with a sticky index; ranked gap cards tied to build-plan phases. */
+:root{
+  --bg:#F3F5F3; --surface:#FFFFFF; --ink:#1B2420; --muted:#4F5A55; --line:#D6DAD6;
+  --accent:#1F4E8C; --accent-bg:#E4ECF6;
+  --p0:#9A3A0B; --p0-bg:#FBEADF; --p1:#1F4E8C; --p1-bg:#E4ECF6; --p2:#4A5550; --p2-bg:#E8EBE8;
+  --good:#1D6B4F; --good-bg:#E2F0E9; --warn:#8A5A00; --warn-bg:#FBF0D6;
+  --twin:#5B3E8F; --twin-bg:#EEE8F7;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121715; --surface:#1A201D; --ink:#E6EBE8; --muted:#A3AEA9; --line:#2E3733;
+  --accent:#8FB4E6; --accent-bg:#1C2A3D;
+  --p0:#F0A07A; --p0-bg:#3A241A; --p1:#8FB4E6; --p1-bg:#1C2A3D; --p2:#B5BFBA; --p2-bg:#262E2B;
+  --good:#7CC4A3; --good-bg:#17302A; --warn:#E8C27A; --warn-bg:#33291A; --twin:#C3A8EE; --twin-bg:#2A2238; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121715; --surface:#1A201D; --ink:#E6EBE8; --muted:#A3AEA9; --line:#2E3733;
+  --accent:#8FB4E6; --accent-bg:#1C2A3D;
+  --p0:#F0A07A; --p0-bg:#3A241A; --p1:#8FB4E6; --p1-bg:#1C2A3D; --p2:#B5BFBA; --p2-bg:#262E2B;
+  --good:#7CC4A3; --good-bg:#17302A; --warn:#E8C27A; --warn-bg:#33291A; --twin:#C3A8EE; --twin-bg:#2A2238; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:0}.toc{display:none}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;font-size:13.5px;display:flex;flex-direction:column;gap:2px;padding-top:150px}
+.toc a{color:var(--muted);text-decoration:none;padding:4px 10px;border-left:2px solid var(--line)}
+.toc a:hover,.toc a:focus-visible{color:var(--ink);border-left-color:var(--accent)}
+main{min-width:0}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(34px,5vw,48px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:28px;font-weight:700;margin-bottom:6px}
+h3{font-size:20px;font-weight:600}
+p{margin:0;max-width:72ch}
+a{color:var(--accent)}
+.eyebrow{font-family:var(--display);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lede{font-size:17.5px;color:var(--muted);margin-top:10px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);margin-top:14px}
+section{margin-top:52px;scroll-margin-top:20px}
+section > .intro{color:var(--muted);margin-bottom:18px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px}
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;font-weight:500;padding:1px 7px;border-radius:4px;white-space:nowrap;vertical-align:1px}
+.P0{color:var(--p0);background:var(--p0-bg)} .P1{color:var(--p1);background:var(--p1-bg)} .P2{color:var(--p2);background:var(--p2-bg)}
+.tw{color:var(--twin);background:var(--twin-bg)}
+.add{color:var(--good);background:var(--good-bg)} .move{color:var(--p0);background:var(--p0-bg)} .chg{color:var(--warn);background:var(--warn-bg)} .dec{color:var(--p2);background:var(--p2-bg)}
+.u{font-family:var(--mono);font-size:10.5px;color:var(--warn);background:var(--warn-bg);padding:0 5px;border-radius:3px;vertical-align:1px;white-space:nowrap}
+.callout{background:var(--ink);color:var(--bg);border-radius:6px;padding:18px 22px}
+.callout .eyebrow{color:var(--bg);opacity:.75}
+.callout p{margin-top:6px;max-width:80ch}
+.verdict{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:22px}
+@media (max-width:760px){.verdict{grid-template-columns:minmax(0,1fr)}}
+.verdict .rule{border-top:3px solid var(--ink);background:var(--surface);padding:14px 16px;border-radius:0 0 6px 6px;border-inline:1px solid var(--line);border-bottom:1px solid var(--line)}
+.verdict b{display:block;font-family:var(--display);font-size:17px;font-weight:600;margin-bottom:4px}
+.verdict span{font-size:14px;color:var(--muted)}
+.verdict .n{font-family:var(--display);font-size:30px;font-weight:700;line-height:1;margin-bottom:6px;font-variant-numeric:tabular-nums}
+/* tables */
+.tscroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:720px}
+th{text-align:left;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:500}
+td.c{text-align:center;white-space:nowrap}
+.y{color:var(--good);font-weight:600} .pa{color:var(--warn);font-weight:600} .no{color:var(--muted)}
+.ft td{background:var(--twin-bg)}
+.legend{font-size:13px;color:var(--muted);margin-top:8px}
+/* gap cards */
+.filter{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:16px;font-size:13.5px;color:var(--muted)}
+.filter button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 13px;cursor:pointer}
+.filter button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gap{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px 20px;display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 14px}
+.gap .rank{font-family:var(--mono);font-size:13px;color:var(--muted);padding-top:3px}
+.gap .hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}
+.gap dl{grid-column:2;margin:8px 0 0;display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px 14px;font-size:14.5px}
+@media (max-width:560px){.gap{grid-template-columns:minmax(0,1fr)}.gap dl{grid-column:1;grid-template-columns:minmax(0,1fr);gap:2px}.gap dd{margin-bottom:6px}}
+.gap dt{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.gap dd{margin:0}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+.two .box h3{margin-bottom:8px}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+.src{font-size:13.5px;color:var(--muted)}
+.src h3{font-size:16px;color:var(--ink);margin:18px 0 6px}
+.foot{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <a href="#landscape">Landscape</a>
+  <a href="#matrix">Capability check</a>
+  <a href="#open-ground">Where we're ahead</a>
+  <a href="#gaps">Gaps in the plan</a>
+  <a href="#threats">Who could close in</a>
+  <a href="#verify">Check before citing</a>
+  <a href="#sources">Sources</a>
+</nav>
+
+<main>
+<header>
+  <div class="eyebrow">Market scan · against build plan v4</div>
+  <h1>FlowTwin gap analysis</h1>
+  <p class="lede">A scan of supplier-risk, transport-visibility, digital-twin and Mexico logistics software from 2024 to October 2026, read against the build plan. Two questions: where does the market leave room for FlowTwin, and what does the plan still miss?</p>
+  <div class="meta"><span>6 October 2026</span><span>Covers about 40 vendors and the Mexican signal sources</span><span>Companion to <a href="https://claude.ai/artifact/HrqYRwyQBjougarqxXKmp1" target="_blank" rel="noopener">FlowTwin Build Plan v4</a></span></div>
+
+  <div class="callout" style="margin-top:22px"><div class="eyebrow">Bottom line</div><p>The wedge holds. No vendor we found projects a part's days to line stop by setting the Tier 1's stock cover against a supplier's transit-time distribution, and none serves Mexican Tier 2 SMEs. The plan's weak spot is its signals. It names weather, roads, theft and ports, but in Mexico only the US side of the border has a usable live feed. It also leaves out trade and tariff risk and upstream component shocks, and those caused the biggest Mexican disruptions of the last year.</p></div>
+
+  <div class="verdict">
+    <div class="rule"><div class="n">0</div><b>Vendors doing part-level line-stop projection for Tier 2s</b><span>Resilinc is closest, with a static time-to-recover survey. Overhaul is closest on Mexico, with in-transit tracking.</span></div>
+    <div class="rule"><div class="n">1 of 5</div><b>Plan signals with a usable live feed</b><span>Only US-side border wait times (CBP). SMN weather covers 3 of 14 days. Roads, theft and Mexican customs have no open API.</span></div>
+    <div class="rule"><div class="n">12</div><b>Gaps in the plan</b><span>4 to add, 3 to move up, 3 to change and 2 decisions to make. Ranked below with the phase each one touches.</span></div>
+  </div>
+</header>
+
+<section id="landscape">
+  <div class="eyebrow">Who's out there</div>
+  <h2>Five groups of tools, none aimed at the Tier 2</h2>
+  <p class="intro">Every group is either sold to OEMs and large enterprises or works on shipments rather than parts. 2025–26 news is mostly AI agents bolted onto existing platforms, plus consolidation.</p>
+  <div class="tscroll"><table>
+    <thead><tr><th>Group</th><th>Examples</th><th>What they do</th><th>Who pays</th><th>Recent moves</th></tr></thead>
+    <tbody>
+      <tr><td>Supplier risk monitoring</td><td>Everstream, Resilinc, Prewave, Exiger, interos.ai, Sphera (riskmethods), Altana, D&amp;B</td><td>Map sub-tiers and watch news and events. Score suppliers, not parts.</td><td>OEMs, large enterprises, government</td><td>Everstream, Prewave, Exiger and apexanalytix each announce Leader status in the 2026 Gartner supplier risk quadrant. Resilinc launched an agentic AI platform (May 2025). interos launched iQ with tariff exposure (Apr 2026).</td></tr>
+      <tr><td>Transport visibility</td><td>project44, FourKites, Overhaul</td><td>Predicted ETAs per shipment; in-transit theft security</td><td>Shippers, carriers, OEMs</td><td>Overhaul raised $105M (Aug 2025) and bought FreightVerify for part- and VIN-level inbound tracking. project44 launched AI agents (Apr 2026). FourKites launched Loft (Mar 2026).</td></tr>
+      <tr><td>Planning and network-design twins</td><td>Kinaxis, o9, Blue Yonder, SAP IBP, Oracle, Coupa, anyLogistix, Optilogic, Aera, Lyric, Pelico</td><td>Model one company's own network, from 120-day plans to multi-year network design</td><td>Large enterprises. Kinaxis deals reportedly run over $1M, with 6–12 month implementations <span class="u">unverified</span></td><td>Agent launches across the board in 2025–26. Blue Yonder bought One Network (~$839M) for multi-enterprise planning. Optilogic raised a $40M Series B.</td></tr>
+      <tr><td>Factory and 3D twins</td><td>Siemens (with Altair), NVIDIA Omniverse Mega, DELMIA, Simio, FlexSim</td><td>Plant-floor simulation over minutes to shifts</td><td>OEMs, large plants</td><td>Consolidation: Siemens bought Altair, Aegis bought Simio (Jan 2026), Autodesk is buying FlexSim</td></tr>
+      <tr><td>Automotive networks</td><td>SupplyOn, Catena-X / Cofinity-X</td><td>Supplier messaging and portals; data-space standards such as Demand and Capacity Management (DCM)</td><td>Suppliers pay: SupplyOn up to about €1,080 a year per customer, Cofinity-X from €1,500 a year</td><td>AIAG became the Catena-X hub for the US, Canada and Mexico (2025). Bain Capital reportedly bought SupplyOn <span class="u">unverified</span></td></tr>
+      <tr><td>Mexico logistics tech</td><td>Nuvocargo, Traxión, Desteia, Samsara, Motive</td><td>Cross-border freight, brokerage, fleet telematics</td><td>Shippers, carriers</td><td>Traxión bought Solistica (~$80M, 2025). Samsara opened a Mexico office.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="matrix">
+  <div class="eyebrow">Side by side</div>
+  <h2>Capability check</h2>
+  <p class="intro">The FlowTwin column is the plan, not v0 as built. The other columns are the closest competitor in each group.</p>
+  <div class="tscroll"><table>
+    <thead><tr><th>Capability</th><th>FlowTwin plan</th><th>Resilinc</th><th>Prewave</th><th>Overhaul</th><th>Kinaxis / o9</th><th>SupplyOn / Catena-X</th></tr></thead>
+    <tbody>
+      <tr><td>Part-level days to line stop</td><td class="c y">Yes</td><td class="c pa">Static TTR</td><td class="c no">No</td><td class="c pa">Tracks parts</td><td class="c pa">Own plants</td><td class="c no">No</td></tr>
+      <tr><td>Probabilistic short-horizon projection</td><td class="c y">14 days</td><td class="c no">No</td><td class="c no">No</td><td class="c pa">ETA only</td><td class="c pa">Planning</td><td class="c no">No</td></tr>
+      <tr><td>Supplier sees its own score</td><td class="c y">Yes</td><td class="c no">Not found</td><td class="c y">ESG score</td><td class="c no">No</td><td class="c no">No</td><td class="c pa">Portal</td></tr>
+      <tr><td>Free for the supplier</td><td class="c y">Yes</td><td class="c pa">Survey only</td><td class="c y">Yes</td><td class="c no">n/a</td><td class="c no">n/a</td><td class="c no">Paid</td></tr>
+      <tr><td>Mexico-specific signals</td><td class="c pa">Planned</td><td class="c no">Not found</td><td class="c no">Not found</td><td class="c y">Theft</td><td class="c no">No</td><td class="c no">No</td></tr>
+      <tr><td>Trade and tariff exposure</td><td class="c no">Missing</td><td class="c y">Agent</td><td class="c no">No</td><td class="c no">No</td><td class="c pa">Scenarios</td><td class="c no">No</td></tr>
+      <tr><td>Accuracy shown against actuals</td><td class="c pa">P1/P2</td><td class="c no">No</td><td class="c no">No</td><td class="c no">No</td><td class="c no">No</td><td class="c no">No</td></tr>
+      <tr><td>Costs and margins hidden from the buyer</td><td class="c y">By rule</td><td class="c no">Not stated</td><td class="c no">Not stated</td><td class="c no">n/a</td><td class="c no">n/a</td><td class="c pa">Data sovereignty</td></tr>
+      <tr><td>Spanish and WhatsApp first</td><td class="c no">English UI</td><td class="c no">Not found</td><td class="c pa">50+ languages</td><td class="c pa">Spanish reports</td><td class="c no">No</td><td class="c no">No</td></tr>
+      <tr><td>Live in weeks, no ERP needed</td><td class="c y">Light onboarding</td><td class="c no">Enterprise</td><td class="c pa">Fast</td><td class="c pa">Device install</td><td class="c no">6–12 months</td><td class="c no">Connectors</td></tr>
+    </tbody>
+  </table></div>
+  <p class="legend"><span class="y">Green</span> has it · <span class="pa">Amber</span> partial · grey: no or not found. "Not found" means public sources didn't show it, which doesn't prove the vendor lacks it.</p>
+</section>
+
+<section id="open-ground">
+  <div class="eyebrow">Confirmed by the scan</div>
+  <h2>Where FlowTwin is ahead</h2>
+  <p class="intro">These are the plan choices the market leaves open. Keep them, and use them as the pitch.</p>
+  <div class="two">
+    <div class="box"><h3>Product</h3><ul class="plain">
+      <li><b>Days to line stop per part.</b> Incumbents score suppliers or events. The 1–14 day window between inbound transit and the line is covered only by expensive planning suites, and only for the buyer's own plants.</li>
+      <li><b>Supplier sees the same light.</b> Prewave's free supplier network proves suppliers will join to see their own score, but its score is ESG. No one shows a Tier 2 its delivery risk.</li>
+      <li><b>Fixed, ready-made tests</b> (+15% demand, earlier departure, alternate route, extra shift) instead of open-ended modelling, which even "no-code" agent studios still require.</li>
+      <li><b>Cluster milk runs.</b> Pooling routes across independent neighbouring suppliers isn't addressed anywhere. P2 is still the right priority.</li>
+    </ul></div>
+    <div class="box"><h3>Business model and trust</h3><ul class="plain">
+      <li><b>The Tier 1 pays and suppliers join free.</b> The automotive networks charge suppliers instead (SupplyOn, Cofinity-X). Catena-X's SME grants of €15–30k exist only in Germany.</li>
+      <li><b>Costs are never shared.</b> No vendor we found promises this outright. It's a recruiting lever while contracts impose price cuts of about 3% a year.</li>
+      <li><b>No SME competitor in Mexico.</b> Tier 2s get cluster and INA–IFC supplier development programmes, not a risk product. Confirm in cluster interviews before claiming it.</li>
+      <li><b>Agents explain, twins predict.</b> The 2025–26 agent wave (Kinaxis, SAP, Blue Yonder, Mandel, Didero) writes summaries and emails. None is grounded in a calibrated short-horizon simulation.</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="gaps">
+  <div class="eyebrow">What to change</div>
+  <h2>Gaps in the build plan</h2>
+  <p class="intro">Ranked by how much each affects a credible Tier 1 pilot. Each one names the plan phase it touches and what to do about it.</p>
+  <div class="filter" role="group" aria-label="Show gaps by recommendation">
+    <span>Show:</span>
+    <button type="button" data-f="all" aria-pressed="true">All</button>
+    <button type="button" data-f="add" aria-pressed="false">Add</button>
+    <button type="button" data-f="move" aria-pressed="false">Move up</button>
+    <button type="button" data-f="chg" aria-pressed="false">Change</button>
+    <button type="button" data-f="dec" aria-pressed="false">Decide</button>
+  </div>
+  <div class="stack" id="gaplist">
+
+    <article class="gap" data-k="add"><span class="rank">01</span><div class="hd"><h3>Trade and tariff risk as a signal</h3><span class="pill add">Add</span><span class="pill P1">P1</span><span class="pill P2">Phase 2</span></div>
+      <dl><dt>Found</dt><dd>On 1 Jul 2026 the US declined to extend USMCA, so it now goes to annual reviews. Section 232 tariffs (25% on autos, 50% on steel and aluminium) still apply. Since 1 Jan 2026 Mexico charges up to 50% on parts from countries without a trade agreement, across 1,463 tariff lines, which hits Tier 2s that import Asian sub-components. interos and Resilinc already sell tariff exposure.</dd>
+      <dt>Plan today</dt><dd>Signals cover weather, roads, theft, ports and blockades only.</dd>
+      <dt>Change</dt><dd>Add origin country and HS code to parts in the Phase 0 data model now, so tariff exposure can be flagged per part later. Add a policy-event signal type, such as a review date or tariff change, that the risk engine can weigh like a road closure.</dd></dl></article>
+
+    <article class="gap" data-k="add"><span class="rank">02</span><div class="hd"><h3>Upstream component shocks</h3><span class="pill add">Add</span><span class="pill P1">P1</span><span class="pill P2">Phase 2</span><span class="pill tw">Twin</span></div>
+      <dl><dt>Found</dt><dd>The biggest Mexican line stop of the past year was Honda Celaya in October 2025. It came from China blocking Nexperia chip exports, not from a route. Other stops came from labour shortages (Toyota Tijuana, 19 days) and CNTE protests (Ford Cuautitlán).</dd>
+      <dt>Plan today</dt><dd>Every driver is a transit driver. The twin projects transit time against cover and can't express "the supplier's own input is short".</dd>
+      <dt>Change</dt><dd>Give the twin a second failure path, supplier input supply, alongside transit. In v0 it can be a seeded "input shortage" signal tied to a supplier and its parts. Add labour and protest events, CFE power cuts and supplier financial distress as signal types.</dd></dl></article>
+
+    <article class="gap" data-k="chg"><span class="rank">03</span><div class="hd"><h3>Weather covers 3 of 14 days</h3><span class="pill chg">Change</span><span class="pill P1">P1</span><span class="pill P2">Phase 2</span></div>
+      <dl><dt>Found</dt><dd>The SMN/CONAGUA web service is free but gives daily forecasts by municipality for 3 days only (hourly for 48 h), with no service guarantee. The 2026 hurricane outlook was above average. Remnants of Priscilla and Raymond flooded Veracruz, Puebla and Querétaro in October 2025.</dd>
+      <dt>Plan today</dt><dd>"Weather and seasonal outlooks (SMN/CONAGUA)" as one feed. The worker already reads 14-day Open-Meteo forecasts (<code>sources/open_meteo.py</code>), with SMN as an opt-in source. SMN warnings and cyclone bulletins are not implemented yet.</dd>
+      <dt>Change</dt><dd>Keep Open-Meteo for days 4–14 and prefer SMN for days 1–3 where it's available. Add SMN cyclone bulletins and warnings. Show the projection as a band whose uncertainty widens with distance, and lower the light's confidence label beyond day 3. Calibrate the hand-set rain multipliers against carrier transit times.</dd></dl></article>
+
+    <article class="gap" data-k="chg"><span class="rank">04</span><div class="hd"><h3>Road closures and blockades have no API</h3><span class="pill chg">Change</span><span class="pill P1">P1</span><span class="pill P2">Phase 2</span></div>
+      <dl><dt>Found</dt><dd>Guardia Nacional and CAPUFE post closures on X and the news compiles them; there is no open feed. ANTAC and farmer blockades shut roads in about 20 states on 24 Nov 2025, including México–Querétaro, and another strike was reported for Aug 2026 <span class="u">unverified</span>. Blockades are announced days ahead, so they can be forecast.</dd>
+      <dt>Plan today</dt><dd>"Road incidents" listed as a live feed. The source isn't named.</dd>
+      <dt>Change</dt><dd>Treat this as the second technical risk after ISOMORPH and add it to the open decisions. Options: a Spanish-language parser over GN and CAPUFE posts and news, which would also catch pre-announced blockades, or paid traffic data (Waze for Cities, TomTom, HERE). This is the hardest signal and the one competitors don't have.</dd></dl></article>
+
+    <article class="gap" data-k="move"><span class="rank">05</span><div class="hd"><h3>Show the twin's track record</h3><span class="pill move">Move up</span><span class="pill P1">P2 → P1</span><span class="pill P2">Phase 6 → 2</span><span class="pill tw">Twin</span></div>
+      <dl><dt>Found</dt><dd>No vendor publishes how its twin's past predictions turned out. Recent research names validation as the unsolved problem that limits trust in supply chain twins. BCG and RELEX name trust and adoption as the main barriers.</dd>
+      <dt>Plan today</dt><dd>Twin replay is P1 in Phase 2. Predicted vs actual tracking is P2 in Phase 6.</dd>
+      <dt>Change</dt><dd>Merge them into one Phase 2 item: every alert is logged with what it predicted, then marked hit, miss or false alarm when receipts arrive. Show the hit rate to both the Tier 1 and the supplier. It's cheap to build because alerts and receipts are already in the data model, and it answers the first question a Tier 1 will ask.</dd></dl></article>
+
+    <article class="gap" data-k="move"><span class="rank">06</span><div class="hd"><h3>Spanish and WhatsApp for suppliers</h3><span class="pill move">Move up</span><span class="pill P1">P1</span><span class="pill P2">Phase 1–2</span></div>
+      <dl><dt>Found</dt><dd>About 14% of Mexican SMEs use an ERP and about 16% a CRM. Excel and email dominate, and 85% prefer WhatsApp for business <span class="u">older survey, not auto-specific</span>.</dd>
+      <dt>Plan today</dt><dd>The UI is English (BRIEF.md). WhatsApp is only an alert channel in Phase 2. Onboarding is a 15-minute web form.</dd>
+      <dt>Change</dt><dd>Make the supplier-side screens (What my customer sees, My data) Spanish-first. Push alerts and check-ins on WhatsApp (send-only), with a link to a one-tap Spanish reply page where suppliers answer alerts and confirm capacity. See the integrations plan. The Tier 1 side can stay English for now.</dd></dl></article>
+
+    <article class="gap" data-k="add"><span class="rank">07</span><div class="hd"><h3>IATF 16949 contingency evidence</h3><span class="pill add">Add</span><span class="pill P1">P1</span><span class="pill P2">Phase 4</span></div>
+      <dl><dt>Found</dt><dd>IATF 16949 clause 6.1.2.3 requires contingency plans for supply interruptions, natural disasters, infrastructure disruption, labour shortages and cyber-attacks. Clause 8.4.1.2 requires risk-based supplier monitoring that reaches sub-tiers. Tier 1s meet these today with periodic APQP/PPAP, audits and scorecards, not live monitoring.</dd>
+      <dt>Plan today</dt><dd>Scorecards (OTIF, PPAP, certifications) are in Phase 4. Audit evidence isn't mentioned.</dd>
+      <dt>Change</dt><dd>Add an export of the supplier risk log, alerts and responses as contingency-plan and supplier-monitoring evidence for the Tier 1's IATF audit. It gives the Tier 1's quality team a reason to buy, alongside the supply-risk manager.</dd></dl></article>
+
+    <article class="gap" data-k="chg"><span class="rank">08</span><div class="hd"><h3>Theft as a route prior, not a live event</h3><span class="pill chg">Change</span><span class="pill P1">P1</span><span class="pill P2">Phase 2</span></div>
+      <dl><dt>Found</dt><dd>SESNSP open data is monthly, lags 1–2 months and is widely seen as undercounted. Overhaul's reports are quarterly. In 2025 the Bajío's share of thefts rose to 31%, auto parts were about 8% and rising, and thefts peak Tuesday to Friday at 5–10am and 6–8pm.</dd>
+      <dt>Plan today</dt><dd>"Theft data" as a live feed.</dd>
+      <dt>Change</dt><dd>Model theft as a stable risk by corridor, weekday and hour that shapes the transit distribution and the "night departures" driver. Explore a data partnership with Overhaul or a telematics provider (Samsara, Motive) for live incidents.</dd></dl></article>
+
+    <article class="gap" data-k="add"><span class="rank">09</span><div class="hd"><h3>Mexican-side border and port delays</h3><span class="pill add">Add</span><span class="pill P1">P1</span><span class="pill P2">Phase 2</span></div>
+      <dl><dt>Found</dt><dd>CBP's border wait-time API is free and hourly but covers only the US side. There is no public ANAM clearance feed or ASIPONA dwell-time feed. The Manzanillo customs strike (May 2025) stranded more than 5,000 trucks. Guardia Nacional inspections and buoys caused long delays at Laredo's World Trade Bridge <span class="u">Aug 2026 unverified</span>.</dd>
+      <dt>Plan today</dt><dd>"Port status" with no source named.</dd>
+      <dt>Change</dt><dd>Use CBP now for northbound lanes. For the Mexican side, plan a partnership with a customs broker or forwarder (in the style of Nuvocargo) or paid AIS vessel-queue data. Name this in the open decisions.</dd></dl></article>
+
+    <article class="gap" data-k="move"><span class="rank">10</span><div class="hd"><h3>A forecast baseline for thin history</h3><span class="pill move">Move up</span><span class="pill P1">P1</span><span class="pill P2">Phase 2</span><span class="pill tw">Twin</span></div>
+      <dl><dt>Found</dt><dd>Chronos-2 handles several related series and known future events without retraining, and runs on CPU. Moirai 2.0 is 30 times smaller than its predecessor. A demand-forecasting evaluation found foundation models mixed alone and better ensembled with classical methods.</dd>
+      <dt>Plan today</dt><dd>ISOMORPH replaces the seed engine. The foundation-model work in the ISOMORPH repo isn't in the plan.</dd>
+      <dt>Change</dt><dd>Use a zero-shot foundation model to fit each lane's transit-time distribution where a supplier has few receipts, and feed it into ISOMORPH's Monte Carlo. ISOMORPH still runs the what-if scenarios, which forecasters can't. This lowers the ISOMORPH risk instead of adding to it.</dd></dl></article>
+
+    <article class="gap" data-k="dec"><span class="rank">11</span><div class="hd"><h3>Reach suppliers through clusters</h3><span class="pill dec">Decide</span><span class="pill P1">Go-to-market</span></div>
+      <dl><dt>Found</dt><dd>CLAUGTO's 2025 supplier forum had 320 companies and 2,850 business meetings. The INA–IFC supplier development programme assessed 350 SMEs with 16 anchor firms. A JICA programme covers clusters in Guanajuato, Querétaro, Aguascalientes and San Luis Potosí. No digital-twin pilot was found in the Bajío clusters.</dd>
+      <dt>Plan today</dt><dd>Growth comes only from the Tier 1 inviting its suppliers.</dd>
+      <dt>Change</dt><dd>Decide whether to approach a cluster or the INA programme as a channel and pilot partner. It may also answer the plan's biggest open question, whether a Tier 1 will share stock per part, through an introduction.</dd></dl></article>
+
+    <article class="gap" data-k="dec"><span class="rank">12</span><div class="hd"><h3>Catena-X compatibility</h3><span class="pill dec">Decide</span><span class="pill P2">P2</span><span class="pill P2">Phase 5–6</span></div>
+      <dl><dt>Found</dt><dd>AIAG became the Catena-X hub for North America, including Mexico, in 2025. The DCM standard exchanges demand and capacity between OEMs, Tier 1s and sub-tiers, but carries no transit or disruption signals. Kinaxis and o9 are certified DCM apps.</dd>
+      <dt>Plan today</dt><dd>Not mentioned.</dd>
+      <dt>Change</dt><dd>Don't compete with it. Keep the capacity and demand-release fields close to DCM so FlowTwin can read and write it later. Being the transit-risk layer on top of DCM is a credible story for OEM-facing Tier 1s.</dd></dl></article>
+
+  </div>
+</section>
+
+<section id="threats">
+  <div class="eyebrow">Watch list</div>
+  <h2>Who could close the gap</h2>
+  <div class="tscroll"><table>
+    <thead><tr><th>Player</th><th>Why it could move in</th><th>Signal to watch</th></tr></thead>
+    <tbody>
+      <tr><td>Overhaul + FreightVerify</td><td>Part- and VIN-level inbound tracking, Mexican theft intelligence, five of the top ten global automakers, $105M raised Aug 2025</td><td>Any feature comparing in-transit parts with plant inventory</td></tr>
+      <tr><td>Prewave</td><td>Already runs a free supplier network where suppliers improve their own score, used by VW, Audi and Porsche</td><td>A delivery or operational score next to its ESG score</td></tr>
+      <tr><td>Resilinc</td><td>Holds time-to-recover data per supplier site and parts mapping, and launched an agentic platform</td><td>Live inventory cover combined with time-to-recover</td></tr>
+      <tr><td>Blue Yonder (One Network)</td><td>The only planning suite with a real multi-enterprise network</td><td>Supplier-tier simulation for automotive</td></tr>
+      <tr><td>SupplyOn</td><td>Reaches 140k+ suppliers in automotive, with new private-equity ownership <span class="u">unverified</span></td><td>A risk or twin module, or Mexico expansion</td></tr>
+      <tr><td>project44 / FourKites</td><td>Predicted-ETA data plus new AI agent platforms, with a project44 team in Mexico since 2021</td><td>Stock-cover or line-stop features</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="verify">
+  <div class="eyebrow">Before external use</div>
+  <h2>Check these before citing</h2>
+  <p class="intro">Several primary pages (Gartner, Resilinc, some press releases) blocked automated reading, so some claims rest on search summaries. These items come from a single or secondary source.</p>
+  <ul class="plain">
+    <li>Outcome of the 4th USMCA review round (Washington, early Sep 2026): no published result found</li>
+    <li>Bain Capital acquiring SupplyOn (Jul 2026, one source)</li>
+    <li>ANTAC national strike in Aug 2026; buoy delays of more than 500 minutes at World Trade Bridge in Aug 2026</li>
+    <li>Kinaxis deal size and implementation length; anyLogistix pricing (aggregator figures)</li>
+    <li>Resilinc as a 2026 Gartner Leader; Resilinc covering time-to-survive as well as time-to-recover</li>
+    <li>SME ERP, CRM and WhatsApp figures: older survey, not specific to auto suppliers</li>
+    <li>Ignore any claim of Toyota or Honda chip halts "from 15 July 2026". It looks like a 2021 article with a new crawl date.</li>
+  </ul>
+</section>
+
+<section id="sources" class="src">
+  <div class="eyebrow">Inputs</div>
+  <h2 style="color:var(--ink)">Sources</h2>
+  <h3>Supplier risk and visibility</h3>
+  <ul class="plain">
+    <li><a href="https://www.globenewswire.com/news-release/2025/05/01/3072232/0/en/Resilinc-Launches-Agentic-AI-Platform-for-Supply-Chain-Risk-and-Compliance.html" target="_blank" rel="noopener">Resilinc agentic AI launch (May 2025)</a></li>
+    <li><a href="https://www.everstream.ai/media/everstream-analytics-named-a-leader-in-the-2026-gartner-magic-quadrant-for-supplier-risk-management-solutions/" target="_blank" rel="noopener">Everstream, 2026 Gartner MQ Leader</a></li>
+    <li><a href="https://knowledgebase.prewave.com/en/knowledge/prewave-scoring" target="_blank" rel="noopener">Prewave scoring and supplier network</a></li>
+    <li><a href="https://www.businesswire.com/news/home/20250819107376/en/" target="_blank" rel="noopener">Overhaul $105M Series C</a> · <a href="https://www.freightwaves.com/news/overhaul-strengthens-supply-chain-transparency-with-freightverify-deal" target="_blank" rel="noopener">FreightVerify acquisition</a></li>
+    <li><a href="https://www.project44.com/press-releases/project44-launches-decision-intelligence-evolving-movement-platform-to-help-global-companies-efficiently-automate-and-operate-their-supply-chains/" target="_blank" rel="noopener">project44 Decision Intelligence</a> · <a href="https://logisticsviewpoints.com/2026/03/03/fourkites-launches-loft-ai-platform-to-orchestrate-enterprise-systems-with-real-world-intelligence/" target="_blank" rel="noopener">FourKites Loft</a></li>
+    <li><a href="https://partners.supplyon.com/en/node/656" target="_blank" rel="noopener">SupplyOn supplier fees</a> · <a href="https://www.cofinity-x.com/price-info" target="_blank" rel="noopener">Cofinity-X pricing</a> · <a href="https://www.aiag.org/about-aiag/newsroom/articles/2025/06/10/aiag-chosen-as-north-america-hub-for-catena-x--ushering-in-a-new-era-of-seamless--secure-automotive-data-collaboration" target="_blank" rel="noopener">AIAG as Catena-X North America hub</a></li>
+  </ul>
+  <h3>Digital twins and simulation</h3>
+  <ul class="plain">
+    <li><a href="https://www.businesswire.com/news/home/20251017746583/en/Kinaxis-Accelerates-Agentic-Era-for-Supply-Chain-Orchestration-with-the-Launch-of-Maestro-Agents" target="_blank" rel="noopener">Kinaxis Maestro Agents</a> · <a href="https://www.supplychain247.com/article/blue-yonder-one-network-enterprises-839-million-acquisition/motor" target="_blank" rel="noopener">Blue Yonder buys One Network</a></li>
+    <li><a href="https://www.anylogistix.com/resources/blog/anylogistix-2025-in-review/" target="_blank" rel="noopener">anyLogistix 2025 in review</a> · <a href="https://www.thesaasnews.com/news/optilogic-secures-40-million-in-series-b/" target="_blank" rel="noopener">Optilogic Series B</a></li>
+    <li><a href="https://evertiq.com/news/2026-01-28-aegis-completes-acquisition-of-simulation-software-provider-simio" target="_blank" rel="noopener">Aegis buys Simio</a> · <a href="https://www.designnews.com/design-engineering/siemens-completes-its-acquisition-of-altair" target="_blank" rel="noopener">Siemens completes Altair</a></li>
+    <li><a href="https://arxiv.org/pdf/2507.04555" target="_blank" rel="noopener">Twin verification and validation framework (2025)</a> · <a href="https://research.chalmers.se/en/publication/522594" target="_blank" rel="noopener">SME twin adoption barriers</a></li>
+    <li><a href="https://huggingface.co/amazon/chronos-2" target="_blank" rel="noopener">Chronos-2</a> · <a href="https://arxiv.org/html/2511.11698v1" target="_blank" rel="noopener">Moirai 2.0</a> · <a href="https://arxiv.org/pdf/2507.22053" target="_blank" rel="noopener">Foundation models in demand forecasting</a></li>
+  </ul>
+  <h3>Mexico</h3>
+  <ul class="plain">
+    <li><a href="https://www.whitecase.com/insight-alert/usmca-2026-joint-review-united-states-declines-extend-agreement-triggering-annual" target="_blank" rel="noopener">USMCA moves to annual reviews (White &amp; Case)</a> · <a href="https://mexicobusiness.news/automotive/news/mexico-apply-5-50-tariffs-non-fta-auto-parts" target="_blank" rel="noopener">Mexico tariffs on non-FTA auto parts</a></li>
+    <li><a href="https://mexicobusiness.news/automotive/news/honda-halts-mexico-production-after-losing-nexperia-chip-supply" target="_blank" rel="noopener">Honda Celaya halt (Nexperia)</a></li>
+    <li><a href="https://www.over-haul.com/es/intelligence/mexico-cargo-theft-report" target="_blank" rel="noopener">Overhaul Mexico cargo theft report</a> · <a href="https://www.elfinanciero.com.mx/transporte-y-movilidad/2026/02/19/robo-al-autotransporte-de-carga-migro-a-nuevas-modalidades-en-2025/" target="_blank" rel="noopener">El Financiero on 2025 theft patterns</a></li>
+    <li><a href="https://www.nmas.com.mx/liveblog/megabloqueo-paro-transportistas-en-vivo-actualizaciones-carreteras-cerradas-24-noviembre-2025/" target="_blank" rel="noopener">Nov 2025 national blockades</a> · <a href="https://dimerco.com/news-press/logistics-bottleneck-at-manzanillo-port/" target="_blank" rel="noopener">Manzanillo customs strike</a></li>
+    <li><a href="https://smn.conagua.gob.mx/es/web-service-api" target="_blank" rel="noopener">SMN web service API</a> · <a href="https://bwt.cbp.gov/api/bwtrss/rssbyportnum/HTML/ALL/230501" target="_blank" rel="noopener">CBP border wait times</a></li>
+    <li><a href="https://clusterindustrial.com.mx/arranca-foro-de-proveeduria-automotriz-2025-con-mas-de-2-850-citas-de-negocios/" target="_blank" rel="noopener">CLAUGTO supplier forum 2025</a> · <a href="https://thelogisticsworld.com/abastecimiento-y-compras/mexico-acelera-desarrollo-proveedores-automotrices-presion-arancelaria-estados-unidos/" target="_blank" rel="noopener">INA–IFC supplier development programme</a></li>
+    <li><a href="https://elsmar.com/elsmarqualityforum/threads/iatf-16949-contingency-plan-requirements-sanctioned-interpretations.71645/page-2" target="_blank" rel="noopener">IATF 16949 contingency plan requirements</a></li>
+  </ul>
+  <p class="foot">6 October 2026 · Research by three parallel web scans, read against FlowTwin Build Plan v4 (5 Oct 2026), BRIEF.md and docs/business-case-references.md. Absence of a feature means it wasn't found in public sources.</p>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+  var btns=[].slice.call(document.querySelectorAll('.filter button'));
+  var cards=[].slice.call(document.querySelectorAll('#gaplist .gap'));
+  function apply(f){
+    btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.f===f));});
+    cards.forEach(function(c){c.hidden=!(f==='all'||c.dataset.k===f);});
+    try{localStorage.setItem('ga-filter',f);}catch(e){}
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){apply(b.dataset.f);});});
+  var saved='all';try{saved=localStorage.getItem('ga-filter')||'all';}catch(e){}
+  apply(saved);
+})();
+</script>

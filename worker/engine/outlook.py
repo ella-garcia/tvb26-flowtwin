@@ -10,6 +10,7 @@ compared with the lowest days of cover of the supplier's critical parts, taken a
 from datetime import timedelta
 
 from .projection import active_on, hit_legs, leg_multiplier_on, multiplier_on
+from .trade import exposures
 
 WEEKS = 12
 
@@ -39,12 +40,18 @@ def level_for(delay, cover):
 
 
 def outlook(supplier, parts, signals, as_of, normal):
+    """Weeks also flag trade exposure: policy signals matching a part (trade.py) are listed in `signals` and set
+    `tradeExposure: true` for the weeks they cover. They never change the delay or the level."""
     cover = critical_cover(parts)
     weeks = []
     for w in range(WEEKS):
         days = week_days(as_of, w)
         delay = week_delay(supplier, signals, days, normal)
         sigs = [s for s in signals if hit_legs(supplier, s) and any(active_on(s, d) for d in days)]
-        weeks.append(dict(weekStart=days[0].isoformat(), expectedTransitDays=round(normal + delay, 1), extraDays=round(delay, 1),
-                          level=level_for(delay, cover), signals=[s.get("short_label") or s.get("short") or s["title"] for s in sigs]))
+        trade = [s for s, _hit in exposures(parts, signals, days[0], days[-1])]
+        week = dict(weekStart=days[0].isoformat(), expectedTransitDays=round(normal + delay, 1), extraDays=round(delay, 1),
+                    level=level_for(delay, cover), signals=[s.get("short_label") or s.get("short") or s["title"] for s in sigs + trade])
+        if trade:
+            week["tradeExposure"] = True
+        weeks.append(week)
     return weeks

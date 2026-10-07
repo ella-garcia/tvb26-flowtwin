@@ -80,3 +80,22 @@ def cron_hourly(db: DB = Depends(get_db)):
 def jobs_drain(db: DB = Depends(get_db)):
     """Called by pg_cron every 2 minutes: run queued jobs (e.g. uploads) until idle."""
     return scheduled.drain_jobs(db, max_jobs=20)
+
+
+# ---------------------------------------------------------------- Phase 2 endpoints (filled in by WP5 and WP7)
+@app.get("/webhooks/whatsapp")
+def whatsapp_verify():
+    """Meta webhook verification (hub.challenge). WP5."""
+    raise HTTPException(status_code=501, detail="WhatsApp webhook not implemented yet (WP5)")
+
+
+@app.post("/webhooks/whatsapp")
+def whatsapp_webhook():
+    """Delivery and read receipts, and BAJA/STOP opt-outs; checked with the app secret, not the worker token. WP5."""
+    raise HTTPException(status_code=501, detail="WhatsApp webhook not implemented yet (WP5)")
+
+
+@app.post("/reply/{token}/extract")
+def reply_extract(token: str):
+    """Reply page: turn free text or an Excel file into a proposed update; the token is checked server-side. WP7."""
+    raise HTTPException(status_code=501, detail="Reply extraction not implemented yet (WP7)")

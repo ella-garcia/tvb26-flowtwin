@@ -19,6 +19,8 @@
 .supplier-risk-chart .grid { stroke: var(--border); stroke-width: 1; }
 .supplier-risk-chart .axis { stroke: var(--border-strong); stroke-width: 1; }
 .supplier-risk-chart .supplier-risk-cross { fill: var(--danger); font-weight: 700; }
+.supplier-risk-chart .supplier-risk-conf line { stroke: var(--border-strong); stroke-width: 1; stroke-dasharray: 2 4; }
+.supplier-risk-chart .supplier-risk-conf text { fill: var(--ink-subtle); font-weight: 500; }
 .supplier-risk-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); list-style: none; margin: 0; padding: 0; font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
 .supplier-risk-legend li { display: inline-flex; align-items: center; gap: var(--space-2); }
 .supplier-risk-legend svg { flex: none; }

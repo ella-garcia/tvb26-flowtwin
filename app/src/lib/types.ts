@@ -100,13 +100,15 @@ export interface Certification {
 
 /** Raw uploads, as recorded by the intake flow. */
 export type UploadKind = "sales-orders" | "purchase-orders" | "inventory" | "item-master" | "quality" | "freight" | "energy" | "fuel";
+/** Key customer (Tier 1) intake kinds, parsed by the worker (worker/intake). */
+export type Tier1UploadKind = "tier1-suppliers" | "tier1-parts" | "tier1-stock" | "tier1-releases" | "tier1-receipts";
 export interface UploadRecord {
   companyId: string;
-  kind: UploadKind;
+  kind: UploadKind | Tier1UploadKind;
   fileName: string;
   rows: number;
-  source: string;             // "Excel", "CONTPAQi export", …
-  status: "waiting" | "uploaded" | "needs-input";
+  source: string;             // "Excel", "CSV", "EDI", "ERP", "CFDI", "CONTPAQi export", …
+  status: "waiting" | "processing" | "uploaded" | "needs-input" | "failed";
   uploadedAt?: string;
   /** Set by the upload worker (live mode). */
   issues?: UploadIssue[];
@@ -182,6 +184,13 @@ export interface Part {
   programIds?: string[];
   /** Units per pallet (key customer's logistics data). Absent = engine default, marked estimated. */
   unitsPerPallet?: number;
+  /** Country of origin, ISO 3166-1 alpha-2 ("MX", "CN"). Absent = not known. Feeds the trade-exposure driver. */
+  originCountry?: string;
+  /** Tariff code (fracción arancelaria), digits only. Absent = not known. */
+  hsCode?: string;
+  /** Where the stock figure came from ("upload", "edi", "erp", "seed") and which file or run. */
+  stockSource?: string;
+  stockSourceRef?: string;
   singleSource: boolean;
   /** Line-stopper = no substitute and the OEM line stops without it (a screw can be one). */
   criticality: "line-stopper" | "high" | "normal";
@@ -199,7 +208,9 @@ export interface VehicleProgram {
   revenuePerVehicleMxn?: number;
 }
 
-export type SignalKind = "weather" | "road" | "theft" | "port" | "blockade" | "supplier" | "customs";
+export type SignalKind = "weather" | "road" | "theft" | "port" | "blockade" | "supplier" | "customs"
+  | "policy"            // tariff, USMCA or customs-rule event; affects parts by origin country / HS code, not transit
+  | "supplier-input";   // shortage of a supplier's own inputs (chips, steel …); cuts what it can deliver
 /** An external or supplier event that can delay deliveries. */
 export interface Signal {
   id: string;
@@ -221,6 +232,10 @@ export interface Signal {
   shortLabel?: string;         // "Open-Meteo forecast"
   sourceId?: string;           // "open-meteo", "demo", "smn"
   active?: boolean;            // false = hidden from the risk engine
+  /** supplier-input only: share of the supplier's deliveries it cannot make while active, 0..1. */
+  supplyCutPct?: number;
+  /** Who the signal reaches when not by place or highway (policy and supplier-input signals). */
+  affects?: { supplierIds?: string[]; originCountries?: string[]; hsPrefixes?: string[] };
 }
 
 export type RiskLevel = "green" | "amber" | "red";
@@ -259,6 +274,7 @@ export interface ProjectionDay {
   transitP50: number;
   transitP90: number;
   coverDays: number;           // key customer's cover of the most exposed part, projected
+  confidence?: "high" | "medium" | "low"; // high up to day 3, medium up to day 7, low after (weather bands widen too)
 }
 
 /** Can the supplier absorb the contract demand swing (+15%)? Result of a twin run. */
@@ -330,15 +346,18 @@ export interface Alert {
   resolvedBy?: string;         // 'engine' when the risk turned green on its own
 }
 
-/** An email (or dry run) sent about an alert. */
+/** An email or WhatsApp message (or dry run) sent about an alert. */
 export interface AlertNotification {
   id?: string;
   alertId: string;
   recipient?: string;
-  channel?: string;
+  channel?: string;            // "email" | "whatsapp"
   status?: string;             // "sent", "dry-run", "failed", …
   dryRun?: boolean;
   sentAt?: string;
+  template?: string;           // WhatsApp template name
+  deliveredAt?: string;        // WhatsApp delivery receipt
+  readAt?: string;             // WhatsApp read receipt
 }
 
 /** A key customer inviting a supplier onto the platform (sponsored, free for the supplier). */
@@ -457,4 +476,139 @@ export interface Share {
   version: number;
   revoked?: boolean;
   circular?: CircularSummary;
+}
+
+// ======================= Phase 2: live data, alerts and track record =======================
+// Mirrors supabase/migrations/20261014000000_phase2_foundation.sql. No money fields anywhere below.
+
+export type IntakeSource = "upload" | "edi" | "erp" | "cfdi" | "reply";
+
+/** What a supplier says it shipped (EDI 856/DESADV, CFDI, ERP, reply page). Quantities and dates only. */
+export interface ShipmentNotice {
+  id: number;
+  customerId: string;
+  supplierId: string;
+  partId: string;
+  quantity: number;
+  shipDate?: string;
+  expectedArrival?: string;
+  carrier?: string;
+  source: Exclude<IntakeSource, "upload"> | "upload";
+  sourceRef: string;           // interchange control number, CFDI UUID, ERP document id …
+  confidence?: number;         // 0..1; below 1 when read from free text
+  createdAt: string;
+}
+
+/** A capacity change a supplier reports (maintenance, extra shift). Private to the supplier; the customer sees only the flex result. */
+export interface CapacityEvent {
+  id: number;
+  supplierId: string;
+  resource?: string;           // "Prensa 3"
+  startsOn: string;
+  endsOn?: string;
+  capacityChangePct: number;   // -0.3 = 30% less, 0.2 = 20% more
+  reason?: string;
+  source: "supplier" | "reply" | "erp";
+  createdAt: string;
+}
+
+/** A person who gets alerts. Phone numbers are visible only to their own company. */
+export interface Contact {
+  id: string;
+  companyId: string;
+  name?: string;
+  role?: string;
+  email?: string;
+  phoneE164?: string;          // "+524611234567"
+  locale: "es" | "en";
+  whatsappOptInAt?: string;
+  whatsappOptInText?: string;  // the exact wording agreed to
+  whatsappOptOutAt?: string;
+  isPrimary: boolean;
+  updatedAt: string;
+}
+
+/** A contact as the key customer sees it at one of its suppliers: who, and on which channels. Never the phone number. */
+export interface PairContact {
+  id: string;
+  companyId: string;
+  name?: string;
+  role?: string;
+  hasEmail: boolean;
+  hasWhatsapp: boolean;
+}
+
+/** One day's risk for a pair, kept so predictions can be checked against what happened. */
+export interface RiskHistoryRow {
+  customerId: string;
+  supplierId: string;
+  asOf: string;
+  level: RiskLevel;
+  score: number;
+  daysToLineStop?: number;
+  partStopDays?: Record<string, number | null>;
+  projection?: ProjectionDay[];
+  drivers?: RiskDriver[];
+}
+
+export type AlertOutcomeKind = "pending" | "hit" | "prevented" | "miss" | "false-alarm" | "unknown";
+/** Whether an alert's prediction came true, judged from receipts and shipment notices. */
+export interface AlertOutcome {
+  alertId: string;
+  predictedStopDate?: string;
+  partIds: string[];
+  outcome: AlertOutcomeKind;
+  evidence: { kind: "receipt" | "shipment-notice" | "action"; ref: string; date?: string; note?: string }[];
+  ruleVersion?: string;
+  evaluatedAt?: string;
+}
+
+/** A delivery problem nobody warned about: a late or short receipt (or stock-out) with no alert in the 3 days before. */
+export interface MissedEvent {
+  customerId: string;
+  supplierId: string;
+  partId: string;
+  eventDate: string;
+  evidence: AlertOutcome["evidence"];
+  ruleVersion?: string;
+  detectedAt?: string;
+}
+
+/** A data connection (EDI inbox, ERP, CFDI provider). Secrets are never in the app. */
+export interface Connection {
+  id: string;
+  companyId: string;
+  kind: "edi" | "erp" | "cfdi";
+  provider: string;            // "edi-inbox", "sap-s4", "syntage"
+  status: "pending" | "active" | "paused" | "error";
+  config: Record<string, unknown>;
+  consentText?: string;
+  consentAt?: string;
+  lastRunAt?: string;
+  createdAt: string;
+}
+
+export interface IntegrationRun {
+  id: number;
+  connectionId: string;
+  startedAt: string;
+  finishedAt?: string;
+  status: "running" | "done" | "failed";
+  rows: number;
+  issues: { row: number; column: string; message: string; severity: "error" | "warning" | "info" }[];
+  error?: string;
+}
+
+/** What the mobile reply page shows for one signed link (WP6): one alert or a weekly check-in, supplier-safe fields only. */
+export interface ReplyContext {
+  kind: "alert" | "checkin";
+  supplierName: string;
+  customerName: string;
+  alertId?: string;
+  title?: string;
+  message?: string;
+  parts: { number: string; name: string }[];
+  expectedShortfallDate?: string;
+  expiresAt: string;
+  answered: boolean;
 }

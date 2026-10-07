@@ -324,6 +324,159 @@ select public.t_assert('circ reset_demo restores requests from the snapshot',
 select public.t_assert('circ reset_demo restores consolidation_plans from the snapshot',
   (select count(*) from consolidation_plans) = coalesce((select jsonb_array_length(rows) from demo_snapshot where name = 'consolidation_plans'), 0));
 
+-- ---- Phase 2 foundation: contacts, capacity events, shipment notices, track record, connections (WP0)
+reset role;
+update contacts set phone_e164 = '+524611234567', whatsapp_opt_in_at = now(), whatsapp_opt_in_text = 'Acepto avisos' where id = 'edl-primary';
+insert into shipment_notices (customer_id, supplier_id, part_id, quantity, ship_date, expected_arrival, source, source_ref) values
+  ('qss', 'edl', 'part-qss-4471-brk', 100, '2026-10-06', '2026-10-07', 'edi', 'T-ISA-1'),
+  ((select customer_id from parts where customer_id = 'slp-interiors' limit 1), (select supplier_id from parts where customer_id = 'slp-interiors' limit 1),
+   (select id from parts where customer_id = 'slp-interiors' limit 1), 50, '2026-10-06', '2026-10-08', 'edi', 'T-ISA-2');
+insert into risk_history (customer_id, supplier_id, as_of, level, score)
+  select customer_id, supplier_id, '2026-10-05', level, score from risks;
+insert into alert_outcomes (alert_id, outcome) select id, 'pending' from alerts;
+insert into connections (id, company_id, kind, provider) values ('t-conn-qss', 'qss', 'edi', 'edi-inbox'), ('t-conn-edl', 'edl', 'cfdi', 'syntage'),
+  ('t-conn-slp', 'slp-interiors', 'erp', 'sap-s4');
+insert into integration_runs (connection_id, rows) values ('t-conn-qss', 3), ('t-conn-edl', 2), ('t-conn-slp', 1);
+select public.t_works('wp0: signal kinds policy and supplier-input are allowed',
+  $$insert into signals (id, kind, title, description, state, lat, lon, radius_km, highways, starts_at, ends_at, severity, transit_multiplier, source, provenance, supply_cut_pct, affects)
+    values ('t-sig-policy', 'policy', 'T', 'T', 'Querétaro', 20.5, -100.4, 1, '{}', '2026-10-05', '2026-10-30', 'medium', 1, 'test', 'estimated', null, '{"originCountries":["CN"]}'),
+           ('t-sig-input', 'supplier-input', 'T', 'T', 'Guanajuato', 20.5, -100.8, 1, '{}', '2026-10-05', '2026-10-12', 'high', 1, 'test', 'estimated', 0.4, '{"supplierIds":["edl"]}')$$);
+select public.t_throws('wp0: shipment notice with negative quantity is rejected',
+  $$insert into shipment_notices (customer_id, supplier_id, part_id, quantity, source, source_ref) values ('qss', 'edl', 'part-qss-4471-brk', -1, 'edi', 'T-NEG')$$);
+
+set local role authenticated;
+select public.switch_test_identity('customer', 'qss');
+select public.t_assert('wp0 customer qss: reads only its own contacts', (select count(*) = 1 and bool_and(company_id = 'qss') from contacts));
+select public.t_assert('wp0 customer qss: pair_contacts shows edl with WhatsApp, no phone column',
+  (select has_whatsapp from pair_contacts where id = 'edl-primary')
+  and not exists (select 1 from information_schema.columns where table_name = 'pair_contacts' and column_name = 'phone_e164'));
+select public.t_assert('wp0 customer qss: pair_contacts only own suppliers and itself',
+  (select bool_and(company_id = 'qss' or company_id in (select supplier_id from relationships where customer_id = 'qss')) from pair_contacts));
+select public.t_assert('wp0 customer qss: cannot read the edl phone', (select count(*) = 0 from contacts where phone_e164 is not null));
+select public.t_throws('wp0 customer qss: cannot add a contact to edl',
+  $$insert into contacts (id, company_id, name) values ('t-c-x', 'edl', 'X')$$);
+select public.t_works('wp0 customer qss: can add its own contact', $$insert into contacts (id, company_id, name, locale) values ('t-c-qss', 'qss', 'Planner', 'en')$$);
+select public.t_assert('wp0 customer qss: sees 0 capacity_events', (select count(*) = 0 from capacity_events));
+select public.t_assert('wp0 customer qss: shipment_notices only own pairs (1)', (select count(*) = 1 and bool_and(customer_id = 'qss') from shipment_notices));
+select public.t_throws('wp0 customer qss: cannot insert shipment_notices',
+  $$insert into shipment_notices (customer_id, supplier_id, part_id, quantity, source, source_ref) values ('qss', 'edl', 'part-qss-4471-brk', 1, 'reply', 'T-X')$$);
+select public.t_assert('wp0 customer qss: risk_history only own pairs', (select count(*) > 0 and bool_and(customer_id = 'qss') from risk_history));
+select public.t_assert('wp0 customer qss: alert_outcomes only own alerts', (select count(*) = 6 from alert_outcomes));
+select public.t_assert('wp0 customer qss: connections only own (1) and its runs (1)',
+  (select count(*) = 1 and bool_and(company_id = 'qss') from connections) and (select count(*) = 1 from integration_runs));
+select public.t_throws('wp0 customer qss: cannot insert connections',
+  $$insert into connections (id, company_id, kind, provider) values ('t-conn-x', 'qss', 'erp', 'sap-s4')$$);
+select public.t_throws('wp0 customer qss: cannot queue sync-connection jobs',
+  $$insert into jobs (kind, company_id, payload) values ('sync-connection', 'qss', '{}')$$);
+select public.t_works('wp0 customer qss: uploads accept status processing',
+  $$insert into uploads (company_id, kind, file_name, source, status) values ('qss', 'wp0-test-kind', 's.csv', 'CSV', 'processing')$$);
+
+select public.switch_test_identity('owner', 'edl');
+select public.t_assert('wp0 owner edl: reads its contact with the phone', (select phone_e164 = '+524611234567' from contacts where id = 'edl-primary'));
+select public.t_assert('wp0 owner edl: reads no other company contacts', (select bool_and(company_id = 'edl') from contacts));
+select public.t_works('wp0 owner edl: can record a WhatsApp opt-out',
+  $q$do $d$ declare n int; begin update contacts set whatsapp_opt_out_at = now() where id = 'edl-primary'; get diagnostics n = row_count; if n = 0 then raise exception 'no rows'; end if; end $d$$q$);
+select public.t_throws('wp0 owner edl: invalid phone is rejected',
+  $$update contacts set phone_e164 = '4611234567' where id = 'edl-primary'$$);
+select public.t_works('wp0 owner edl: can report a capacity event',
+  $$insert into capacity_events (supplier_id, resource, starts_on, ends_on, capacity_change_pct, reason) values ('edl', 'Prensa 3', '2026-10-09', '2026-10-13', -0.3, 'Mantenimiento')$$);
+select public.t_throws('wp0 owner edl: cannot report capacity for hmo',
+  $$insert into capacity_events (supplier_id, starts_on, capacity_change_pct) values ('hmo', '2026-10-09', -0.3)$$);
+select public.t_assert('wp0 owner edl: shipment_notices only its own', (select count(*) = 1 and bool_and(supplier_id = 'edl') from shipment_notices));
+select public.t_assert('wp0 owner edl: connections only its own', (select count(*) = 1 and bool_and(company_id = 'edl') from connections));
+
+select public.switch_test_identity('owner', 'hmo');
+select public.t_assert('wp0 owner hmo: sees 0 edl capacity_events', (select count(*) = 0 from capacity_events));
+
+select public.switch_test_identity('customer', 'slp-interiors');
+select public.t_assert('wp0 customer slp: cannot see qss alert_outcomes or risk_history',
+  (select count(*) = 0 from alert_outcomes ao join alerts a on a.id = ao.alert_id where a.customer_id = 'qss')
+  and (select count(*) = 0 from risk_history where customer_id = 'qss'));
+select public.t_assert('wp0 customer slp: pair_contacts has no edl (not its supplier)',
+  (select count(*) = 0 from pair_contacts where company_id = 'edl'));
+
+reset role;
+set local role anon;
+select public.t_throws('wp0 anon: cannot read contacts', $$select count(*) from contacts$$);
+select public.t_throws('wp0 anon: cannot read shipment_notices', $$select count(*) from shipment_notices$$);
+reset role;
+
+set local role authenticated;
+select public.switch_test_identity('customer', 'qss');
+select public.t_works('wp0 reset_demo runs', $$select reset_demo()$$);
+reset role;
+select public.t_assert('wp0 reset_demo clears shipment_notices, capacity_events, risk_history, alert_outcomes, connections, runs',
+  (select count(*) = 0 from shipment_notices) and (select count(*) = 0 from capacity_events) and (select count(*) = 0 from risk_history)
+  and (select count(*) = 0 from alert_outcomes) and (select count(*) = 0 from connections) and (select count(*) = 0 from integration_runs));
+select public.t_assert('wp0 reset_demo keeps one primary contact per company with a contact and clears phones',
+  (select count(*) from contacts) = (select count(*) from companies where contact is not null)
+  and (select count(*) = 0 from contacts where phone_e164 is not null or whatsapp_opt_in_at is not null));
+
+-- ---- WP1: admin signal RPCs (announced blockades and policy events; disable / enable)
+set local role authenticated;
+select public.switch_test_identity('customer', 'qss');
+select public.t_throws('wp1 customer qss: cannot add a signal',
+  $$select admin_upsert_signal('{"kind":"blockade","title":"x","startsAt":"2026-10-08","endsAt":"2026-10-08","severity":"high","lat":19,"lon":-98,"radiusKm":20,"transitMultiplier":2}')$$);
+select public.t_throws('wp1 customer qss: cannot disable a signal', $$select admin_set_signal_active('sig-rain-veracruz', false)$$);
+select public.t_throws('wp1 customer qss: cannot update signals directly', $$update signals set active = false where id = 'sig-rain-veracruz'$$);
+select public.switch_test_identity('owner', 'edl');
+select public.t_throws('wp1 owner edl: cannot add a signal',
+  $$select admin_upsert_signal('{"kind":"policy","title":"x","startsAt":"2026-10-08","endsAt":"2026-10-08","severity":"low","affects":{"originCountries":["CN"]}}')$$);
+
+select public.switch_test_identity('admin', 'qss');
+select public.t_works('wp1 admin: adds a pre-announced blockade',
+  $$select admin_upsert_signal('{"id":"adm-test-blockade","kind":"blockade","title":"Bloqueo anunciado en la MEX-57D","startsAt":"2026-10-09","endsAt":"2026-10-10","severity":"high","lat":20.39,"lon":-99.99,"radiusKm":15,"highways":["mex-57d"],"transitMultiplier":2.2,"state":"Querétaro"}')$$);
+select public.t_assert('wp1 admin: blockade stored with source_id admin, estimated, highways upper-cased',
+  (select source_id = 'admin' and provenance = 'estimated' and active and highways = '{MEX-57D}' and transit_multiplier = 2.2
+   from signals where id = 'adm-test-blockade'));
+select public.t_works('wp1 admin: adds a tariff policy event',
+  $$select admin_upsert_signal('{"id":"adm-test-policy","kind":"policy","title":"Arancel a autopartes","startsAt":"2026-11-01","endsAt":"2026-12-31","severity":"medium","affects":{"originCountries":["cn","KR"],"hsPrefixes":["8708","87.14"]}}')$$);
+select public.t_assert('wp1 admin: policy keeps affects and has no transit effect',
+  (select affects = '{"originCountries":["CN","KR"],"hsPrefixes":["8708","8714"]}'::jsonb and transit_multiplier = 1 and radius_km = 0
+   from signals where id = 'adm-test-policy'));
+select public.t_throws('wp1 admin: policy without countries or HS prefixes is refused',
+  $$select admin_upsert_signal('{"kind":"policy","title":"x","startsAt":"2026-11-01","endsAt":"2026-11-02","severity":"low","affects":{}}')$$);
+select public.t_throws('wp1 admin: other kinds are refused',
+  $$select admin_upsert_signal('{"kind":"weather","title":"x","startsAt":"2026-11-01","endsAt":"2026-11-02","severity":"low","lat":19,"lon":-98,"radiusKm":20,"transitMultiplier":2}')$$);
+select public.t_throws('wp1 admin: end before start is refused',
+  $$select admin_upsert_signal('{"kind":"blockade","title":"x","startsAt":"2026-11-02","endsAt":"2026-11-01","severity":"low","lat":19,"lon":-98,"radiusKm":20,"transitMultiplier":2}')$$);
+select public.t_throws('wp1 admin: cannot overwrite a feed signal',
+  $$select admin_upsert_signal('{"id":"sig-rain-veracruz","kind":"blockade","title":"x","startsAt":"2026-11-01","endsAt":"2026-11-02","severity":"low","lat":19,"lon":-98,"radiusKm":20,"transitMultiplier":2}')$$);
+select public.t_works('wp1 admin: disables a feed signal', $$select admin_set_signal_active('sig-rain-veracruz', false)$$);
+select public.t_assert('wp1 admin: the feed signal is inactive', (select not active from signals where id = 'sig-rain-veracruz'));
+select public.t_works('wp1 admin: enables it again', $$select admin_set_signal_active('sig-rain-veracruz', true)$$);
+select public.t_throws('wp1 admin: unknown signal id is an error', $$select admin_set_signal_active('no-such-signal', false)$$);
+select public.t_works('wp1 admin: edits its own blockade',
+  $q$select admin_set_signal_active('adm-test-blockade', false), admin_upsert_signal('{"id":"adm-test-blockade","kind":"blockade","title":"Bloqueo pospuesto","startsAt":"2026-10-12","endsAt":"2026-10-12","severity":"medium","lat":20.39,"lon":-99.99,"radiusKm":15,"transitMultiplier":1.5}')$q$);
+select public.t_assert('wp1 admin: an edit keeps it disabled and changes the dates',
+  (select not active and starts_at = '2026-10-12' and title = 'Bloqueo pospuesto' from signals where id = 'adm-test-blockade'));
+reset role;
+set local role anon;
+select public.t_throws('wp1 anon: cannot call admin_upsert_signal',
+  $$select admin_upsert_signal('{"kind":"policy","title":"x","startsAt":"2026-11-01","endsAt":"2026-11-02","severity":"low","affects":{"originCountries":["CN"]}}')$$);
+select public.t_throws('wp1 anon: cannot call admin_set_signal_active', $$select admin_set_signal_active('sig-rain-veracruz', false)$$);
+reset role;
+
+-- ---- Track record: missed_events (delivery problems nobody warned about)
+reset role;
+insert into missed_events (customer_id, supplier_id, part_id, event_date, evidence) values
+  ('qss', 'edl', 'part-qss-4471-brk', '2026-09-30', '[]'),
+  ((select customer_id from parts where customer_id = 'slp-interiors' limit 1), (select supplier_id from parts where customer_id = 'slp-interiors' limit 1),
+   (select id from parts where customer_id = 'slp-interiors' limit 1), '2026-09-30', '[]');
+set local role authenticated;
+select public.switch_test_identity('customer', 'qss');
+select public.t_assert('miss customer qss: sees only its own missed_events', (select count(*) = 1 and bool_and(customer_id = 'qss') from missed_events));
+select public.t_throws('miss customer qss: cannot insert missed_events',
+  $$insert into missed_events (customer_id, supplier_id, part_id, event_date) values ('qss', 'edl', 'part-qss-4471-brk', '2026-09-29')$$);
+select public.switch_test_identity('owner', 'edl');
+select public.t_assert('miss owner edl: sees the miss about itself', (select count(*) = 1 and bool_and(supplier_id = 'edl') from missed_events));
+select public.switch_test_identity('owner', 'hmo');
+select public.t_assert('miss owner hmo: sees none', (select count(*) = 0 from missed_events));
+select public.switch_test_identity('customer', 'qss');
+select public.t_works('miss reset_demo runs', $$select reset_demo()$$);
+reset role;
+select public.t_assert('miss reset_demo clears missed_events (parts restored)', (select count(*) = 0 from missed_events));
+
 -- ---- report
 select (case when ok then 'PASS' else 'FAIL' end) || '  ' || name from public.t_results order by n;
 select count(*) filter (where not ok) > 0 as failed, count(*) filter (where not ok) as nfail from public.t_results \gset

@@ -1,0 +1,23 @@
+.track-card { display: flex; flex-direction: column; gap: var(--space-5); }
+.track-summary { display: grid; grid-template-columns: minmax(200px, 280px) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+@media (max-width: 760px) { .track-summary { grid-template-columns: minmax(0, 1fr); } }
+.track-rate { display: flex; flex-direction: column; gap: var(--space-1); }
+.track-rate-label { font: 600 12px/16px var(--font-sans); color: var(--ink-subtle); }
+.track-rate-value { font: 600 28px/36px var(--font-sans); color: var(--ink); }
+.track-note { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); margin: 0; }
+.track-counts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.track-counts li { display: grid; grid-template-columns: 32px max-content minmax(0, 1fr); align-items: center; gap: var(--space-3); }
+.track-count { font: 600 16px/24px var(--font-sans); color: var(--ink); text-align: right; }
+.track-count-meaning { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.track-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-4); }
+.track-item { display: flex; flex-direction: column; gap: var(--space-2); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border); }
+.track-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.track-item-head { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.track-item-title { font: 600 14px/20px var(--font-sans); color: var(--ink); }
+.track-meta { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); margin: 0; }
+.track-evidence { list-style: none; margin: 0; padding: 0 0 0 var(--space-4); border-left: 2px solid var(--border); display: flex; flex-direction: column; gap: var(--space-1); }
+.track-evidence li { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.track-evidence-kind { font-weight: 600; color: var(--ink); }
+.track-evidence-note { color: var(--ink); }
+.track-mount { margin-top: var(--space-6); }
+.track-subhead { margin: 0; font: 600 14px/20px var(--font-sans); color: var(--ink); }
