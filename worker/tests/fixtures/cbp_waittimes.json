@@ -1,0 +1,374 @@
+[
+ {
+  "port_number": "230502",
+  "border": "Mexican Border",
+  "port_name": "Hidalgo/Pharr",
+  "crossing_name": "Pharr",
+  "hours": "6 am-Midnight",
+  "date": "10/7/2026",
+  "time": "14:12:40",
+  "port_status": "Open",
+  "commercial_vehicle_lanes": {
+   "maximum_lanes": "7",
+   "standard_lanes": {
+    "update_time": "At 2:00 pm CDT",
+    "operational_status": "delay",
+    "delay_minutes": "95",
+    "lanes_open": "5"
+   },
+   "FAST_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "passenger_vehicle_lanes": {
+   "maximum_lanes": "10",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "NEXUS_SENTRI_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "pedestrian_lanes": {
+   "maximum_lanes": "N/A",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "construction_notice": ""
+ },
+ {
+  "port_number": "230401",
+  "border": "Mexican Border",
+  "port_name": "Laredo",
+  "crossing_name": "Bridge I",
+  "hours": "24 hrs/day",
+  "date": "10/7/2026",
+  "time": "14:12:40",
+  "port_status": "Open",
+  "commercial_vehicle_lanes": {
+   "maximum_lanes": "N/A",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "FAST_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "passenger_vehicle_lanes": {
+   "maximum_lanes": "4",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "Lanes Closed",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "NEXUS_SENTRI_lanes": {
+    "update_time": "At 4:00 am CDT",
+    "operational_status": "no delay",
+    "delay_minutes": "0",
+    "lanes_open": "1"
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "Lanes Closed",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "pedestrian_lanes": {
+   "maximum_lanes": "12",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "Lanes Closed",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "At 4:00 am CDT",
+    "operational_status": "no delay",
+    "delay_minutes": "0",
+    "lanes_open": "1"
+   }
+  },
+  "construction_notice": ""
+ },
+ {
+  "port_number": "230403",
+  "border": "Mexican Border",
+  "port_name": "Laredo",
+  "crossing_name": "Colombia Solidarity",
+  "hours": "8 am-Midnight",
+  "date": "10/7/2026",
+  "time": "14:12:40",
+  "port_status": "Open",
+  "commercial_vehicle_lanes": {
+   "maximum_lanes": "8",
+   "standard_lanes": {
+    "update_time": "At 2:00 pm CDT",
+    "operational_status": "delay",
+    "delay_minutes": "45",
+    "lanes_open": "6"
+   },
+   "FAST_lanes": {
+    "update_time": "At 2:00 pm CDT",
+    "operational_status": "no delay",
+    "delay_minutes": "0",
+    "lanes_open": "2"
+   }
+  },
+  "passenger_vehicle_lanes": {
+   "maximum_lanes": "4",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "Lanes Closed",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "NEXUS_SENTRI_lanes": {
+    "update_time": "",
+    "operational_status": "Lanes Closed",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "Lanes Closed",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "pedestrian_lanes": {
+   "maximum_lanes": "N/A",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "construction_notice": ""
+ },
+ {
+  "port_number": "230404",
+  "border": "Mexican Border",
+  "port_name": "Laredo",
+  "crossing_name": "World Trade Bridge",
+  "hours": "7 am-Midnight",
+  "date": "10/7/2026",
+  "time": "14:12:40",
+  "port_status": "Open",
+  "commercial_vehicle_lanes": {
+   "maximum_lanes": "19",
+   "standard_lanes": {
+    "update_time": "At 2:00 pm CDT",
+    "operational_status": "delay",
+    "delay_minutes": "185",
+    "lanes_open": "12"
+   },
+   "FAST_lanes": {
+    "update_time": "At 2:00 pm CDT",
+    "operational_status": "delay",
+    "delay_minutes": "70",
+    "lanes_open": "4"
+   }
+  },
+  "passenger_vehicle_lanes": {
+   "maximum_lanes": "N/A",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "NEXUS_SENTRI_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "pedestrian_lanes": {
+   "maximum_lanes": "N/A",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "construction_notice": ""
+ },
+ {
+  "port_number": "260402",
+  "border": "Mexican Border",
+  "port_name": "Nogales",
+  "crossing_name": "Mariposa",
+  "hours": "6 am-10 pm",
+  "date": "10/7/2026",
+  "time": "14:12:40",
+  "port_status": "Open",
+  "commercial_vehicle_lanes": {
+   "maximum_lanes": "8",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "FAST_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "passenger_vehicle_lanes": {
+   "maximum_lanes": "13",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "NEXUS_SENTRI_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "pedestrian_lanes": {
+   "maximum_lanes": "6",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "Update Pending",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "construction_notice": ""
+ },
+ {
+  "port_number": "070801",
+  "border": "Canadian Border",
+  "port_name": "Alexandria Bay",
+  "crossing_name": "Thousand Islands Bridge",
+  "hours": "24 hrs/day",
+  "date": "10/7/2026",
+  "time": "05:43:11",
+  "port_status": "Open",
+  "commercial_vehicle_lanes": {
+   "maximum_lanes": "5",
+   "standard_lanes": {
+    "update_time": "At 7:00 am EDT",
+    "operational_status": "no delay",
+    "delay_minutes": "0",
+    "lanes_open": "1"
+   },
+   "FAST_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "passenger_vehicle_lanes": {
+   "maximum_lanes": "8",
+   "standard_lanes": {
+    "update_time": "At 7:00 am EDT",
+    "operational_status": "no delay",
+    "delay_minutes": "0",
+    "lanes_open": "2"
+   },
+   "NEXUS_SENTRI_lanes": {
+    "update_time": "",
+    "operational_status": "Lanes Closed",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "pedestrian_lanes": {
+   "maximum_lanes": "N/A",
+   "standard_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   },
+   "ready_lanes": {
+    "update_time": "",
+    "operational_status": "N/A",
+    "delay_minutes": "",
+    "lanes_open": ""
+   }
+  },
+  "construction_notice": ""
+ }
+]

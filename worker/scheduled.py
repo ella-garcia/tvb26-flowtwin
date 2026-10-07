@@ -15,7 +15,7 @@ from notify import scheduled as notify_scheduled
 from risk_runner import recompute_all
 from sources import get_source, mark_stale
 
-DEFAULT_SOURCES = "open-meteo,file"
+DEFAULT_SOURCES = "weather,tomtom,cbp,theft,file"
 
 
 def enabled_sources() -> list[str]:

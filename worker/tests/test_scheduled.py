@@ -59,7 +59,7 @@ def test_failed_source_does_not_retire_signals(monkeypatch):
 
 def test_default_sources(monkeypatch):
     monkeypatch.delenv("SIGNAL_SOURCES", raising=False)
-    assert scheduled.enabled_sources() == ["open-meteo", "file"]
+    assert scheduled.enabled_sources() == ["weather", "tomtom", "cbp", "theft", "file"]
     monkeypatch.setenv("SIGNAL_SOURCES", "file, smn")
     assert scheduled.enabled_sources() == ["file", "smn"]
 
