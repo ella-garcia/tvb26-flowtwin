@@ -22,7 +22,7 @@ export interface ScenarioState {
 const DEFAULT_SCENARIO: ScenarioState = { weeks: 12, share: 0.5, seed: 1, overrides: {}, view: "operational" };
 
 export type ModuleId =
-  | "risk" | "parts" | "what-if" | "sustainability" | "alerts" | "supplier" | "invite" | "tier1-data" // key customer (Tier 1)
+  | "risk" | "performance" | "parts" | "what-if" | "sustainability" | "alerts" | "supplier" | "invite" | "tier1-data" // key customer (Tier 1)
   | "my-risk" | "data"                                 // supplier (Tier 2 owner / ops)
   | "signals" | "companies";                           // admin
 

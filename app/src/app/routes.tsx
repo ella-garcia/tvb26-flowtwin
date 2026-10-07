@@ -5,6 +5,7 @@ import type { ModuleId } from "./AppContext";
 import RiskBoardPage from "../pages/risk";
 import AlertsPage from "../pages/alerts";
 import PartsPage from "../pages/parts";
+import PerformancePage from "../pages/performance";
 import WhatIfPage from "../pages/what-if";
 import SustainabilityPage from "../pages/sustainability";
 import SupplierPage from "../pages/supplier";
@@ -25,6 +26,7 @@ export interface ModuleDef {
 
 export const MODULES: Record<ModuleId, ModuleDef> = {
   risk: { label: "Risk board", icon: "pulse", Page: RiskBoardPage },
+  performance: { label: "Performance", icon: "chart", Page: PerformancePage },
   parts: { label: "Parts & stock", icon: "cube", Page: PartsPage },
   "what-if": { label: "What-if", icon: "sliders", Page: WhatIfPage },
   sustainability: { label: "Sustainability", icon: "leaf", Page: SustainabilityPage },

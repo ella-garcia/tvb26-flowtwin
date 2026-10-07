@@ -3,6 +3,7 @@
 // Quantities are converted to days of usage (quantity ÷ the part's daily usage) so parts in pieces and in kg add up.
 // No money here (BRIEF money rule): counts, days and percentages only.
 import { otifSummary, type OtifGrade } from "./otif";
+import { stopDaysFor } from "./programs";
 import { CRIT_RANK, partStock } from "./stock";
 import type { TrackSummary } from "./trackData";
 import { days as fmtDays, num, pct, riskWord } from "./format";
@@ -31,7 +32,8 @@ export interface KpiTile {
   value: number | null;
   unit: "count" | "days" | "pct";
   display: string;
-  delta?: { value: number; display: string; vs: "previous period" | "7 days ago"; better: "up" | "down"; improved: boolean };
+  /** amount: the size of the change without a glyph (the stat card adds ▲/▼); display: the full sentence. */
+  delta?: { value: number; amount: string; display: string; vs: "previous period" | "7 days ago"; better: "up" | "down"; improved: boolean };
   provenance: "measured" | "estimated";
   formula: string;
   data: string;
@@ -145,7 +147,10 @@ export function buildPerformance(i: PerformanceInputs, f: PerformanceFilter): Pe
   const to = i.asOf, from = addDays(to, -(f.periodDays - 1));
   const previousTo = addDays(from, -1), previousFrom = addDays(previousTo, -(f.periodDays - 1));
   const s = scopeInputs(i, f);
-  const riskOf = new Map(s.risks.map((r) => [r.supplierId, r]));
+  // With a vehicle model selected, days to line stop come from that model's parts (as on the risk board).
+  const narrowed = f.programId !== "all" || !!f.supplierId;
+  const riskOf = new Map(s.risks.map((r) => [r.supplierId, narrowed
+    ? { ...r, daysToLineStop: stopDaysFor(r, s.parts.filter((p) => p.supplierId === r.supplierId)) } : r]));
   return {
     period: { from, to, previousFrom, previousTo, days: f.periodDays },
     kpis: kpis(i, s, riskOf, { from, to, previousFrom, previousTo }, f.periodDays),
@@ -165,7 +170,7 @@ function kpis(i: PerformanceInputs, s: Scoped, riskOf: Map<string, RiskAssessmen
   const weekAgo = addDays(i.asOf, -7);
   const then = s.history.filter((h) => h.asOf === weekAgo);
   const redThen = then.length ? then.filter((h) => h.level === "red").length : null;
-  const stops = s.risks.map((r) => r.daysToLineStop).filter((d): d is number => d != null);
+  const stops = [...riskOf.values()].map((r) => r.daysToLineStop).filter((d): d is number => d != null);
   const soonest = stops.length ? Math.min(...stops) : null;
   const below = s.parts.filter((pt) => partStock(pt, riskOf.get(pt.supplierId), i.asOf).status === "short").length;
   const now = receiptStats(s.receipts.filter((r) => inRange(r.promisedDate, p.from, p.to)), i.asOf);
@@ -212,7 +217,7 @@ function kpis(i: PerformanceInputs, s: Scoped, riskOf: Map<string, RiskAssessmen
 function delta(value: number, vs: "previous period" | "7 days ago", better: "up" | "down", show: (v: number) => string) {
   const improved = better === "up" ? value > 0 : value < 0;
   const sign = value > 0 ? "▲" : value < 0 ? "▼" : "";
-  return { value, display: value === 0 ? `No change vs ${vs}` : `${sign} ${show(value)} vs ${vs}`, vs, better, improved };
+  return { value, amount: show(value), display: value === 0 ? `No change vs ${vs}` : `${sign} ${show(value)} vs ${vs}`, vs, better, improved };
 }
 
 function supplierPanels(i: PerformanceInputs, s: Scoped, riskOf: Map<string, RiskAssessment>): SupplierPanel[] {
