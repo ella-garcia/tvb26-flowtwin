@@ -8,6 +8,7 @@ import { Button, FilterChip, Icon, StatusPill, type IconName } from "../../keyst
 import { AlertStatusPill, Card, Empty, FormulaSource, PageHeader, RiskLight, ScopedError } from "../../components/shared";
 import { date } from "../../lib/format";
 import { SupplierRiskView } from "../../components/supplier-risk";
+import { TrackRecordCard } from "../../components/track/TrackRecordCard";
 import { CircularCard } from "./CircularCard";
 import "./my-risk.css";
 
@@ -119,6 +120,7 @@ export default function MyRiskPage() {
               {shownAlerts.map((a) => <AlertCard key={a.id} alert={a} customerName={nameOf(a.customerId)} />)}
             </div>}
       </Card>
+      <TrackRecordCard customerId={customerId} supplierId={supplierId} audience="supplier" />
       {customerId
         ? <SupplierRiskView customerId={customerId} supplierId={supplierId} audience="supplier" />
         : <Empty title="No customer sees you yet" action={<Button variant="secondary" onClick={() => go("data")}>Open your data</Button>}>

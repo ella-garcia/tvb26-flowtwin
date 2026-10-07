@@ -2,6 +2,7 @@ import { useApp } from "../../app/AppContext";
 import { Breadcrumb } from "../../keystone";
 import { Empty } from "../../components/shared";
 import { SupplierRiskView } from "../../components/supplier-risk";
+import { TrackRecordCard } from "../../components/track/TrackRecordCard";
 
 export default function SupplierPage() {
   const { route, toggles, go } = useApp();
@@ -21,6 +22,7 @@ export default function SupplierPage() {
     <>
       {back}
       <SupplierRiskView customerId={toggles.companyId} supplierId={id} audience="customer" />
+      <div className="track-mount"><TrackRecordCard customerId={toggles.companyId} supplierId={id} audience="customer" /></div>
     </>
   );
 }

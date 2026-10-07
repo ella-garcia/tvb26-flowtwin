@@ -141,7 +141,7 @@ def test_httpx_error_is_a_502_and_other_runtime_errors_a_500(monkeypatch):
 
 def test_phase2_job_kinds_are_dispatched_and_fail_clearly_until_built():
     import jobs as j
-    for kind, wp in (("ingest-edi", "WP4a"), ("sync-connection", "WP4b"), ("evaluate-alerts", "WP3"),
+    for kind, wp in (("ingest-edi", "WP4a"), ("sync-connection", "WP4b"),
                      ("extract-reply", "WP7"), ("send-digest", "WP5")):
         with pytest.raises(NotImplementedError, match=wp):
             j.run_job(None, {"kind": kind, "payload": {}})
