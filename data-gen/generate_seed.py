@@ -79,6 +79,19 @@ UNITS_PER_PALLET = {
     "SLP-2210-PVT": 6000, "SLP-2401-SPR": 4000, "SLP-1101-TUB": 250, "SLP-5110-CPT": 600,
 }
 
+# Origin country (ISO-2) and tariff code (HS, digits) of imported parts; other parts leave both out (unknown).
+# Feeds the trade-exposure driver (worker/engine/trade.py) through policy signals.
+PART_ORIGIN = {
+    "QSS-5310-PAB": ("CN", "390810"),   # PA6 compound, imported through Manzanillo
+    "QSS-5322-PPC": ("KR", "320611"),   # masterbatch, imported through Manzanillo
+    "QSS-5401-PPH": ("US", "390210"),   # PP homopolymer, Texas, crosses at Nuevo Laredo
+}
+
+
+def origin(num):
+    o = PART_ORIGIN.get(num)
+    return dict(originCountry=o[0], hsCode=o[1]) if o else {}
+
 # ----------------------------------------------------------------- suppliers
 # part tuple: (number, name, unitCostMxn, dailyUsage, coverDays, singleSource, criticality)
 # otif: (start, end, kind) weekly series; hw = main highways of the lane to the customer
@@ -263,6 +276,20 @@ SIGNALS = [
          description="From 19 December carriers run fewer trucks and traffic on MEX-57D rises; loads take longer to book and to arrive.",
          state="Querétaro", lat=20.59, lon=-100.39, radiusKm=30, highways=["MEX-57D"], startsAt="2026-12-19", endsAt="2027-01-04",
          severity="low", transitMultiplier=1.3, source="Historical holiday freight pattern (seeded for demo)"),
+    # Second failure path: the supplier cannot make the parts (an input shortage), transit is not affected.
+    dict(id="sig-input-etb-polyol", kind="supplier-input", short="Polyol shortage",
+         title="Polyol shortage, Espumas y Tapizados del Bajío",
+         description="ETB's polyol supplier declared force majeure after a plant outage on the Gulf coast. ETB receives about 60% of its usual polyol and has cut foam output accordingly; finished goods cover the first days.",
+         state="Guanajuato", lat=21.12, lon=-101.68, radiusKm=5, highways=[], startsAt="2026-10-07", endsAt="2026-10-24",
+         severity="medium", transitMultiplier=1.0, supplyCutPct=0.4, affects=dict(supplierIds=["etb"]),
+         source="Supplier-reported through FlowTwin (seeded for demo)"),
+    # Trade policy: reaches parts by origin country and tariff code, never transit (announced, starts after 14 days).
+    dict(id="sig-policy-resin-tariff", kind="policy", short="Higher tariff on Asian polyamide",
+         title="Tariff increase on polyamide resins from countries without a trade agreement",
+         description="Mexico raises the import tariff on polyamide (HS 3908) from countries without a trade agreement, including China and Korea, from 1 November. Importers of PA6 compound may re-source or hold stock back while the change settles.",
+         state="Ciudad de México", lat=19.43, lon=-99.13, radiusKm=0, highways=[], startsAt="2026-11-01", endsAt="2027-10-31",
+         severity="high", transitMultiplier=1.0, affects=dict(originCountries=["CN", "KR"], hsPrefixes=["3908"]),
+         source="Diario Oficial de la Federación decree pattern (seeded for demo)"),
 ]
 for s in SIGNALS: s["provenance"] = "estimated"
 
@@ -272,16 +299,25 @@ ENG_SETTINGS = to_snake(SETTINGS)
 ENG_SIGNALS = [to_snake(s) for s in SIGNALS]  # radius_km, starts_at, ...; `short` stays for the driver labels
 
 
-def eng_part(p):
+def eng_part(p, pipe=None):
     num, name, _ucost, _usage, c0, single, crit = p
     return dict(id=f"part-{num.lower()}", number=num, name=name, days_of_cover=c0, criticality=crit, single_source=single,
-                daily_usage=p[3], **({"units_per_pallet": UNITS_PER_PALLET[num]} if num in UNITS_PER_PALLET else {}))
+                daily_usage=p[3], **({"units_per_pallet": UNITS_PER_PALLET[num]} if num in UNITS_PER_PALLET else {}),
+                **to_snake(origin(num)), **to_snake(pipe or {}))
 
 
 def assess(cid, sp, cinfo):
-    """Risk of one (customer, supplier): seed-shaped risk plus the engine's snake_case risk and ctx (for alerts)."""
-    raw, ctx = compute_pair(CUST[cid], eng_supplier(sp), [eng_part(p) for p in cinfo["parts"]], ENG_SIGNALS, ENG_SETTINGS, ASOF)
-    return dict(risk=to_camel(raw), raw=raw, ctx=ctx)
+    """Risk of one (customer, supplier): seed-shaped risk plus the engine's snake_case risk and ctx (for alerts).
+
+    Two passes: the pipeline (in transit, next delivery) is built from the expected transit of the first pass, then the
+    risk is computed with it. Transit does not depend on the parts, so both passes give the same transit numbers.
+    """
+    first, _ = compute_pair(CUST[cid], eng_supplier(sp), [eng_part(p) for p in cinfo["parts"]], ENG_SIGNALS, ENG_SETTINGS, ASOF)
+    pipes = {p[0]: pipeline(sp, p[3], to_camel(first)) for p in cinfo["parts"]}
+    raw, ctx = compute_pair(CUST[cid], eng_supplier(sp), [eng_part(p, pipes[p[0]]) for p in cinfo["parts"]], ENG_SIGNALS,
+                            ENG_SETTINGS, ASOF)
+    assert (raw["normal_transit_days"], raw["expected_transit_days"]) == (first["normal_transit_days"], first["expected_transit_days"])
+    return dict(risk=to_camel(raw), raw=raw, ctx=ctx, pipes=pipes)
 
 
 # ----------------------------------------------------------------- build
@@ -316,7 +352,7 @@ def build():
             for (num, name, ucost, usage, c0, single, crit) in ci["parts"]:
                 parts_out.append(dict(id=f"part-{num.lower()}", number=num, name=name, supplierId=sp["id"], customerId=cid, unitCostMxn=ucost,
                                       dailyUsage=usage, **({"unitsPerPallet": UNITS_PER_PALLET[num]} if num in UNITS_PER_PALLET else {}), onHand=int(round(usage * c0)), daysOfCover=round(c0, 2), singleSource=single, criticality=crit,
-                                      **pipeline(sp, usage, a["risk"]), programIds=program_ids(cid, num)))
+                                      **a["pipes"][num], **origin(num), programIds=program_ids(cid, num)))
     return companies, rels, parts_out, risks_out, assessments
 
 
@@ -415,7 +451,7 @@ def main():
     # --- alerts: one per red and per significant amber
     alerts = []
     meta = {"pfl": ("new", "2026-10-05"), "hmo": ("new", "2026-10-05"), "tsr": ("new", "2026-10-04"), "edl": ("supplier-responded", "2026-10-04"),
-            "pip": ("acknowledged", "2026-10-03"), "rdp": ("new", "2026-10-02")}
+            "pip": ("acknowledged", "2026-10-03"), "rdp": ("new", "2026-10-02"), "etb": ("new", "2026-10-05")}
     for (cid, sid), a in sorted(ass.items(), key=lambda kv: -kv[1]["risk"]["lineStopExposureEur"]):
         r = a["risk"]
         if r["level"] == "green" or sid not in meta: continue

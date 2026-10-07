@@ -21,7 +21,7 @@ J, A = "j", "a"
 TABLES = [
     ("companies", "companies", {"pack_ids": A, "contact": J}),
     ("relationships", "relationships", {"requirements": J}),
-    ("signals", "signals", {"highways": A}),
+    ("signals", "signals", {"highways": A, "affects": J}),
     ("emissionFactors", "emission_factors", {}),
     ("sites", "sites", {}),
     ("partners", "partners", {}),
@@ -48,7 +48,7 @@ TABLES = [
 COLUMNS = {
     "companies": "id name city state lat lon kind size_band employees scian pack_ids synthetic contact",
     "relationships": "supplier_id customer_id chain_position share_of_sales requirements",
-    "signals": "id kind title description state lat lon radius_km highways starts_at ends_at severity transit_multiplier source provenance short_label",
+    "signals": "id kind title description state lat lon radius_km highways starts_at ends_at severity transit_multiplier source provenance short_label supply_cut_pct affects",
     "emission_factors": "id version name value unit scope source year",
     "sites": "id company_id name type city lat lon pallet_positions rented_positions",
     "partners": "id company_id name role city lat lon linked_company_id material lead_time_days lead_time_variability",
@@ -61,7 +61,7 @@ COLUMNS = {
     "shipments": "company_id customer_id year tonnes",
     "twins": "company_id synced_through built_at counts accuracy overall_accuracy days",
     "uploads": "company_id kind file_name rows source status uploaded_at storage_path",
-    "parts": "id number name supplier_id customer_id unit_cost_mxn daily_usage on_hand days_of_cover single_source criticality in_transit supplier_fg_on_hand next_delivery_date program_ids units_per_pallet",
+    "parts": "id number name supplier_id customer_id unit_cost_mxn daily_usage on_hand days_of_cover single_source criticality in_transit supplier_fg_on_hand next_delivery_date program_ids units_per_pallet origin_country hs_code",
     "vehicle_programs": "id customer_id oem model oem_plant daily_vehicles revenue_per_vehicle_mxn",
     "risks": "customer_id supplier_id level score normal_transit_days expected_transit_days worst_case_transit_days min_cover_days days_to_line_stop part_stop_days legs line_stop_exposure_eur drivers flex otif_trend projection outlook scenarios circular data_status updated_at",
     "alerts": "id customer_id supplier_id part_ids signal_id level title message created_at expected_shortfall_date line_stop_exposure_eur status actions chosen_action_id supplier_response",

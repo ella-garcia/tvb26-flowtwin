@@ -1,13 +1,13 @@
 """Orchestrator: risk rows and alert rows for one customer, from plain DB-shaped dicts."""
-from datetime import date
+from datetime import date, timedelta
 
 from .alerts import make_alert
 from .circular import DEFAULT_FACTOR, transport_footprint
-from .flex import run_flex
+from .flex import FLEX_DAYS, run_flex
 from .otif import otif_series
 from .outlook import outlook
 from .scenarios import scenarios
-from .projection import HORIZON, project
+from .projection import HORIZON, input_cut_on, project
 from .scoring import score_drivers, traffic_light
 
 DEFAULT_SETTINGS = {"line_stop_cost_eur_per_minute": 15000, "contract_demand_swing": 0.15, "line_hours_per_day": 16,
@@ -19,14 +19,17 @@ def compute_pair(customer, supplier, parts, signals, settings, as_of, factor=Non
 
     customer: companies row (id, name, lat, lon).
     supplier: companies row merged with its profile: city, name, lat, lon, data_status, highways,
-              lead_time_variability, utilization, ceiling, fg_days, bottleneck, otif (a, b, kind) or otif_trend (list of 12).
-    parts:    parts rows for the pair. signals: signals rows. settings: app_settings-shaped dict.
+              lead_time_variability, utilization, ceiling, fg_days, bottleneck, otif (a, b, kind) or otif_trend (list of 12);
+              optional capacity_events (the supplier's capacity_events rows; private, they only change the flex result).
+    parts:    parts rows for the pair (in_transit / next_delivery_date / supplier_fg_on_hand / origin_country / hs_code
+              used when present). signals: signals rows. settings: app_settings-shaped dict.
     """
     parts = sorted(parts, key=lambda p: p["number"])
     proj = project(customer, supplier, parts, signals, settings, as_of)
-    flex = run_flex(supplier, float(settings["contract_demand_swing"]))
+    cuts = [input_cut_on(supplier, signals, as_of + timedelta(days=i)) for i in range(FLEX_DAYS)]
+    flex = run_flex(supplier, float(settings["contract_demand_swing"]), as_of, cuts, supplier.get("capacity_events") or ())
     otif = supplier.get("otif_trend") or otif_series(supplier["id"], supplier["otif"])
-    score, drivers = score_drivers(customer, supplier, proj, flex, otif, signals)
+    score, drivers = score_drivers(customer, supplier, proj, flex, otif, signals, parts)
     dtls = proj["days_to_line_stop"]
     level = traffic_light(score, dtls)
     risk = dict(customer_id=customer["id"], supplier_id=supplier["id"], level=level, score=score,
@@ -39,9 +42,15 @@ def compute_pair(customer, supplier, parts, signals, settings, as_of, factor=Non
                 circular=transport_footprint(customer, supplier, parts, settings, factor or DEFAULT_FACTOR),
                 data_status=supplier["data_status"], updated_at=as_of.isoformat())
     covers = [p["coverDays"] for p in proj["projection"]]
+    top = next((d for d in drivers if "signalId" in d), None)
+    isig = next((s for s in proj["input_signals"] if top and s["id"] == top["signalId"]), None)
     ctx = dict(exposed_part=proj["exposed"]["part"],
-               top_signal=next((d["signalId"] for d in drivers if "signalId" in d), None),
-               min_proj_cover=min(covers), cover_at=min(range(HORIZON), key=lambda i: covers[i]))
+               top_signal=top["signalId"] if top else None,
+               min_proj_cover=min(covers), cover_at=min(range(HORIZON), key=lambda i: covers[i]),
+               stop_cause=proj["stop_cause"],
+               # the input shortage leads the alert when it empties the cover first, or is the top signal driver
+               input=dict(signal=isig or proj["input_signals"][0], fg_days=proj["exposed"]["fg"])
+               if proj["input_signals"] and (proj["stop_cause"] == "input" or isig) else None)
     return risk, ctx
 
 

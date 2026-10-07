@@ -1209,6 +1209,8 @@
    "inTransit": 900,
    "supplierFgOnHand": 1800,
    "nextDeliveryDate": "2026-10-08",
+   "originCountry": "CN",
+   "hsCode": "390810",
    "programIds": [
     "prog-qss-k3",
     "prog-qss-m5",
@@ -1230,6 +1232,8 @@
    "inTransit": 1100,
    "supplierFgOnHand": 2200,
    "nextDeliveryDate": "2026-10-08",
+   "originCountry": "KR",
+   "hsCode": "320611",
    "programIds": [
     "prog-qss-k3",
     "prog-qss-m5",
@@ -1589,6 +1593,8 @@
    "inTransit": 4500,
    "supplierFgOnHand": 4500,
    "nextDeliveryDate": "2026-10-13",
+   "originCountry": "US",
+   "hsCode": "390210",
    "programIds": [
     "prog-qss-k3",
     "prog-qss-m5",
@@ -1867,6 +1873,57 @@
    "transitMultiplier": 1.3,
    "source": "Historical holiday freight pattern (seeded for demo)",
    "provenance": "estimated"
+  },
+  {
+   "id": "sig-input-etb-polyol",
+   "kind": "supplier-input",
+   "short": "Polyol shortage",
+   "title": "Polyol shortage, Espumas y Tapizados del Bajío",
+   "description": "ETB's polyol supplier declared force majeure after a plant outage on the Gulf coast. ETB receives about 60% of its usual polyol and has cut foam output accordingly; finished goods cover the first days.",
+   "state": "Guanajuato",
+   "lat": 21.12,
+   "lon": -101.68,
+   "radiusKm": 5,
+   "highways": [],
+   "startsAt": "2026-10-07",
+   "endsAt": "2026-10-24",
+   "severity": "medium",
+   "transitMultiplier": 1.0,
+   "supplyCutPct": 0.4,
+   "affects": {
+    "supplierIds": [
+     "etb"
+    ]
+   },
+   "source": "Supplier-reported through FlowTwin (seeded for demo)",
+   "provenance": "estimated"
+  },
+  {
+   "id": "sig-policy-resin-tariff",
+   "kind": "policy",
+   "short": "Higher tariff on Asian polyamide",
+   "title": "Tariff increase on polyamide resins from countries without a trade agreement",
+   "description": "Mexico raises the import tariff on polyamide (HS 3908) from countries without a trade agreement, including China and Korea, from 1 November. Importers of PA6 compound may re-source or hold stock back while the change settles.",
+   "state": "Ciudad de México",
+   "lat": 19.43,
+   "lon": -99.13,
+   "radiusKm": 0,
+   "highways": [],
+   "startsAt": "2026-11-01",
+   "endsAt": "2027-10-31",
+   "severity": "high",
+   "transitMultiplier": 1.0,
+   "affects": {
+    "originCountries": [
+     "CN",
+     "KR"
+    ],
+    "hsPrefixes": [
+     "3908"
+    ]
+   },
+   "source": "Diario Oficial de la Federación decree pattern (seeded for demo)",
+   "provenance": "estimated"
   }
  ],
  "risks": [
@@ -1959,98 +2016,112 @@
      "transitP10": 1.1,
      "transitP50": 1.4,
      "transitP90": 1.9,
-     "coverDays": 0.8
+     "coverDays": 0.8,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 1.0,
      "transitP50": 1.4,
      "transitP90": 1.9,
-     "coverDays": 0.8
+     "coverDays": 0.8,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 1.0,
      "transitP50": 1.4,
      "transitP90": 1.9,
-     "coverDays": 0.8
+     "coverDays": 0.8,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 1.0,
      "transitP50": 1.4,
      "transitP90": 1.8,
-     "coverDays": 0.8
+     "coverDays": 0.8,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.0,
      "transitP50": 1.4,
      "transitP90": 1.9,
-     "coverDays": 0.8
+     "coverDays": 0.8,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.0,
      "transitP50": 1.4,
      "transitP90": 1.9,
-     "coverDays": 0.8
+     "coverDays": 0.8,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.0,
      "transitP50": 1.4,
      "transitP90": 1.8,
-     "coverDays": 0.8
+     "coverDays": 0.8,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.0,
      "transitP50": 1.4,
      "transitP90": 1.9,
-     "coverDays": 0.8
+     "coverDays": 0.8,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 0.8,
      "transitP50": 1.0,
      "transitP90": 1.4,
-     "coverDays": 1.1
+     "coverDays": 1.1,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 0.8,
      "transitP50": 1.1,
      "transitP90": 1.4,
-     "coverDays": 1.1
+     "coverDays": 1.1,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 0.8,
      "transitP50": 1.1,
      "transitP90": 1.4,
-     "coverDays": 1.1
+     "coverDays": 1.1,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 0.8,
      "transitP50": 1.1,
      "transitP90": 1.4,
-     "coverDays": 1.1
+     "coverDays": 1.1,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 0.8,
      "transitP50": 1.1,
      "transitP90": 1.5,
-     "coverDays": 1.1
+     "coverDays": 1.1,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 0.8,
      "transitP50": 1.0,
      "transitP90": 1.4,
-     "coverDays": 1.1
+     "coverDays": 1.1,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -2693,7 +2764,7 @@
    "score": 82,
    "normalTransitDays": 2,
    "expectedTransitDays": 5.3,
-   "worstCaseTransitDays": 8.3,
+   "worstCaseTransitDays": 8.6,
    "minCoverDays": 3.0,
    "daysToLineStop": 2,
    "partStopDays": {
@@ -2777,98 +2848,112 @@
      "transitP10": 4.4,
      "transitP50": 5.3,
      "transitP90": 6.2,
-     "coverDays": 2.0
+     "coverDays": 2.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 4.3,
      "transitP50": 5.2,
      "transitP90": 6.3,
-     "coverDays": 1.0
+     "coverDays": 1.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 4.3,
      "transitP50": 5.2,
      "transitP90": 6.3,
-     "coverDays": 0.0
+     "coverDays": 0.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 5.5,
      "transitP50": 6.7,
      "transitP90": 8.3,
-     "coverDays": 0.0
+     "coverDays": 0.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
-     "transitP10": 5.6,
+     "transitP10": 5.5,
      "transitP50": 6.7,
-     "transitP90": 8.2,
-     "coverDays": 0.0
+     "transitP90": 8.4,
+     "coverDays": 0.0,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
-     "transitP10": 5.6,
+     "transitP10": 5.4,
      "transitP50": 6.7,
-     "transitP90": 8.2,
-     "coverDays": 0.0
+     "transitP90": 8.4,
+     "coverDays": 0.0,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
-     "transitP10": 5.7,
+     "transitP10": 5.4,
      "transitP50": 6.8,
-     "transitP90": 8.2,
-     "coverDays": 0.0
+     "transitP90": 8.5,
+     "coverDays": 0.0,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
-     "transitP10": 5.6,
+     "transitP10": 5.2,
      "transitP50": 6.7,
-     "transitP90": 8.1,
-     "coverDays": 0.0
+     "transitP90": 8.6,
+     "coverDays": 0.0,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
-     "transitP10": 4.3,
+     "transitP10": 4.0,
      "transitP50": 5.2,
-     "transitP90": 6.3,
-     "coverDays": 0.0
+     "transitP90": 6.7,
+     "coverDays": 0.8,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
-     "transitP10": 4.3,
+     "transitP10": 3.8,
      "transitP50": 5.2,
-     "transitP90": 6.4,
-     "coverDays": 0.0
+     "transitP90": 7.0,
+     "coverDays": 0.8,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
-     "transitP10": 4.3,
+     "transitP10": 3.8,
      "transitP50": 5.2,
-     "transitP90": 6.3,
-     "coverDays": 0.0
+     "transitP90": 6.9,
+     "coverDays": 0.8,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
-     "transitP10": 4.2,
+     "transitP10": 3.6,
      "transitP50": 5.2,
-     "transitP90": 6.4,
-     "coverDays": 0.0
+     "transitP90": 7.1,
+     "coverDays": 0.8,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
-     "transitP10": 4.4,
+     "transitP10": 3.7,
      "transitP50": 5.3,
-     "transitP90": 6.4,
-     "coverDays": 0.0
+     "transitP90": 7.2,
+     "coverDays": 0.8,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
-     "transitP10": 4.2,
+     "transitP10": 3.5,
      "transitP50": 5.1,
-     "transitP90": 6.3,
-     "coverDays": 0.0
+     "transitP90": 7.2,
+     "coverDays": 0.8,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -3596,98 +3681,112 @@
      "transitP10": 2.2,
      "transitP50": 2.7,
      "transitP90": 3.5,
-     "coverDays": 0.7
+     "coverDays": 0.7,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 2.2,
      "transitP50": 2.8,
      "transitP90": 3.5,
-     "coverDays": 0.7
+     "coverDays": 0.7,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 2.2,
      "transitP50": 2.8,
      "transitP90": 3.5,
-     "coverDays": 0.7
+     "coverDays": 0.7,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 2.2,
      "transitP50": 2.7,
      "transitP90": 3.5,
-     "coverDays": 0.7
+     "coverDays": 1.7,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.7,
      "transitP50": 2.1,
      "transitP90": 2.6,
-     "coverDays": 1.4
+     "coverDays": 2.4,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.7,
      "transitP50": 2.1,
      "transitP90": 2.6,
-     "coverDays": 1.4
+     "coverDays": 2.4,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.7,
      "transitP50": 2.1,
      "transitP90": 2.6,
-     "coverDays": 1.4
+     "coverDays": 2.4,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.7,
      "transitP50": 2.1,
      "transitP90": 2.7,
-     "coverDays": 1.4
+     "coverDays": 2.4,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 1.7,
      "transitP50": 2.1,
      "transitP90": 2.7,
-     "coverDays": 1.4
+     "coverDays": 2.4,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 1.7,
      "transitP50": 2.1,
      "transitP90": 2.7,
-     "coverDays": 1.4
+     "coverDays": 2.4,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 1.7,
      "transitP50": 2.1,
      "transitP90": 2.7,
-     "coverDays": 1.4
+     "coverDays": 2.4,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 1.7,
      "transitP50": 2.1,
      "transitP90": 2.6,
-     "coverDays": 1.4
+     "coverDays": 2.4,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 1.7,
      "transitP50": 2.1,
      "transitP90": 2.7,
-     "coverDays": 1.4
+     "coverDays": 2.4,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 1.7,
      "transitP50": 2.1,
      "transitP90": 2.7,
-     "coverDays": 1.4
+     "coverDays": 2.4,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -4417,98 +4516,112 @@
      "transitP10": 1.9,
      "transitP50": 2.3,
      "transitP90": 2.8,
-     "coverDays": 0.5
+     "coverDays": 0.5,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 1.9,
      "transitP50": 2.3,
      "transitP90": 2.8,
-     "coverDays": 0.2
+     "coverDays": 0.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 2.0,
      "transitP50": 2.4,
      "transitP90": 2.7,
-     "coverDays": 0.2
+     "coverDays": 0.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 2.0,
      "transitP50": 2.3,
      "transitP90": 2.8,
-     "coverDays": 0.2
+     "coverDays": 0.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.5,
      "transitP50": 1.8,
      "transitP90": 2.1,
-     "coverDays": 0.7
+     "coverDays": 0.7,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 1.4
+     "coverDays": 1.4,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.3,
-     "coverDays": 1.4
+     "coverDays": 1.4,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 1.4
+     "coverDays": 1.4,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.3,
-     "coverDays": 1.4
+     "coverDays": 1.4,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.3,
-     "coverDays": 1.4
+     "coverDays": 1.4,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.3,
-     "coverDays": 1.4
+     "coverDays": 1.4,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 1.4
+     "coverDays": 1.4,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 1.4
+     "coverDays": 1.4,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.3,
-     "coverDays": 1.4
+     "coverDays": 1.4,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -5163,7 +5276,7 @@
    "customerId": "qss",
    "supplierId": "rdp",
    "level": "amber",
-   "score": 50,
+   "score": 58,
    "normalTransitDays": 2,
    "expectedTransitDays": 3.0,
    "worstCaseTransitDays": 3.8,
@@ -5191,6 +5304,12 @@
      "label": "PA6 glass-filled resin, seat base compound is a single-source line stopper part",
      "kind": "cover",
      "contribution": 16
+    },
+    {
+     "label": "Trade exposure: Higher tariff on Asian polyamide applies to QSS-5310-PAB (origin CN) from 1 Nov 2026",
+     "kind": "policy",
+     "signalId": "sig-policy-resin-tariff",
+     "contribution": 8
     },
     {
      "label": "Only 2 days of cover at QRO Seating Systems",
@@ -5237,98 +5356,112 @@
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 1.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 1.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.8,
-     "coverDays": 1.0
+     "coverDays": 1.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.8,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.8,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 2.4,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 2.5,
      "transitP50": 3.0,
      "transitP90": 3.7,
-     "coverDays": 1.0
+     "coverDays": 2.0,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -5362,63 +5495,90 @@
      "expectedTransitDays": 2.0,
      "extraDays": 0.0,
      "level": "green",
-     "signals": []
+     "signals": [
+      "Higher tariff on Asian polyamide"
+     ],
+     "tradeExposure": true
     },
     {
      "weekStart": "2026-11-02",
      "expectedTransitDays": 2.0,
      "extraDays": 0.0,
      "level": "green",
-     "signals": []
+     "signals": [
+      "Higher tariff on Asian polyamide"
+     ],
+     "tradeExposure": true
     },
     {
      "weekStart": "2026-11-09",
      "expectedTransitDays": 2.0,
      "extraDays": 0.0,
      "level": "green",
-     "signals": []
+     "signals": [
+      "Higher tariff on Asian polyamide"
+     ],
+     "tradeExposure": true
     },
     {
      "weekStart": "2026-11-16",
      "expectedTransitDays": 2.0,
      "extraDays": 0.0,
      "level": "green",
-     "signals": []
+     "signals": [
+      "Higher tariff on Asian polyamide"
+     ],
+     "tradeExposure": true
     },
     {
      "weekStart": "2026-11-23",
      "expectedTransitDays": 2.0,
      "extraDays": 0.0,
      "level": "green",
-     "signals": []
+     "signals": [
+      "Higher tariff on Asian polyamide"
+     ],
+     "tradeExposure": true
     },
     {
      "weekStart": "2026-11-30",
      "expectedTransitDays": 2.0,
      "extraDays": 0.0,
      "level": "green",
-     "signals": []
+     "signals": [
+      "Higher tariff on Asian polyamide"
+     ],
+     "tradeExposure": true
     },
     {
      "weekStart": "2026-12-07",
      "expectedTransitDays": 2.0,
      "extraDays": 0.0,
      "level": "green",
-     "signals": []
+     "signals": [
+      "Higher tariff on Asian polyamide"
+     ],
+     "tradeExposure": true
     },
     {
      "weekStart": "2026-12-14",
      "expectedTransitDays": 2.0,
      "extraDays": 0.0,
      "level": "green",
-     "signals": []
+     "signals": [
+      "Higher tariff on Asian polyamide"
+     ],
+     "tradeExposure": true
     },
     {
      "weekStart": "2026-12-21",
      "expectedTransitDays": 2.0,
      "extraDays": 0.0,
      "level": "green",
-     "signals": []
+     "signals": [
+      "Higher tariff on Asian polyamide"
+     ],
+     "tradeExposure": true
     }
    ],
    "scenarios": {
@@ -5957,8 +6117,8 @@
   {
    "customerId": "qss",
    "supplierId": "etb",
-   "level": "green",
-   "score": 10,
+   "level": "amber",
+   "score": 42,
    "normalTransitDays": 1,
    "expectedTransitDays": 1.1,
    "worstCaseTransitDays": 1.2,
@@ -5976,6 +6136,17 @@
    ],
    "lineStopExposureEur": 0,
    "drivers": [
+    {
+     "label": "Input shortage at the supplier: Polyol shortage cuts what it can ship by 40%; its finished goods cover 1.5 days of seat cushion foam pad",
+     "kind": "supplier-input",
+     "signalId": "sig-input-etb-polyol",
+     "contribution": 18
+    },
+    {
+     "label": "Cannot absorb +15% demand: service level 86% at Foam pouring line 1",
+     "kind": "flex",
+     "contribution": 14
+    },
     {
      "label": "Seat cushion foam pad is a high part",
      "kind": "cover",
@@ -6000,9 +6171,9 @@
    ],
    "flex": {
     "demandIncrease": 0.15,
-    "canAbsorb": true,
-    "serviceLevel": 1.0,
-    "daysToRecover": 0,
+    "canAbsorb": false,
+    "serviceLevel": 0.859,
+    "daysToRecover": 13,
     "headroom": 0.3,
     "bottleneck": "Foam pouring line 1",
     "provenance": "measured"
@@ -6027,98 +6198,112 @@
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.5,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.1,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 2.7,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 2.3,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 1.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 1.5,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 1.1,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 0.7,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -6830,98 +7015,112 @@
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 4.9
+     "coverDays": 4.9,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -7617,98 +7816,112 @@
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -8404,98 +8617,112 @@
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -9208,98 +9435,112 @@
      "transitP10": 1.4,
      "transitP50": 1.5,
      "transitP90": 1.7,
-     "coverDays": 8.5
+     "coverDays": 8.5,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 1.4,
      "transitP50": 1.5,
      "transitP90": 1.7,
-     "coverDays": 8.5
+     "coverDays": 8.5,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 1.4,
      "transitP50": 1.5,
      "transitP90": 1.7,
-     "coverDays": 8.5
+     "coverDays": 8.5,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 1.4,
      "transitP50": 1.5,
      "transitP90": 1.7,
-     "coverDays": 8.5
+     "coverDays": 8.5,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.1,
      "transitP50": 1.2,
      "transitP90": 1.3,
-     "coverDays": 8.8
+     "coverDays": 8.8,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.0,
      "transitP50": 1.2,
      "transitP90": 1.3,
-     "coverDays": 8.8
+     "coverDays": 8.8,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.0,
      "transitP50": 1.2,
-     "transitP90": 1.3,
-     "coverDays": 8.8
+     "transitP90": 1.4,
+     "coverDays": 8.8,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.0,
      "transitP50": 1.2,
      "transitP90": 1.3,
-     "coverDays": 8.8
+     "coverDays": 8.8,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 1.0,
      "transitP50": 1.2,
      "transitP90": 1.3,
-     "coverDays": 8.8
+     "coverDays": 8.8,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 1.0,
      "transitP50": 1.2,
-     "transitP90": 1.3,
-     "coverDays": 8.8
+     "transitP90": 1.4,
+     "coverDays": 8.8,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 1.0,
      "transitP50": 1.2,
-     "transitP90": 1.3,
-     "coverDays": 8.8
+     "transitP90": 1.4,
+     "coverDays": 8.8,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 0.9,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -10009,98 +10250,112 @@
      "transitP10": 1.3,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 8.6
+     "coverDays": 8.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 1.3,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 8.6
+     "coverDays": 8.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 1.3,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 8.6
+     "coverDays": 8.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 1.3,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 8.6
+     "coverDays": 8.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 8.9
+     "coverDays": 8.9,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -10808,98 +11063,112 @@
      "transitP10": 1.3,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 9.6
+     "coverDays": 9.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 1.3,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 9.6
+     "coverDays": 9.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 1.3,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 9.6
+     "coverDays": 9.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 1.3,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 9.6
+     "coverDays": 9.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 9.9
+     "coverDays": 9.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 9.9
+     "coverDays": 9.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 9.9
+     "coverDays": 9.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 9.9
+     "coverDays": 9.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 9.9
+     "coverDays": 9.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 9.9
+     "coverDays": 9.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 9.9
+     "coverDays": 9.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 9.9
+     "coverDays": 9.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.1,
-     "coverDays": 9.9
+     "coverDays": 9.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 9.9
+     "coverDays": 9.9,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -11612,98 +11881,112 @@
      "transitP10": 2.3,
      "transitP50": 2.7,
      "transitP90": 3.2,
-     "coverDays": 7.2
+     "coverDays": 7.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 2.4,
      "transitP50": 2.7,
      "transitP90": 3.2,
-     "coverDays": 7.2
+     "coverDays": 7.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 2.3,
      "transitP50": 2.8,
      "transitP90": 3.2,
-     "coverDays": 7.2
+     "coverDays": 7.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 2.4,
      "transitP50": 2.7,
      "transitP90": 3.2,
-     "coverDays": 7.2
+     "coverDays": 7.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.4,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.4,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 7.9
+     "coverDays": 7.9,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -12422,98 +12705,112 @@
      "transitP10": 2.4,
      "transitP50": 2.8,
      "transitP90": 3.2,
-     "coverDays": 5.2
+     "coverDays": 5.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 2.4,
      "transitP50": 2.8,
      "transitP90": 3.2,
-     "coverDays": 5.2
+     "coverDays": 5.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 2.3,
      "transitP50": 2.7,
      "transitP90": 3.2,
-     "coverDays": 5.2
+     "coverDays": 5.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 2.4,
      "transitP50": 2.8,
      "transitP90": 3.3,
-     "coverDays": 5.2
+     "coverDays": 5.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 5.9
+     "coverDays": 5.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 5.9
+     "coverDays": 5.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 5.9
+     "coverDays": 5.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.8,
      "transitP50": 2.2,
      "transitP90": 2.5,
-     "coverDays": 5.9
+     "coverDays": 5.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 5.9
+     "coverDays": 5.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 1.9,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 5.9
+     "coverDays": 5.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 5.9
+     "coverDays": 5.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 5.9
+     "coverDays": 5.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 5.9
+     "coverDays": 5.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 1.8,
      "transitP50": 2.1,
      "transitP90": 2.5,
-     "coverDays": 5.9
+     "coverDays": 5.9,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -13232,98 +13529,112 @@
      "transitP10": 1.2,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 3.6
+     "coverDays": 3.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 1.2,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 3.6
+     "coverDays": 3.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 1.2,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 3.6
+     "coverDays": 3.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 1.2,
      "transitP50": 1.4,
      "transitP90": 1.5,
-     "coverDays": 3.6
+     "coverDays": 3.6,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 1.0,
      "transitP50": 1.1,
      "transitP90": 1.2,
-     "coverDays": 3.9
+     "coverDays": 3.9,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -14064,98 +14375,112 @@
      "transitP10": 6.8,
      "transitP50": 7.8,
      "transitP90": 8.9,
-     "coverDays": 4.0
+     "coverDays": 4.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-06",
      "transitP10": 6.7,
      "transitP50": 7.7,
      "transitP90": 8.9,
-     "coverDays": 3.0
+     "coverDays": 3.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-07",
      "transitP10": 6.7,
      "transitP50": 7.7,
      "transitP90": 8.9,
-     "coverDays": 2.0
+     "coverDays": 2.0,
+     "confidence": "high"
     },
     {
      "date": "2026-10-08",
      "transitP10": 6.8,
      "transitP50": 7.7,
      "transitP90": 9.1,
-     "coverDays": 1.2
+     "coverDays": 1.2,
+     "confidence": "high"
     },
     {
      "date": "2026-10-09",
      "transitP10": 6.2,
      "transitP50": 7.1,
      "transitP90": 8.1,
-     "coverDays": 1.9
+     "coverDays": 1.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-10",
      "transitP10": 6.2,
      "transitP50": 7.1,
      "transitP90": 8.2,
-     "coverDays": 1.9
+     "coverDays": 1.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-11",
      "transitP10": 6.2,
      "transitP50": 7.1,
      "transitP90": 8.3,
-     "coverDays": 1.9
+     "coverDays": 1.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-12",
      "transitP10": 6.2,
      "transitP50": 7.3,
      "transitP90": 8.2,
-     "coverDays": 1.9
+     "coverDays": 1.9,
+     "confidence": "medium"
     },
     {
      "date": "2026-10-13",
      "transitP10": 6.1,
      "transitP50": 7.1,
      "transitP90": 8.2,
-     "coverDays": 1.9
+     "coverDays": 4.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-14",
      "transitP10": 6.3,
      "transitP50": 7.2,
      "transitP90": 8.1,
-     "coverDays": 1.9
+     "coverDays": 4.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-15",
      "transitP10": 6.2,
      "transitP50": 7.1,
      "transitP90": 8.2,
-     "coverDays": 1.9
+     "coverDays": 4.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-16",
      "transitP10": 6.2,
      "transitP50": 7.1,
      "transitP90": 8.1,
-     "coverDays": 1.9
+     "coverDays": 4.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-17",
      "transitP10": 6.2,
      "transitP50": 7.2,
      "transitP90": 8.2,
-     "coverDays": 1.9
+     "coverDays": 4.9,
+     "confidence": "low"
     },
     {
      "date": "2026-10-18",
      "transitP10": 6.2,
      "transitP50": 7.1,
      "transitP90": 8.0,
-     "coverDays": 1.9
+     "coverDays": 4.9,
+     "confidence": "low"
     }
    ],
    "outlook": [
@@ -14817,7 +15142,7 @@
    ],
    "level": "red",
    "title": "Transit from Orizaba goes from 2 to 5 days",
-   "message": "QRO Seating Systems holds 3 days of cover of lumbar air line, 6 mm hose assembly (QSS-6120-LMB). With transit at 5 days (up to 8.3 in the worst case) and nothing done, cover runs out in about 2 days, around 7 Oct 2026.",
+   "message": "QRO Seating Systems holds 3 days of cover of lumbar air line, 6 mm hose assembly (QSS-6120-LMB). With transit at 5 days (up to 8.6 in the worst case) and nothing done, cover runs out in about 2 days, around 7 Oct 2026.",
    "createdAt": "2026-10-05",
    "lineStopExposureEur": 6848000,
    "status": "new",
@@ -15007,6 +15332,38 @@
     }
    ],
    "signalId": "sig-customs-nld"
+  },
+  {
+   "id": "alert-etb-qss",
+   "customerId": "qss",
+   "supplierId": "etb",
+   "partIds": [
+    "part-qss-3101-fmc"
+   ],
+   "level": "amber",
+   "title": "Input shortage at Espumas y Tapizados del Bajío: deliveries down 40%",
+   "message": "QRO Seating Systems holds 4 days of cover of seat cushion foam pad (QSS-3101-FMC). Polyol shortage cuts what Espumas y Tapizados del Bajío can ship by 40% from 7 Oct 2026; its finished goods of this part last about 1.5 days. Without action, projected cover falls to 0.7 days around 18 Oct 2026; no stop is expected in the next 14 days, but a longer shortage could stop the line.",
+   "createdAt": "2026-10-05",
+   "lineStopExposureEur": 0,
+   "status": "new",
+   "actions": [
+    {
+     "id": "act-etb-1",
+     "label": "Ask for a confirmed ship plan",
+     "description": "Ask Espumas y Tapizados del Bajío which foam orders it can confirm while polyol is short."
+    },
+    {
+     "id": "act-etb-2",
+     "label": "Pull the next order forward",
+     "description": "Ask Espumas y Tapizados del Bajío to ship the foam pads it already has before its finished goods run out."
+    },
+    {
+     "id": "act-etb-3",
+     "label": "Add 2 days of safety stock",
+     "description": "Hold 2 extra days of seat cushion foam pads until the polyol supply is back."
+    }
+   ],
+   "signalId": "sig-input-etb-polyol"
   }
  ],
  "invites": [

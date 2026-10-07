@@ -47,10 +47,15 @@ def recompute_customer(db: DB, customer_id: str, as_of=None) -> dict:
     if sup_ids:
         ids = ",".join(sup_ids)
         companies = db.select("companies", {"id": f"in.({ids})"})
+        # Capacity events are the supplier's private data: they only lower (or raise) capacity in the flex test.
+        events = {}
+        for e in db.select("capacity_events", {"supplier_id": f"in.({ids})"}):
+            events.setdefault(e["supplier_id"], []).append(e)
         for c in companies:
             op = {t: db.select(t, {"company_id": f"eq.{c['id']}"}) for t in ("lanes", "partners", "machines")}
             invited = db.select("invites", {"supplier_id": f"eq.{c['id']}"})
             suppliers[c["id"]] = build_supplier(c, op["lanes"], op["partners"], op["machines"], invited, profiles.get(c["id"]))
+            suppliers[c["id"]]["capacity_events"] = events.get(c["id"], [])
     factor = load_factor(db)
     risks, alerts = compute_customer(customers[0], suppliers, parts, signals, settings, as_of, factor)
     db.upsert("risks", risks, "customer_id,supplier_id")

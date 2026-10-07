@@ -1,5 +1,5 @@
 """Alert generation. Text is built from the risk record so numbers always match."""
-from datetime import timedelta
+from datetime import date, timedelta
 
 DEFAULT_ACTIONS = [
     ("Ask for a confirmed ship plan", "Ask {supplier} for a daily ship plan until the situation is stable."),
@@ -22,6 +22,9 @@ ACTIONS = {
     "pip": [("Pull the next order forward", "Ask Plásticos Inyectados de Puebla to ship one day early, before the blockade peaks."),
             ("Use the alternative route via MEX-150D", "Reroute through MEX-150D toll road, bypassing the Amozoc–Tlaxcala corridor."),
             ("Add 2 days of safety stock", "Build 2 days of cover on the seat side trim cover; it is single-source and a line-stopper.")],
+    "etb": [("Ask for a confirmed ship plan", "Ask Espumas y Tapizados del Bajío which foam orders it can confirm while polyol is short."),
+            ("Pull the next order forward", "Ask Espumas y Tapizados del Bajío to ship the foam pads it already has before its finished goods run out."),
+            ("Add 2 days of safety stock", "Hold 2 extra days of seat cushion foam pads until the polyol supply is back.")],
     "pfl": [("Ask the customs broker for priority release", "Ask the customs broker to file the pedimento early and request priority release at Nuevo Laredo as soon as the system is back."),
             ("Cross at the Colombia bridge", "Route loads through the Colombia bridge (Nuevo León), about 40 km west, which has its own customs office and shorter queues."),
             ("Add 3 days of safety stock", "Hold 3 extra days of PP pellets at QSS while the Nuevo Laredo queues last.")],
@@ -46,7 +49,26 @@ def make_alert(customer, supplier, risk, ctx, as_of, signals_by_id):
     sig = signals_by_id.get(ctx["top_signal"]) if ctx["top_signal"] else None
     dtls = risk["days_to_line_stop"]
     nm = customer["name"]
-    if dtls is not None:
+    inp = ctx.get("input")
+    if inp:
+        # Second failure path: the supplier cannot make the deliveries (input shortage), transit is not the problem.
+        isig = inp["signal"]
+        cut = float(isig.get("supply_cut_pct") or 0) * 100
+        start = max(as_of, date.fromisoformat(str(isig["starts_at"])[:10]))
+        short = isig.get("short_label") or isig.get("short") or isig["title"]
+        title = f"Input shortage at {supplier['name']}: deliveries down {cut:.0f}%"
+        lead = (f"{nm} holds {c0:g} days of cover of {ex['name'].lower()} ({ex['number']}). {short} cuts what {supplier['name']} "
+                f"can ship by {cut:.0f}% from {fdate(start)}; its finished goods of this part last about {inp['fg_days']:.1f} days.")
+        if dtls is not None:
+            sd = as_of + timedelta(days=dtls)
+            msg = f"{lead} With nothing done, cover runs out in about {dtls} days, around {fdate(sd)}."
+            shortfall = sd.isoformat()
+        else:
+            ld = as_of + timedelta(days=ctx["cover_at"])
+            msg = (f"{lead} Without action, projected cover falls to {ctx['min_proj_cover']:g} days around {fdate(ld)}; "
+                   f"no stop is expected in the next 14 days, but a longer shortage could stop the line.")
+            shortfall = None
+    elif dtls is not None:
         sd = as_of + timedelta(days=dtls)
         title = f"Transit from {supplier['city']} goes from {norm} to {round(exp_):g} days"
         msg = (f"{nm} holds {c0:g} days of cover of {ex['name'].lower()} ({ex['number']}). With transit at {round(exp_):g} days "

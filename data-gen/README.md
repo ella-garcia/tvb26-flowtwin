@@ -54,5 +54,23 @@ Everything is synthetic. Signals are hand-seeded ("seeded for demo"); v0 calls n
 18. **Circular demo data**: `circularProfiles` for edl and etb (self-reported, estimated), one active circular share edl -> qss
     (frozen summary, version 1) and one open circular request qss -> hmo.
 19. **Alerts** for every non-green risk of qss with a scripted status; text is generated from the risk record so numbers always match.
+20. **Pipeline stock** (Phase 2, WP2): cover of a part on day i = days of cover + `inTransit` / daily usage once `nextDeliveryDate` has
+    arrived - the day's loss, floored at 0. Without both fields the pipeline is unknown and adds nothing. The generator computes
+    each risk twice: the pipeline comes from the first pass's expected transit (rule 10), then the risk is computed with it
+    (transit does not depend on parts, so both passes agree).
+21. **Input shortage** (`supplier-input` signals, `supplyCutPct` 0..1, `affects.supplierIds` or place/highway): the daily loss of a part
+    is max(transit gap, input gap), input gap = cumulative cut - the supplier's finished goods of the part (`supplierFgOnHand` /
+    daily usage, else the profile's `fg` days), >= 0. The same cut lowers capacity in the flex test. Driver "Input shortage at the
+    supplier" shares the 45 delay points with transit signals in proportion to the two gaps. Never slows transit.
+    Demo: `sig-input-etb-polyol`, ETB loses 40% of deliveries from 7 Oct; foam pad cover falls to 0.7 days by 18 Oct (no stop).
+22. **Capacity events** (`capacity_events`, supplier-private, none in the seed): `capacityChangePct` multiplies flex capacity on the
+    event's dates. Only the flex result is exposed.
+23. **Trade exposure** (`policy` signals, `affects.originCountries` / `hsPrefixes`; a part matches when every listed criterion holds):
+    driver "Trade exposure" (high 8, medium 5, low 3 points per signal, halved without a critical part, capped at 8) when the signal
+    overlaps the 12-week horizon; outlook weeks it covers list it and carry `tradeExposure: true`. Never changes transit.
+    Parts carry `originCountry` / `hsCode` for imported material only (`PART_ORIGIN`). Demo: `sig-policy-resin-tariff` (CN/KR, HS 3908,
+    from 1 Nov) reaches rdp's PA6 compound.
+24. **Bands and confidence**: on days a weather signal drives transit, the P10-P90 spread around P50 is multiplied by
+    1 + 0.08 x (day - 3) after day 3 (day 0 = asOf); every projection day carries `confidence` high (<= day 3), medium (<= 7), low.
 
 Edit the tables at the top of the script (suppliers, parts, signals) to change the story, then re-run.
