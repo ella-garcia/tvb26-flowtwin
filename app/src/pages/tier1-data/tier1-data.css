@@ -13,3 +13,4 @@
 .t1-error { color: var(--danger); font: 600 14px/22px var(--font-sans); margin: 0; }
 .t1-detail { display: grid; gap: var(--space-4); }
 .t1-detail h3 { margin: 0 0 var(--space-2); font: 600 14px/20px var(--font-sans); color: var(--ink); }
+

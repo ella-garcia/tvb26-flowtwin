@@ -450,7 +450,8 @@ export interface CircularProfile {
 /** The frozen summary a supplier shares with one key customer. Never contains costs, prices or margins. */
 export type CircularSummary = Omit<CircularProfile, "companyId" | "notes" | "updatedAt">;
 
-export type ShareItem = "circular";
+/** What a key customer can ask a supplier for: its circular summary, or to connect its systems (ERP, logistics). */
+export type ShareItem = "circular" | "connect-systems";
 /** A key customer's request to a supplier. */
 export interface DataRequest {
   id: string;
@@ -593,8 +594,8 @@ export interface MissedEvent {
 export interface Connection {
   id: string;
   companyId: string;
-  kind: "edi" | "erp" | "cfdi";
-  provider: string;            // "edi-inbox", "sap-s4", "syntage"
+  kind: "edi" | "erp" | "cfdi" | "logistics" | "files";
+  provider: string;            // "edi-inbox", "sap", "netsuite", "logistaas", "file-drop", "syntage"
   status: "pending" | "active" | "paused" | "error";
   config: Record<string, unknown>;
   consentText?: string;

@@ -7,6 +7,8 @@ import { Button, DataTable, Icon, StatusPill, type Column } from "../../keystone
 import { Card, Empty, PageHeader, ScopedError } from "../../components/shared";
 import { date, num } from "../../lib/format";
 import { CircularityForm } from "./CircularityForm";
+import { ConnectRequestsNote } from "../../components/integrations/ConnectRequestsNote";
+import { IntegrationsCard } from "../../components/integrations/IntegrationsCard";
 import "./data.css";
 
 /** Supplier uploads only (the tier1-* kinds belong to the key customer's Data page). */
@@ -136,6 +138,10 @@ export default function DataPage() {
   return (
     <div className="data-stack">
       <PageHeader title="Your data" caption="About 15 minutes. Your customer sponsors your account." />
+      <ConnectRequestsNote supplierId={companyId} />
+      <IntegrationsCard companyId={companyId}
+        intro="Connect your ERP or logistics platform and your customers see measured data without you uploading files. It's free for you."
+        onRequested={() => dispatch({ type: "answer-connection-requests", supplierId: companyId })} />
       <ol className="data-steps">
         {steps.map((s, i) => (
           <li key={s.key} className="data-step">
