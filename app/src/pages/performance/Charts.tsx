@@ -29,18 +29,22 @@ export function SupplierMini({ panel, yMax, onOpen }: { panel: SupplierPanel; yM
   return (
     <li className="perf-mini">
       <button type="button" className="perf-mini-head" onClick={onOpen} aria-label={`View supplier ${panel.name}`}>
-        <span className="perf-mini-name">{panel.name}</span>
+        <span className="perf-mini-name" title={panel.name}>{panel.name}</span>
         <span className="perf-mini-value ks-num">{panel.daysToLineStop == null ? "No stop" : days(panel.daysToLineStop)}</span>
         <span className="perf-mini-sub">{panel.daysToLineStop == null ? "in the next 14 days" : "to line stop"}</span>
       </button>
-      <div className="perf-mini-tags"><RiskLight level={panel.level} />{panel.otif.grade && <GradePill grade={panel.otif.grade} />}</div>
+      <div className="perf-mini-tags">
+        <RiskLight level={panel.level} />
+        {panel.otif.grade && <span className="perf-grade"><span className="perf-grade-label">On time</span><GradePill grade={panel.otif.grade} /></span>}
+      </div>
       <svg viewBox={`0 0 ${W} ${H}`} className="perf-svg" role="img" aria-label={label}>
         {ticks.map((t) => (
           <g key={t}>
             <line x1={L} x2={W - R} y1={y(t)} y2={y(t)} className="perf-grid" />
-            <text x={L - 4} y={y(t) + 3} className="perf-axis" textAnchor="end">{num(t)}</text>
+            <text x={L - 4} y={y(t) + 4} className="perf-axis" textAnchor="end">{num(t)}</text>
           </g>
         ))}
+        <text x={L - 4} y={T - 8} className="perf-axis" textAnchor="end">days</text>
         {panel.parts.map((p, i) => {
           const cx = L + slot * i + slot / 2;
           return (
@@ -77,7 +81,7 @@ export function DisruptionDonut({ slices, affected }: { slices: KindSlice[]; aff
   if (!slices.length) return <p className="perf-note">No active disruption affects your suppliers.</p>;
   const top = slices.slice(0, 3);
   const rest = slices.slice(3);
-  const shown = rest.length ? [...top, { kind: "other", label: `Other (${rest.map((r) => r.label.toLowerCase()).join(", ")})`, suppliers: rest.reduce((a, r) => a + r.suppliers, 0) }] : top;
+  const shown = rest.length ? [...top, { kind: "other", label: `Other types (${rest.map((r) => `${r.label.toLowerCase()} ${r.suppliers}`).join(", ")})`, suppliers: rest.reduce((a, r) => a + r.suppliers, 0) }] : top;
   const total = shown.reduce((a, s) => a + s.suppliers, 0);
   const R = 64, r = 40, C = 80;
   const sweep = shown.map((s) => (2 * Math.PI * s.suppliers) / total);
@@ -96,12 +100,18 @@ export function DisruptionDonut({ slices, affected }: { slices: KindSlice[]; aff
       <svg viewBox="0 0 160 160" className="perf-donut-svg" role="img"
         aria-label={`${affected} suppliers affected. ${shown.map((s) => `${s.label}: ${s.suppliers}`).join("; ")}`}>
         {arcs}
-        <text x={80} y={78} className="perf-donut-value" textAnchor="middle">{affected}</text>
-        <text x={80} y={94} className="perf-axis" textAnchor="middle">suppliers affected</text>
+        <text x={80} y={80} className="perf-donut-value" textAnchor="middle">{affected}</text>
+        <text x={80} y={96} className="perf-donut-unit" textAnchor="middle">suppliers</text>
+        <text x={80} y={107} className="perf-donut-unit" textAnchor="middle">affected</text>
       </svg>
       <ul className="perf-legend" aria-hidden="true">
-        {shown.map((s, i) => (
+        <li className="perf-legend-head"><i /><span>Disruption type</span><b>Suppliers</b></li>
+        {top.map((s, i) => (
           <li key={s.kind}><i className={SERIES[i]} /><span>{s.label}</span><b className="ks-num">{s.suppliers}</b></li>
+        ))}
+        {rest.length > 0 && <li><i className={SERIES[3]} /><span>Other types</span><b className="ks-num">{rest.reduce((a, r) => a + r.suppliers, 0)}</b></li>}
+        {rest.map((s) => (
+          <li key={s.kind} className="perf-legend-sub"><i /><span>{s.label}</span><b className="ks-num">{s.suppliers}</b></li>
         ))}
       </ul>
     </div>
@@ -205,3 +215,15 @@ export function TrendChart({ points }: { points: DayPoint[] }) {
   );
 }
 
+
+/** Key for the supplier small multiples, shown once above the grid. */
+export function MiniLegend() {
+  return (
+    <ul className="perf-key" aria-label="How to read the supplier charts">
+      <li><i className="perf-key-bar" />Days of cover of a part</li>
+      <li><i className="perf-key-short" />Runs out before its next delivery</li>
+      <li><i className="perf-key-tick" />When the next delivery arrives</li>
+      <li><span className="perf-grade-label">On time</span>Grade from 12 weeks of on-time-in-full against the contract target</li>
+    </ul>
+  );
+}

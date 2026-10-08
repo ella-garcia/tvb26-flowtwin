@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import seedJson from "../data/seed/seed.json";
 import demoJson from "../data/performance-demo.json";
-import { buildPerformance, daysLate, receiptStats, type PerformanceInputs } from "./performance";
+import { buildPerformance, daysLate, evenTop, receiptStats, type PerformanceInputs } from "./performance";
 import { scopeExtra } from "./performanceData";
 import type { Part, Receipt, RiskAssessment, RiskHistoryRow, Seed, Signal } from "./types";
 
@@ -171,5 +171,14 @@ describe("sample data", () => {
     const otif = kpi(model, "otif").value!;
     expect(otif).toBeGreaterThan(0.85);
     expect(otif).toBeLessThan(0.99);
+  });
+});
+
+describe("evenTop", () => {
+  it("gives an axis top with three even, round ticks", () => {
+    expect(evenTop(11)).toBe(12);
+    expect(evenTop(9)).toBe(10);
+    expect(evenTop(4)).toBe(4);
+    expect(evenTop(23)).toBe(24);
   });
 });

@@ -91,6 +91,13 @@ export const TREND_DAYS = 31;
 export const TOP_SUPPLIERS = 10;
 export const MAX_MONTHS = 6;
 
+/** Axis top for three even ticks (0, step, 2 × step) with a round step: 11 days → 0, 6, 12. */
+export function evenTop(v: number): number {
+  const half = Math.max(1, v / 2);
+  const step = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50].find((x) => x >= half) ?? Math.ceil(half / 10) * 10;
+  return step * 2;
+}
+
 // ---------------------------------------------------------------- dates
 const DAY = 864e5;
 const t = (iso: string) => Date.parse(`${iso.slice(0, 10)}T12:00:00Z`);
@@ -205,11 +212,11 @@ function kpis(i: PerformanceInputs, s: Scoped, riskOf: Map<string, RiskAssessmen
       delta: now.avgDaysLate == null || before.avgDaysLate == null ? undefined
         : delta(now.avgDaysLate - before.avgDaysLate, "previous period", "down", (v) => fmtDays(Math.round(Math.abs(v) * 10) / 10)),
       provenance: "measured",
-      formula: `Mean of (received − promised date) over late lines, over ${period}. A line not received yet counts up to today.`,
+      formula: `Mean of (received − promised date) over late lines only, over ${period}; on-time lines are left out. A line not received yet counts up to today.`,
       data: `Your goods receipts; ${num(now.late)} of ${num(now.lines)} lines were late.` },
     { id: "hit-rate", label: "Alert hit rate", value: rate, unit: "pct", display: rate == null ? noData : pct(rate, 0),
       provenance: "measured",
-      formula: "(Hit + prevented) ÷ (hit + prevented + false alarm), over alerts raised in the last 90 days.",
+      formula: "(Hit + prevented) ÷ (hit + prevented + false alarm), over alerts raised in the last 90 days, for all vehicle models.",
       data: "Alert outcomes judged from goods receipts and shipment notices (track record rules v1)." },
   ];
 }

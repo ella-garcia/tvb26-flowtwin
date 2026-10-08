@@ -1,15 +1,16 @@
 // Tier 1 Performance view: how suppliers have been doing (receipts, track record) and where things stand today.
 // The risk board looks 14 days ahead; this page looks back over a period. Model: lib/performance.ts. No money here.
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useApp } from "../../app/AppContext";
 import { Card, CompanyMark, FormulaSource, ModelSelect, PageHeader, ScopedError } from "../../components/shared";
 import { FilterChip, StatCard, StatusPill, type IconName } from "../../keystone";
 import { date } from "../../lib/format";
-import { buildPerformance, type KpiTile, type PeriodDays } from "../../lib/performance";
+import { modelLabel } from "../../lib/programs";
+import { buildPerformance, evenTop, type KpiTile, type PeriodDays } from "../../lib/performance";
 import { usePerformanceExtra } from "../../lib/performanceData";
 import { summarize, useTrack } from "../../lib/trackData";
 import { useScoped } from "../../lib/useScoped";
-import { DeliveriesChart, DisruptionDonut, SupplierMini, TrendChart } from "./Charts";
+import { DeliveriesChart, DisruptionDonut, MiniLegend, SupplierMini, TrendChart } from "./Charts";
 import "./performance.css";
 
 const PERIODS: PeriodDays[] = [30, 90, 180];
@@ -23,29 +24,39 @@ export default function PerformancePage() {
   const customerId = toggles.companyId;
   const base = useScoped(() => ({ parts: db.parts(), risks: db.risks(), alerts: db.alerts(), signals: db.signals(), companies: db.companies() }), [db]);
   const extra = usePerformanceExtra(mode, db.viewer, db.asOf);
+  // An unknown or stale model id means all models, as in the model selector and on the risk board.
+  const program = db.programs().find((g) => g.id === programId);
+  const activeProgram = program ? program.id : "all";
   const track = useTrack(mode, db.viewer, { customerId });
 
-  const model = useMemo(() => {
-    if (!base.ok || extra.status !== "ready") return null;
-    return buildPerformance({
-      asOf: db.asOf, customerId, ...base.data, receipts: extra.data.receipts, history: extra.data.history,
-      track: track.status === "ready" ? summarize(track.data.entries, db.asOf) : null, sample: extra.data.sample,
-    }, { periodDays: period, programId });
-  }, [base, extra, track, db.asOf, customerId, period, programId]);
+  // Cheap to build (a few hundred rows), so it is recomputed each render rather than memoized.
+  const model = !base.ok || extra.status !== "ready" ? null : buildPerformance({
+    asOf: db.asOf, customerId, ...base.data, receipts: extra.data.receipts, history: extra.data.history,
+    track: track.status === "ready" ? summarize(track.data.entries, db.asOf) : null, sample: extra.data.sample,
+  }, { periodDays: period, programId: activeProgram });
 
   const plant = db.company(customerId);
   const head = (
     <PageHeader title="Performance" logo={plant && <CompanyMark name={plant.name} />}
       actions={<>{model?.sample && <StatusPill tone="warning">Sample data</StatusPill>}<ModelSelect /></>}
       caption={model
-        ? `${plant ? `${plant.name} · ` : ""}Deliveries from ${date(model.period.from)} to ${date(model.period.to)} · risk as of ${date(db.asOf)}`
+        ? `${plant ? `${plant.name} · ` : ""}${program ? `${modelLabel(program)} only · ` : "All models · "}Deliveries from ${date(model.period.from)} to ${date(model.period.to)} · risk as of ${date(db.asOf)}`
         : "How your suppliers have been delivering, and where things stand today"} />
   );
   if (!base.ok) return <ScopedError title="Performance" error={base.error} />;
   if (extra.status === "error") return <>{head}<p className="perf-note">Delivery data could not be loaded ({extra.error}).</p></>;
   if (!model) return <>{head}<p className="perf-note">Loading deliveries and daily snapshots…</p></>;
 
-  const yMax = Math.max(4, Math.ceil(Math.max(...model.suppliers.flatMap((s) => s.parts.flatMap((p) => [p.coverDays, p.transitDays ?? 0])))));
+  const yMax = evenTop(Math.max(4, ...model.suppliers.flatMap((s) => s.parts.flatMap((p) => [p.coverDays, p.transitDays ?? 0]))));
+  // Tile labels say which period and which deliveries each figure covers.
+  const LABEL: Partial<Record<KpiTile["id"], string>> = {
+    otif: `On time in full (${period} days)`,
+    "days-late": "Avg days late (late deliveries)",
+    "hit-rate": "Alert hit rate (90 days)",
+  };
+  const soonest = model.suppliers.find((p) => p.daysToLineStop != null);
+  const sub = (k: KpiTile) => (k.id === "soonest-stop" && soonest
+    ? <span className="perf-kpi-sub" title={soonest.name}>{soonest.name}</span> : null);
   return (
     <>
       {head}
@@ -55,7 +66,7 @@ export default function PerformancePage() {
 
       <div className="perf-kpis">
         {model.kpis.map((k) => (
-          <StatCard key={k.id} label={k.label} value={k.display} icon={ICON[k.id]} tone={k.id === "act-now" ? "accent" : "default"}
+          <StatCard key={k.id} label={LABEL[k.id] ?? k.label} value={<>{k.display}{sub(k)}</>} icon={ICON[k.id]} tone={k.id === "act-now" ? "accent" : "default"}
             delta={k.delta && k.delta.value !== 0 ? { value: k.delta.amount, direction: k.delta.value > 0 ? "up" : "down", good: k.delta.improved, caption: ` vs ${k.delta.vs}` } : undefined} />
         ))}
       </div>
@@ -66,7 +77,8 @@ export default function PerformancePage() {
 
       <div className="perf-grid-main">
         <Card title="Suppliers by days to line stop" className="perf-suppliers">
-          <p className="perf-note">Top {model.suppliers.length}, in risk board order. Bars: days of cover per part (red when it runs out first); line: when the next delivery arrives.</p>
+          <p className="perf-note">Top {model.suppliers.length}, in risk board order. Up to three parts per supplier, most critical first. Select a supplier to see its detail.</p>
+          <MiniLegend />
           {model.suppliers.length === 0
             ? <p className="perf-note">No supplier risk to show yet.</p>
             : <ol className="perf-minis">{model.suppliers.map((p) => <SupplierMini key={p.supplierId} panel={p} yMax={yMax} onOpen={() => go("supplier", p.supplierId)} />)}</ol>}
