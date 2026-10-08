@@ -1,8 +1,8 @@
 // Live mode: Supabase client, session, identity switch, data load and write-through calls.
 // Seed mode never imports anything from here at runtime beyond `isLive`.
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { Alert, AlertNotification, CircularProfile, CircularSummary, Invite, RoleId, Seed, Settings, UploadRecord } from "./types";
-import { rowsToApp, rowToDb } from "./caseMap";
+import type { Alert, AlertNotification, CircularProfile, CircularSummary, Connection, Invite, RoleId, Seed, Settings, UploadRecord } from "./types";
+import { rowToApp, rowsToApp, rowToDb } from "./caseMap";
 
 const URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -147,6 +147,32 @@ export async function fetchUploads(companyId: string): Promise<UploadRecord[]> {
   if (error) throw new Error(error.message);
   return rowsToApp<UploadRecord>(data);
 }
+
+/** Data connections of a company (ERP, logistics platform, file drop). RLS: own company, or admin. */
+export async function fetchConnections(companyId: string): Promise<Connection[]> {
+  const { data, error } = await supabase().from("connections").select("*").eq("company_id", companyId);
+  if (error) throw new Error(error.message);
+  return rowsToApp<Connection>(data);
+}
+
+/** Ask the FlowTwin team to connect a system for the caller's company: a pending `connections` row (idempotent). */
+export async function requestConnection(provider: string): Promise<Connection> {
+  const { data, error } = await supabase().rpc("request_connection", { p_provider: provider });
+  if (error) throw new Error(error.message);
+  return rowToApp<Connection>(data as Record<string, unknown>);
+}
+
+/** Connection status of the given companies (own company, or a key customer's suppliers): provider and status only. */
+export async function fetchPairConnections(companyIds: string[]): Promise<Connection[]> {
+  if (companyIds.length === 0) return [];
+  const { data, error } = await supabase().from("pair_connections").select("*").in("company_id", companyIds);
+  if (error) throw new Error(error.message);
+  return rowsToApp<Connection>(data);
+}
+
+/** Key customer asks one of its suppliers to connect its systems (one open request per pair). */
+export const requestSupplierConnection = async (supplierId: string, note?: string) =>
+  must(await supabase().rpc("request_supplier_connection", { supplier: supplierId, note: note ?? null }));
 
 export async function fetchNotifications(alertIds: string[]): Promise<AlertNotification[]> {
   if (alertIds.length === 0) return [];

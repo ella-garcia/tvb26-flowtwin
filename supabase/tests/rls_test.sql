@@ -477,6 +477,47 @@ select public.t_works('miss reset_demo runs', $$select reset_demo()$$);
 reset role;
 select public.t_assert('miss reset_demo clears missed_events (parts restored)', (select count(*) = 0 from missed_events));
 
+-- ---- Data page: request_connection
+set local role authenticated;
+select public.switch_test_identity('customer', 'qss');
+select public.t_assert('conn customer qss: request_connection(sap) returns a pending row for qss',
+  (select status = 'pending' and company_id = 'qss' and kind = 'erp' from request_connection('sap')));
+select public.t_assert('conn customer qss: asking twice keeps one request',
+  (select count(*) = 1 from connections where company_id = 'qss' and provider = 'sap') and (select request_connection('sap')).id = 'qss-sap');
+select public.t_throws('conn customer qss: unknown system is rejected', $$select request_connection('quickbooks')$$);
+select public.switch_test_identity('owner', 'edl');
+select public.t_works('conn owner edl: can request logistaas', $$select request_connection('logistaas')$$);
+select public.t_assert('conn owner edl: sees only its own connections', (select bool_and(company_id = 'edl') from connections));
+select public.switch_test_identity('admin', 'platform');
+select public.t_throws('conn admin: cannot request (no company)', $$select request_connection('sap')$$);
+select public.t_assert('conn admin: sees every request', (select count(*) >= 2 from connections where status = 'pending'));
+reset role;
+set local role anon;
+select public.t_throws('conn anon: cannot request_connection', $$select request_connection('sap')$$);
+reset role;
+
+-- ---- Data page: key customer asks a supplier to connect; pair_connections
+set local role authenticated;
+select public.switch_test_identity('customer', 'qss');
+select public.t_assert('connreq customer qss: asking twice returns the same request',
+  (select request_supplier_connection('edl')) = (select request_supplier_connection('edl')));
+select public.t_assert('connreq customer qss: one open request to edl',
+  (select count(*) = 1 from requests where from_company_id = 'qss' and to_company_id = 'edl' and 'connect-systems' = any(items) and status = 'open'));
+select public.t_throws('connreq customer qss: cannot ask a company that is not its supplier', $$select request_supplier_connection('pis')$$);
+select public.switch_test_identity('owner', 'edl');
+select public.t_throws('connreq owner edl: cannot ask (not a key customer)', $$select request_supplier_connection('hmo')$$);
+select public.t_assert('connreq owner edl: sees the qss request', (select count(*) = 1 from requests where to_company_id = 'edl' and 'connect-systems' = any(items)));
+select public.t_works('connreq owner edl: requesting sap answers the customer request', $$select request_connection('sap')$$);
+select public.t_assert('connreq owner edl: the qss request is answered',
+  (select bool_and(status = 'answered') from requests where to_company_id = 'edl' and 'connect-systems' = any(items)));
+select public.switch_test_identity('customer', 'qss');
+select public.t_assert('connreq customer qss: pair_connections shows edl''s pending sap', (select status = 'pending' from pair_connections where id = 'edl-sap'));
+select public.t_assert('connreq customer qss: pair_connections has no config or secret columns',
+  not exists (select 1 from information_schema.columns where table_name = 'pair_connections' and column_name in ('config', 'secret_ref')));
+select public.switch_test_identity('customer', 'slp-interiors');
+select public.t_assert('connreq customer slp: cannot see edl connections', (select count(*) = 0 from pair_connections where company_id = 'edl'));
+reset role;
+
 -- ---- report
 select (case when ok then 'PASS' else 'FAIL' end) || '  ' || name from public.t_results order by n;
 select count(*) filter (where not ok) > 0 as failed, count(*) filter (where not ok) as nfail from public.t_results \gset

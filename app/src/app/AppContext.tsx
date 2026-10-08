@@ -173,6 +173,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       case "save-circular-profile": call = remote.saveCircularProfile(a.profile); break;
       // Ids are assigned by the server for these: reload once saved so the page shows the server's rows.
       case "request-circular": call = remote.requestCircular(a.request.toCompanyId, a.request.note).then(reload); break;
+      case "request-supplier-connection": call = remote.requestSupplierConnection(a.request.toCompanyId, a.request.note).then(reload); break;
+      case "answer-connection-requests": call = Promise.resolve().then(reload); break; // the server answered them in request_connection
       case "share-circular": call = remote.shareCircular(a.customerId, a.summary, a.requestId).then(reload); break;
       case "revoke-share": call = remote.revokeShare(a.id).then(reload); break;
       default: break; // no backend yet: stays local

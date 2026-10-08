@@ -7,6 +7,8 @@ import { dateTime, num } from "../../lib/format";
 import * as remote from "../../lib/remote";
 import { scoped } from "../../lib/useScoped";
 import type { UploadIssue, UploadRecord } from "../../lib/types";
+import { IntegrationsCard } from "../../components/integrations/IntegrationsCard";
+import { SupplierSystemsCard } from "../../components/integrations/SupplierSystemsCard";
 import "./tier1-data.css";
 
 interface KindDef { id: string; label: string; contains: string }
@@ -131,7 +133,9 @@ export default function Tier1DataPage() {
 
   return (
     <>
-      <PageHeader title="Your data" caption="Upload what you already have. Each file updates the risk lights within a few minutes." />
+      <PageHeader title="Your data" caption="Connect your systems or upload what you already have. New data updates the risk lights within a few minutes." />
+      <IntegrationsCard companyId={companyId} />
+      <SupplierSystemsCard customerId={companyId} />
       <div className="t1-list">
         {demo && <p className="t1-note" role="note">Uploads need live data. You're viewing demo data.</p>}
         {errors._page && <p className="t1-error" role="alert">{errors._page}</p>}

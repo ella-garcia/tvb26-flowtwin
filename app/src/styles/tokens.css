@@ -2,6 +2,8 @@
 :root {
   --canvas: #f2f2f3;
   --surface: #ffffff;
+  /* Partner logos keep their own brand colours, so they sit on white in both themes (not redefined for dark). */
+  --logo-ground: #ffffff;
   --surface-raised: #ffffff;
   --surface-sunken: #f9fafb;
   --surface-selected: #eef0f8;

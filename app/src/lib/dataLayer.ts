@@ -118,6 +118,10 @@ export type Action =
   | { type: "save-circular-profile"; profile: CircularProfile }
   /** Key customer asks a supplier for its circular summary. */
   | { type: "request-circular"; request: DataRequest }
+  /** Key customer asks a supplier to connect its systems (one open request per pair). */
+  | { type: "request-supplier-connection"; request: DataRequest }
+  /** Supplier asked for a system: its customers' open "connect your systems" requests are answered. */
+  | { type: "answer-connection-requests"; supplierId: string }
   /** Supplier owner shares a frozen circular summary with one customer (replaces earlier versions). */
   | { type: "share-circular"; supplierId: string; customerId: string; summary: CircularSummary; approvedBy: string; approvedAt: string; requestId?: string }
   | { type: "revoke-share"; id: string }
@@ -144,6 +148,13 @@ export function reduce(data: AppData, a: Action): AppData {
         && r.toCompanyId === a.request.toCompanyId && r.items.includes("circular") && r.status === "open");
       return open ? data : { ...data, requests: [...(data.requests ?? []), a.request] };
     }
+    case "request-supplier-connection": {
+      const open = (data.requests ?? []).some((r) => r.fromCompanyId === a.request.fromCompanyId
+        && r.toCompanyId === a.request.toCompanyId && r.items.includes("connect-systems") && r.status === "open");
+      return open ? data : { ...data, requests: [...(data.requests ?? []), a.request] };
+    }
+    case "answer-connection-requests": return { ...data, requests: (data.requests ?? []).map((r) =>
+      (r.toCompanyId === a.supplierId && r.items.includes("connect-systems") && r.status === "open" ? { ...r, status: "answered" as const } : r)) };
     case "share-circular": {
       const pair = (x: Share) => x.supplierId === a.supplierId && x.customerId === a.customerId && x.items.includes("circular");
       const prev = (data.shares ?? []).filter(pair);
