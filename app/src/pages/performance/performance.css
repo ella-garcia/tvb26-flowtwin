@@ -54,3 +54,22 @@
 .perf-legend i.perf-s3 { background: var(--chart-3); } .perf-legend i.perf-s4 { background: var(--ink-subtle); }
 .perf-mini .perf-axis { font-size: 13px; }
 .perf-mini .perf-value { font-size: 14px; }
+
+/* Clarity pass: grade label, donut unit, legend header and sub-rows, key for the small multiples */
+.perf-grade { display: inline-flex; align-items: center; gap: var(--space-1); white-space: nowrap; }
+.perf-grade-label { font: 600 11px/16px var(--font-sans); color: var(--ink-subtle); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+.perf-donut-unit { font: 500 9px/1 var(--font-sans); fill: var(--ink-muted); }
+.perf-legend-head { color: var(--ink-subtle) !important; font-size: 12px !important; }
+.perf-legend-head b { font-weight: 600; }
+.perf-legend-sub { color: var(--ink-muted) !important; font-size: 12px !important; }
+.perf-legend-sub span { padding-left: var(--space-3); }
+.perf-legend li i:not([class]) { visibility: hidden; }
+.perf-key { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5);
+  font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.perf-key li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.perf-key-bar, .perf-key-short { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+.perf-key-bar { background: var(--primary); }
+.perf-key-short { background: var(--risk-red); }
+.perf-key-tick { width: 16px; height: 2px; background: var(--ink); display: inline-block; }
+.perf-kpi-sub { display: block; margin-top: 2px; font: 500 13px/18px var(--font-sans); color: var(--ink-muted); letter-spacing: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
